@@ -1,0 +1,63 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <h1 class="font-weight-bold mb-4 display-font">Create New Assignment</h1>
+
+    <div class="card ">
+        <div class="card-header fw-bold text-muted">Assignment Details
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <form action="{% url "save_assignment" %}" method="post">
+                {% csrf_token %}
+
+                <div class="mb-3 row">
+                    <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Assignment
+                        Title</label>
+                    <div class="">
+                        <input type="text" required placeholder="Assignment Title" class="form-control" id="title"
+                               name="title">
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Course</label>
+                    <div class="">
+                        <select required class="form-control" name="course">
+                            <option>Option</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Enable
+                        Originality Check</label>
+                    <div class="">
+                        <select required class="form-control" name="originality_enabled">
+                            <option selected>YES</option>
+                            <option>NO</option>
+
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3 row">
+                    <label for="title" class="col-sm-4 col-form-label text-uppercase"></label>
+                    <div class="col-smd-8">
+                        <input type="submit" class="btn btn-primary text-uppercase fw-bold"
+                               value="Create New Assignment">
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+{% endblock %}
+

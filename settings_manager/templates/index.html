@@ -1,0 +1,33 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <h1 class="font-weight-bold mb-4 display-font">Settings</h1>
+
+    <div class="card col-lg-6">
+        <div class="card-header fw-bold text-muted">Settings for the Originality Integration
+        </div>
+        <div class="card-body">
+
+            <form action="/config/verify_key" method="post">
+                {% csrf_token %}
+
+                <div class="mb-3 row">
+                    <label for="key" class="col-sm-4 col-form-label text-uppercase">Originality Key</label>
+                    <div class="col-sm-8">
+                        <input type="text" required placeholder="Enter Originality Secret Key" class="form-control" id="key" name="key">
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="key" class="col-sm-4 col-form-label text-uppercase"></label>
+                    <div class="col-sm-8">
+                       <input type="submit"  class="btn btn-primary text-uppercase fw-bold" value="Save Changes">
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+{% endblock %}
+

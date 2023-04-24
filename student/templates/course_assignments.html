@@ -1,0 +1,23 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <h1 class="font-weight-bold mb-4 display-font">Submit Assignment</h1>
+
+    <div class="card">
+        <div class="card-header fw-bold text-muted">Name of the course!!
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info fw-bold text-italic">This submission is genuinely mine, it was written by me
+                and I take full responsibility of its authenticity. This assignment is my work, in exception to where I
+                have acknowledged the use of the works of others.
+            </div>
+
+            <input type="checkbox" name="agreed"> I am aware and in full agreement that this assignment may be examined by "Originality Group" in order to detect plagiarism and I accept the <a class="fw-bold" href="#">terms of this examination</a></input>
+
+            <input type="submit" class="btn btn-primary fw-bold text-uppercase my-3" value="Submit Changes"/>
+        </div>
+    </div>
+{% endblock %}
+
