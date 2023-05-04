@@ -7,14 +7,16 @@
 
     <div class="card">
         <div class="card-header fw-bold text-muted">List of courses you teach
-            <a href="{% url 'create_assignment' %}" class="btn btn-primary fw-bold text-uppercase" style="float: right !important;">Create New Assignment</a>
+            <a href="{% url 'create_assignment' %}" class="btn btn-primary fw-bold text-uppercase"
+               style="float: right !important;">Create New Assignment</a>
         </div>
         <div class="card-body">
-            <ul class="list-group">
-                {% for foo in classes %}
+            <ul class="list-group list-group-flush">
+                {% for course in courses %}
                     <li class="list-group-item">
-                        {{ foo }}
-                        <a href="/student/course/1" class="btn btn-outline-primary btn-sm pull-right fw-bold text-uppercase">Assignments</a>
+                        <span class="fw-bold"> {{ course.name }}</span>
+                        <a href="{% url 'show_assignments_for_course' course.id %}"
+                           class="btn btn-outline-primary btn-sm float-end fw-bold text-uppercase">Assignments</a>
                     </li>
                 {% endfor %}
             </ul>

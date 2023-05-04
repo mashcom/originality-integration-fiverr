@@ -1,0 +1,30 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    {#    <h1 class="font-weight-bold mb-4 display-font">My Courses</h1>#}
+
+    <div class="col-lg-5 mx-auto">
+        <div class="card">
+            <div class="card-header fw-bold text-muted text-center">Sign In Via Google
+            </div>
+            <div class="card-body">
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                <form action="/accounts/google/login/" method="post">
+                    {% csrf_token %}
+                    <p class="text-center">You are about to sign in using a third party account from Google.</p>
+                    <input type="submit" class="mx-auto btn btn-primary btn-lg btn-block fw-bold text-uppercase w-100"
+                           value="Login with Google"/>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+

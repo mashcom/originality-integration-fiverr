@@ -5,7 +5,7 @@
 {% block content %}
     <h1 class="font-weight-bold mb-4 display-font">Create New Assignment</h1>
 
-    <div class="card ">
+    <form class="card" action="{% url "save_assignment" %}" method="post"  enctype="multipart/form-data">
         <div class="card-header fw-bold text-muted">Assignment Details
         </div>
         <div class="card-body">
@@ -15,12 +15,12 @@
                 {% endfor %}
             {% endif %}
 
-            <form action="{% url "save_assignment" %}" method="post">
+            <div>
                 {% csrf_token %}
 
                 <div class="mb-3 row">
                     <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Assignment
-                        Title</label>
+                        Title <span class="text-danger fw-bold">*</span></label>
                     <div class="">
                         <input type="text" required placeholder="Assignment Title" class="form-control" id="title"
                                name="title">
@@ -28,36 +28,68 @@
                 </div>
 
                 <div class="mb-3 row">
-                    <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Course</label>
+                    <div class="col">
+                        <label for="title" class=" col-form-label text-uppercase text-muted fw-bold">Course <span
+                                class="text-danger fw-bold">*</span></label>
+                        <div class="">
+                            <select class="form-control" name="course">
+                                {% for course in courses %}
+                                    <option value="{{ course.course_id }}">{{ course.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="title" class="col-form-label text-uppercase text-muted fw-bold">Enable
+                            Originality Check <span class="text-danger fw-bold">*</span></label>
+                        <div class="">
+                            <select required class="form-control" name="originality_enabled">
+                                <option selected>YES</option>
+                                <option>NO</option>
+
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="title" class="col-form-label text-uppercase text-muted fw-bold">Due Date <span
+                                class="text-danger fw-bold">*</span></label>
+                        <div class="">
+                            <input required class="form-control" name="due_date" type="datetime-local"/>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Instruction
+                        (Optional)</label>
                     <div class="">
-                        <select required class="form-control" name="course">
-                            <option>Option</option>
-                        </select>
+                        <textarea class="form-control" rows="5" name="description" placeholder=""></textarea>
                     </div>
                 </div>
 
                 <div class="mb-3 row">
-                    <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Enable
-                        Originality Check</label>
+                    <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Attachments
+                        <span class="text-danger fw-bold">*</span></label>
                     <div class="">
-                        <select required class="form-control" name="originality_enabled">
-                            <option selected>YES</option>
-                            <option>NO</option>
-
-                        </select>
+                        <div class="mb-3 mt-3">
+                            <label for="file" class="form-label fw-bold text-uppercase">Select File</label>
+                            <input required="" class="form-control" multiple type="file" name="file">
+                        </div>
                     </div>
                 </div>
 
-                <div class="mb-3 row">
-                    <label for="title" class="col-sm-4 col-form-label text-uppercase"></label>
-                    <div class="col-smd-8">
-                        <input type="submit" class="btn btn-primary text-uppercase fw-bold"
-                               value="Create New Assignment">
-                    </div>
-                </div>
 
-            </form>
+            </div>
         </div>
-    </div>
+        <div class="card-footer">
+            <div class="mb-3 row">
+                <label for="title" class="col-sm-4 col-form-label text-uppercase"></label>
+                <div class="col-smd-8">
+                    <input type="submit" class="btn btn-primary btn-lg text-uppercase fw-bold"
+                           value="Create New Assignment">
+                </div>
+            </div>
+        </div>
+    </form>
 {% endblock %}
 

@@ -9,12 +9,31 @@
         <div class="card-header fw-bold text-muted">List of courses you are enrolled in
         </div>
         <div class="card-body">
-            <ul class="list-group">
-                {% for foo in classes %}
-                    <li class="list-group-item">
-                        {{ foo }}
-                        <a href="/student/course/1" class="btn btn-outline-primary btn-sm pull-right fw-bold text-uppercase">Assignments</a>
+            <template>
+                <button @click="getPosts">Get posts</button>
+                <ul>
+                    <li v-for="post in posts" :key="post.id" data-test="post">
+                        {{ post.title }}
                     </li>
+                </ul>
+            </template>
+
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            <ul class="list-group list-group-flush">
+                {% for class in classes %}
+                    <a href="{% url 'course' class.id %}" class="list-group-item list-group-item-action"
+                    aria-current="true">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 fw-bold">{{ class.name }}</h5>
+                        <small>{{ class.creationTime }}</small>
+                    </div>
+                    <p class="mb-1">{{ class.descriptionHeading }}</p>
+                    </a>
                 {% endfor %}
             </ul>
         </div>

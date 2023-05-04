@@ -1,0 +1,32 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <h1 class="font-weight-bold mb-4 display-font">Course Assignments</h1>
+
+    <div class="card">
+        <div class="card-header fw-bold text-muted">List of courses you teach
+            <a href="{% url 'create_assignment' %}" class="btn btn-primary fw-bold text-uppercase"
+               style="float: right !important;">Create New Assignment</a>
+        </div>
+        <div class="card-body">
+            {% if assignments == None %}
+                <div class="alert alert-danger fw-bold">There are no assignments created for this course!</div>
+            {% endif %}
+            {% if assignments != None %}
+                <ul class="list-group list-group-flush">
+                    {% for assignment in assignments %}
+                        <li class="list-group-item">
+                            <span class="fw-bold"> {{ assignment.title }}</span>
+                            <a href="#"
+                               class="btn btn-outline-primary btn-sm float-end fw-bold text-uppercase">View Originality
+                                Reports</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+

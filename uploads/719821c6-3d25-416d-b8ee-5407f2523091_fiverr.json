@@ -1,0 +1,26 @@
+{
+  "id": "605461815842",
+  "name": "test class",
+  "section": "section 1",
+  "descriptionHeading": "test class section 1",
+  "room": "1",
+  "ownerId": "103928753050975631866",
+  "creationTime": "2023-04-21T07:21:01.464Z",
+  "updateTime": "2023-04-21T07:21:01.464Z",
+  "enrollmentCode": "52sqxit",
+  "courseState": "ACTIVE",
+  "alternateLink": "https://classroom.google.com/c/NjA1NDYxODE1ODQy",
+  "teacherGroupEmail": "test_class_section_1_teachers_e8e218e3@classroom.google.com",
+  "courseGroupEmail": "test_class_section_1_c67e93da@classroom.google.com",
+  "teacherFolder": {
+    "id": "1xsceRR517Ile4cxkoylSJstFCLjgirLrT5SOv481HqiktqC1wNcJZ6Q56sGSBLCRDM89o1rE",
+    "title": "test class section 1",
+    "alternateLink": "https://drive.google.com/drive/folders/1xsceRR517Ile4cxkoylSJstFCLjgirLrT5SOv481HqiktqC1wNcJZ6Q56sGSBLCRDM89o1rE"
+  },
+  "guardiansEnabled": false,
+  "calendarId": "classroom103872124139767105188@group.calendar.google.com",
+  "gradebookSettings": {
+    "calculationType": "TOTAL_POINTS",
+    "displaySetting": "HIDE_OVERALL_GRADE"
+  }
+}

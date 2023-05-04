@@ -1,0 +1,40 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <h2 class="font-weight-bold mb-4 display-font">Originality Submissions</h2>
+
+    <div class="card mb-3 shadow-md">
+        {% if messages %}
+            {% for message in messages %}
+                <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <div class="card-header fw-bold"><h4 class="fw-bold">{{ assignment.title }}</h4>
+        </div>
+
+        <div class="card-body">
+
+            <table class="table table-striped">
+                <tr>
+                    <td class="fw-bold">File Name</td>
+                    <td class="fw-bold"></td>
+
+                    <td></td>
+                </tr>
+                {% for submission in submissions %}
+                    <tr>
+                        <td class="fw-bold">{{ submission.file_name }}</td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+        </div>
+
+    </div>
+
+
+{% endblock %}
+

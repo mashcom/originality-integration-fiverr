@@ -1,3 +1,33 @@
 from django.db import models
 
-# Create your models here.
+class Submission(models.Model):
+    id = models.BigIntegerField(primary_key="id", default="")
+    file_name = models.TextField(max_length=250, default="")
+    sender_ip = models.TextField(max_length=50, default="")
+    faculty_code = models.TextField(max_length=20, default="")
+    faculty_name = models.TextField(max_length=50, default="")
+    dept_code = models.TextField(max_length=50, default="")
+    dept_name = models.TextField(max_length=50, default="")
+    course_category = models.TextField(max_length=50, default="")
+    course_code = models.TextField(max_length=50, default="")
+    course_name = models.TextField(max_length=100, default="")
+    assignment_code = models.TextField(max_length=50, default="")
+    moodle_assign_page_no = models.TextField(max_length=50, default="")
+    student_code = models.TextField(max_length=50, default="")
+    owner_id = models.TextField(max_length=50, default="")
+    lecturer_code = models.TextField(max_length=50, default="")
+    group_members = models.TextField(max_length=50, default="")
+    doc_sequence = models.TextField(max_length=50, default=1)
+    file = models.TextField(default="")
+    ghost_writer_check = models.TextField(max_length=10, default="")
+    link_moodle_file = models.TextField(max_length=250, default="")
+    gov_student_id_md5 = models.TextField(max_length=250, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class Report(models.Model):
+    id = models.BigIntegerField(primary_key="id", default="")
+    file = models.TextField(default="")
+    grade = models.TextField(max_length=20, default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

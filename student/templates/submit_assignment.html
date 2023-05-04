@@ -1,0 +1,47 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <h3 class="font-weight-bold mb-4 display-font">Submit Assignment: {{ course_details.name }}</h3>
+
+    <form method="post" action="/originality/submit" class="card" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="card-header fw-bold text-muted">Submit to Originality &trade;
+        </div>
+        <div class="card-body">
+{#            {{ course_details }}#}
+            <h4>{{ assignment_details.title }}</h4>
+            <p>{{ assignment_details.description }}</p>
+            <input type="hidden" readonly name="CourseCode" value="{{ assignment_details.courseId }}">
+            <input type="hidden" readonly name="AssignmentCode" value="{{ assignment_details.id }}">
+            <input type="hidden" readonly name="StudentCode" value="{{ uid }}">
+            <input type="hidden" readonly name="ownerId" value="{{ course_details.ownerId }}">
+
+            <input type="hidden" readonly name="GroupMembers" value="gm">
+
+            <div class="alert alert-warning fw-bold text-italic"><i class="bi bi-info-circle"></i> This submission is
+                genuinely mine, it was written by me
+                and I take full responsibility of its authenticity. This assignment is my work, in exception to where I
+                have acknowledged the use of the works of others.
+            </div>
+
+            <input required type="checkbox" name="agreed"> I am aware and in full agreement that this assignment may be
+            examined
+            by "Originality Group" in order to detect plagiarism and I accept the <a class="fw-bold" href="#">terms of
+            this examination</a></input>
+
+            <div class="mb-3 mt-3">
+                <label for="file" class="form-label fw-bold text-uppercase">Select File</label>
+                <input required class="form-control" type="file" name="file">
+            </div>
+
+        </div>
+        <div class="card-footer">
+            <button type="submit" class="btn btn-primary btn-lg fw-bold text-uppercase">
+                <i class="bi bi-send-check"></i> Submit to Originality &trade;
+            </button>
+        </div>
+    </form>
+{% endblock %}
+

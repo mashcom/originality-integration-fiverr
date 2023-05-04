@@ -1,0 +1,42 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    {#    <h1 class="font-weight-bold mb-4 display-font">My Courses</h1>#}
+
+    <div class="col-lg-5 mx-auto">
+        <div class="card">
+            <div class="card-header fw-bold text-muted">Login
+            </div>
+            <div class="card-body">
+                <form action="#" method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3 row">
+                        <label for="title"
+                               class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Username<span
+                                class="text-danger fw-bold">*</span></label>
+                        <div class="">
+                            <input type="text" required placeholder="" class="form-control" id="username"
+                                   name="username">
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label for="title"
+                               class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Password<span
+                                class="text-danger fw-bold">*</span></label>
+                        <div class="">
+                            <input type="password" required placeholder="" class="form-control" id="password"
+                                   name="password">
+                        </div>
+                    </div>
+                    <input type="submit" class="btn btn-primary btn-lg btn-block fw-bold text-uppercase" value="Login"/>
+                </form>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+

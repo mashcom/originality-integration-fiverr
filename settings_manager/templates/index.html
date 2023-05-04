@@ -3,31 +3,56 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h1 class="font-weight-bold mb-4 display-font">Settings</h1>
+    <h1 class="font-weight-bold mb-4 display-font">Originality Settings</h1>
+    <form action="{% url "verify_key" %}" method="post">
+        <div class="card col-lg-6d">
+            <div class="card-header fw-bold text-muted">Settings for the Originality Integration
+            </div>
+            <div class="card-body">
 
-    <div class="card col-lg-6">
-        <div class="card-header fw-bold text-muted">Settings for the Originality Integration
-        </div>
-        <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
 
-            <form action="/config/verify_key" method="post">
                 {% csrf_token %}
 
                 <div class="mb-3 row">
-                    <label for="key" class="col-sm-4 col-form-label text-uppercase">Originality Key</label>
-                    <div class="col-sm-8">
-                        <input type="text" required placeholder="Enter Originality Secret Key" class="form-control" id="key" name="key">
-                    </div>
-                </div>
-                <div class="mb-3 row">
-                    <label for="key" class="col-sm-4 col-form-label text-uppercase"></label>
-                    <div class="col-sm-8">
-                       <input type="submit"  class="btn btn-primary text-uppercase fw-bold" value="Save Changes">
+                    <label for="key" class="col-sm-4 col-form-label text-uppercase fw-bold text-muted">Originality
+                        Key</label>
+                    <div class="col-sm-12">
+                        <input type="text" required placeholder="Enter Originality Secret Key" class="form-control"
+                               id="key" name="key" value="{{ settings.key }}"/>
+
+                        <label for="key" class="col-sm-4 col-form-label text-uppercase fw-bold mt-3 text-muted">API BASE
+                            URL</label>
+                        <input type="url" required placeholder="API URL" class="form-control"
+                               id="api_url" name="api_url" value="{{ settings.api_url }}"/>
+
+                        <input type="checkbox" class="mt-3 fw-bold text-muted" id="originality"
+                               name="originality_status" {% if settings.originality_status == 'True' %}
+                            {{ "checked" }} {% endif %}> Enable
+                        Originality</input>
+                        <br/>
+                        <input type="checkbox" class="mt-3 fw-bold text-muted" id="ghost_writer"
+                               name="ghost_writer_status" {% if settings.ghost_writer_status == 'True' %}
+                            {{ "checked" }} {% endif %}> Enable
+                        Ghostwriter
+                        Check</input>
                     </div>
                 </div>
 
-            </form>
+
+            </div>
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <input type="submit" class="btn btn-primary text-uppercase fw-bold" value="Save Changes">
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </form>
 {% endblock %}
 

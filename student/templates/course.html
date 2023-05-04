@@ -3,21 +3,43 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h1 class="font-weight-bold mb-4 display-font">Assignments</h1>
+    <h2 class="font-weight-bold mb-4 display-font">Assignments: {{ course_details.name }}</h2>
 
-    <div class="card">
-        <div class="card-header fw-bold text-muted">Name of the course!!
-        </div>
-        <div class="card-body">
-            <ul class="list-group">
-                {% for foo in classes %}
-                    <li class="list-group-item">
-                        {{ foo }}
-                        <a href="/student/course/1" class="btn btn-outline-primary btn-sm pull-right fw-bold text-uppercase">Assignments</a>
-                    </li>
+    {% if messages %}
+        {% for message in messages %}
+            <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if not assignments %}
+        <div class="alert alert-danger fw-bold">No assignments posted for this course!</div>
+    {% endif %}
+    {% for assignment in assignments %}
+        <div class="card mb-3 shadow-md">
+            <div class="card-header fw-bold"><span class="h3 float-start fw-bold">{{ assignment.title }}</span>
+                {#                <span class="float-end">Due {{ assignment.dueDate.day }} {{ assignment.dueDate.month }}</span>#}
+            </div>
+
+            <div class="card-body">
+
+                <p>{{ assignment.description }}</p>
+                {% for material in assignment.materials %}
+                    {#                    {{ material.driveFile.driveFile }}#}
+                    <a href="{{ material.driveFile.driveFile.alternateLink }}" target="_blank"
+                       class="badge rounded-pill text-bg-light p-2" style="background-color: #bcc0c4 !important;">
+                        {{ material.driveFile.driveFile.title }}</a>
+
                 {% endfor %}
-            </ul>
+
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'submit_assignment' assignment.courseId assignment.id %}"
+                   class="btn btn-primary float-end fw-bold text-uppercase">Submit to Originality
+                    &trade;</a>
+            </div>
         </div>
-    </div>
+    {% endfor %}
+
+
 {% endblock %}
 
