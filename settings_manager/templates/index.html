@@ -3,7 +3,7 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h1 class="font-weight-bold mb-4 display-font">Originality Settings</h1>
+    <h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-gear-wide-connected"></i> Originality Settings</h1>
     <form action="{% url "verify_key" %}" method="post">
         <div class="card col-lg-6d">
             <div class="card-header fw-bold text-muted">Settings for the Originality Integration
@@ -19,13 +19,13 @@
                 {% csrf_token %}
 
                 <div class="mb-3 row">
-                    <label for="key" class="col-sm-4 col-form-label text-uppercase fw-bold text-muted">Originality
+                    <label for="key" class="col-sm-4 col-form-label text-uppercase fw-bold text-muted"><i class="bi bi-key"></i> Originality
                         Key</label>
                     <div class="col-sm-12">
                         <input type="text" required placeholder="Enter Originality Secret Key" class="form-control"
                                id="key" name="key" value="{{ settings.key }}"/>
 
-                        <label for="key" class="col-sm-4 col-form-label text-uppercase fw-bold mt-3 text-muted">API BASE
+                        <label for="key" class="col-sm-4 col-form-label text-uppercase fw-bold mt-3 text-muted"><i class="bi bi-globe"></i> API BASE
                             URL</label>
                         <input type="url" required placeholder="API URL" class="form-control"
                                id="api_url" name="api_url" value="{{ settings.api_url }}"/>
@@ -48,7 +48,7 @@
             <div class="card-footer">
                 <div class="row">
                     <div class="col-lg-12">
-                        <input type="submit" class="btn btn-primary text-uppercase fw-bold" value="Save Changes">
+                        <button type="submit" class="btn btn-lg btn-primary text-uppercase fw-bold"><i class="bi bi-send-fill"></i> Save Changes</button>
                     </div>
                 </div>
             </div>

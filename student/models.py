@@ -7,7 +7,3 @@ class Courses(models.Model):
     descriptionHeading = models.TextField(max_length=2500)
     ownerId = models.TextField(max_length=50)
     alternateLink = models.TextField(max_length=200)
-
-
-
-

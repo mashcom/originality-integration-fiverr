@@ -2,9 +2,7 @@
 
 from django.db import migrations
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('teacher', '0009_alter_assignment_due_date'),
     ]

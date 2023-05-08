@@ -1,19 +1,28 @@
 from __future__ import print_function
 
 import os.path
+
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from allauth.socialaccount.models import SocialAccount
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/classroom.courses',
-          'https://www.googleapis.com/auth/classroom.coursework.students'
+          'https://www.googleapis.com/auth/classroom.coursework.students',
+          'https://www.googleapis.com/auth/classroom.coursework.me',
+          'https://www.googleapis.com/auth/classroom.rosters',
+          'https://www.googleapis.com/auth/classroom.rosters.readonly',
+          'https://www.googleapis.com/auth/classroom.profile.emails',
+          'https://www.googleapis.com/auth/classroom.profile.photos',
+          'https://www.googleapis.com/auth/drive',
+          'https://www.googleapis.com/auth/drive.appdata',
+          'https://www.googleapis.com/auth/drive.file',
+          'https://www.googleapis.com/auth/drive.install',
           ]
 
-def get_google_service_instance():
+def get_google_service_instance(api="classroom", version="v1"):
     """Shows basic usage of the Classroom API.
         Prints the names of the first 10 courses the user has access to.
         """
@@ -36,9 +45,8 @@ def get_google_service_instance():
             token.write(creds.to_json())
 
     try:
-        service = build('classroom', 'v1', credentials=creds)
+        service = build(api, version, credentials=creds)
         return service
     except HttpError as error:
         print('An error occurred: %s' % error)
         return False
-

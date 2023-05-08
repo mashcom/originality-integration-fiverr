@@ -1,9 +1,10 @@
-from django.shortcuts import render, HttpResponse
+import json
+
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
-from services import originality
+
 from originality.models import Report
+from services import originality
 
 @csrf_exempt
 def report(request):

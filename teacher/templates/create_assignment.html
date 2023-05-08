@@ -3,9 +3,9 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h1 class="font-weight-bold mb-4 display-font">Create New Assignment</h1>
+    <h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-book-half"></i> Create New Assignment</h1>
 
-    <form class="card" action="{% url "save_assignment" %}" method="post"  enctype="multipart/form-data">
+    <form class="card" action="{% url "save_assignment" %}" method="post" enctype="multipart/form-data">
         <div class="card-header fw-bold text-muted">Assignment Details
         </div>
         <div class="card-body">
@@ -54,7 +54,15 @@
                         <label for="title" class="col-form-label text-uppercase text-muted fw-bold">Due Date <span
                                 class="text-danger fw-bold">*</span></label>
                         <div class="">
-                            <input required class="form-control" name="due_date" type="datetime-local"/>
+
+                            <input required class="form-control" id="datepicker" name="due_date" type="text"/>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label for="title" class="col-form-label text-uppercase text-muted fw-bold">Time <span
+                                class="text-danger fw-bold">*</span></label>
+                        <div class="">
+                            <input required class="form-control" name="due_time" type="time"/>
                         </div>
                     </div>
 
@@ -73,7 +81,7 @@
                     <div class="">
                         <div class="mb-3 mt-3">
                             <label for="file" class="form-label fw-bold text-uppercase">Select File</label>
-                            <input required="" class="form-control" multiple type="file" name="file">
+                            <input required="" class="form-control" multiple type="file" name="files">
                         </div>
                     </div>
                 </div>

@@ -1,10 +1,7 @@
-import requests
-from django.shortcuts import render, redirect
-from django.http import JsonResponse, HttpResponse
-from .forms import NameForm
-from .models import Originality, OriginalityLog
 from django.contrib import messages
-import json
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_http_methods
+
 from services import originality
 
 def index(request):
@@ -15,6 +12,7 @@ def index(request):
 Verify and save Originality settings
 '''
 
+@require_http_methods(["POST"])
 def verify_key(request):
     originality_key = request.POST.get('key', False);
     api_url = request.POST.get("api_url", False)
@@ -42,6 +40,6 @@ def verify_key(request):
                              "alert alert-success fw-bold")
         return redirect(request.META.get('HTTP_REFERER'))
 
-    messages.add_message(request, messages.ERROR, "The key is invalid, please try again!",
+    messages.add_message(request, messages.ERROR, "The key '" + originality_key + "' is invalid, please try again!",
                          "alert alert-danger fw-bold")
     return redirect(request.META.get('HTTP_REFERER'))

@@ -22,6 +22,9 @@ class Submission(models.Model):
     ghost_writer_check = models.TextField(max_length=10, default="")
     link_moodle_file = models.TextField(max_length=250, default="")
     gov_student_id_md5 = models.TextField(max_length=250, default="")
+    google_classroom_id = models.TextField(max_length=100, default="")
+    google_file_id = models.TextField(max_length=100, default="")
+    originality_id = models.TextField(max_length=100, default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -4,6 +4,9 @@ from . import views
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path("course/create", views.create_course, name="create_course"),
+    path("course", views.save_course, name="save_course"),
+
     path("assignment/create", views.create_assignment, name="create_assignment"),
     path("assignment", views.save_assignment, name="save_assignment"),
     path("assignments/course/<int:course_id>", views.show_assignments, name="show_assignments_for_course")

@@ -1,9 +1,6 @@
-from django.shortcuts import render
-from django.contrib.auth import authenticate, login
 from django.contrib import messages
-from allauth.socialaccount.models import SocialAccount
-
-import json
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render
 
 def index(request):
     authenticated = request.user.is_authenticated

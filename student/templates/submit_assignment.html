@@ -3,21 +3,30 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h3 class="font-weight-bold mb-4 display-font">Submit Assignment: {{ course_details.name }}</h3>
+    <h3 class="font-weight-bold mb-4 display-font"><i class="bi bi-send-plus-fill"></i> Submit Assignment: {{ course_details.name }}</h3>
+
+
+    {% if messages %}
+        {% for message in messages %}
+            <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+        {% endfor %}
+    {% endif %}
 
     <form method="post" action="/originality/submit" class="card" enctype="multipart/form-data">
         {% csrf_token %}
         <div class="card-header fw-bold text-muted">Submit to Originality &trade;
         </div>
         <div class="card-body">
-{#            {{ course_details }}#}
+            {#            {{ course_details }}#}
             <h4>{{ assignment_details.title }}</h4>
             <p>{{ assignment_details.description }}</p>
             <input type="hidden" readonly name="CourseCode" value="{{ assignment_details.courseId }}">
             <input type="hidden" readonly name="AssignmentCode" value="{{ assignment_details.id }}">
             <input type="hidden" readonly name="StudentCode" value="{{ uid }}">
             <input type="hidden" readonly name="ownerId" value="{{ course_details.ownerId }}">
-
+            <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}">
+            <input type="hidden" readonly name="originality_check"
+                   value="{{ local_assignment_config.originality_check }}">
             <input type="hidden" readonly name="GroupMembers" value="gm">
 
             <div class="alert alert-warning fw-bold text-italic"><i class="bi bi-info-circle"></i> This submission is
@@ -26,11 +35,14 @@
                 have acknowledged the use of the works of others.
             </div>
 
-            <input required type="checkbox" name="agreed"> I am aware and in full agreement that this assignment may be
-            examined
-            by "Originality Group" in order to detect plagiarism and I accept the <a class="fw-bold" href="#">terms of
-            this examination</a></input>
-
+            {% if local_assignment_config.originality_check == "YES" %}
+                <input required type="checkbox" name="agreed"> I am aware and in full agreement that this assignment may
+                be
+                examined
+                by "Originality Group" in order to detect plagiarism and I accept the
+                <a class="fw-bold" href="#">terms of
+                    this examination</a></input>
+            {% endif %}
             <div class="mb-3 mt-3">
                 <label for="file" class="form-label fw-bold text-uppercase">Select File</label>
                 <input required class="form-control" type="file" name="file">
@@ -39,9 +51,74 @@
         </div>
         <div class="card-footer">
             <button type="submit" class="btn btn-primary btn-lg fw-bold text-uppercase">
-                <i class="bi bi-send-check"></i> Submit to Originality &trade;
+                <i class="bi bi-cloud-upload-fill"></i> Upload Document
             </button>
         </div>
     </form>
+
+    <div class="card mt-3">
+        <div class="card-header fw-bold text-muted">Submitted Files
+        </div>
+        <div class="card-body">
+            {#        {{ google_submissions }}#}
+            <ul class="list-group">
+                {% for submission in submissions %}
+                    <div class="list-group-item list-group-item-action list-group-flush">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1"><i class="bi bi-file-earmark-text-fill"></i> {{ submission.file_name }}
+                            </h5>
+                            <small class="text-body-secondary">
+                                <a target="_blank"
+                                   href="{% url "download_submission" submission.id %}"
+                                   class="btn btn-outline-primary btn-sm  fw-bold float-end text-uppercase">Download
+                                    <i
+                                            class="bi bi-cloud-download-fill"></i></a>
+
+                                <a target="_blank"
+                                   href="#"
+                                   class="btn btn-outline-danger btn-sm mx-3 fw-bold float-end text-uppercase">Remove
+                                    <i class="bi bi-trash3-fill"></i> </a>
+                            </small>
+                        </div>
+                        <p class="mb-1"><span>Google Classroom &trade;:
+                            {% if submission.google_classroom_id == "" %}
+                                <i class="bi bi-exclamation-triangle-fill  fw-bold text-danger"></i>
+                            {% endif %}
+
+                            {% if submission.google_classroom_id != "" %}
+                                <i class="bi bi-cloud-check-fill fw-bold text-success" data-bs-title="Default tooltip"></i>
+                            {% endif %}
+                        </span>
+                            <span class="ml-5">Originality &trade;:
+                                {% if submission.originality_id == "" or  submission.originality_id == 0 %}
+                                    <i class="bi bi-exclamation-triangle-fill  fw-bold text-danger"></i>
+                                {% endif %}
+
+                                {% if submission.originality_id != "" %}
+                                    <i class="bi bi-cloud-check-fill fw-bold text-success"></i>
+                                {% endif %}
+                        </span>
+
+                        </p>
+
+                        <small class="text-body-secondary fw-bold">{{ submission.created_at }}</small>
+                    </div>
+
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card-footer">
+            <form method="post" action="{% url "turn_in" %}">
+                 {% csrf_token %}
+                <input type="hidden" readonly name="course_id" value="{{ assignment_details.courseId }}">
+                <input type="hidden" readonly name="assignment_id" value="{{ assignment_details.id }}">
+                <input type="hidden" readonly name="student_id" value="{{ uid }}">
+                <input type="hidden" readonly name="owner_id" value="{{ course_details.ownerId }}">
+                <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}">
+                <button role="submit" class="btn btn-primary btn-lg btn-block fw-bold text-uppercase"><i
+                        class="bi bi-send-check-fill"></i> Turn In Assignment</button>
+            </form>
+        </div>
+    </div>
 {% endblock %}
 

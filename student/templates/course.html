@@ -3,7 +3,8 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h2 class="font-weight-bold mb-4 display-font">Assignments: {{ course_details.name }}</h2>
+    <h2 class="font-weight-bold mb-4 display-font"><i class="bi bi-book-half"></i>
+        Assignments: {{ course_details.name }}</h2>
 
     {% if messages %}
         {% for message in messages %}
@@ -16,8 +17,9 @@
     {% endif %}
     {% for assignment in assignments %}
         <div class="card mb-3 shadow-md">
-            <div class="card-header fw-bold"><span class="h3 float-start fw-bold">{{ assignment.title }}</span>
-                {#                <span class="float-end">Due {{ assignment.dueDate.day }} {{ assignment.dueDate.month }}</span>#}
+            <div class="card-header fw-bold"><span class="float-start fw-bold">{{ assignment.title }}</span>
+                <a href="{% url 'submit_assignment' assignment.courseId assignment.id %}"
+                   class="btn btn-primary float-end fw-bold text-uppercase">Submit Assignment</a>
             </div>
 
             <div class="card-body">
@@ -31,11 +33,6 @@
 
                 {% endfor %}
 
-            </div>
-            <div class="card-footer">
-                <a href="{% url 'submit_assignment' assignment.courseId assignment.id %}"
-                   class="btn btn-primary float-end fw-bold text-uppercase">Submit to Originality
-                    &trade;</a>
             </div>
         </div>
     {% endfor %}

@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('originality', '0002_submission_assignment_code_submission_doc_sequence_and_more'),
     ]

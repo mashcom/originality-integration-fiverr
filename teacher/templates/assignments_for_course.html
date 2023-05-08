@@ -3,30 +3,42 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h1 class="font-weight-bold mb-4 display-font">Course Assignments</h1>
+    <h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-book-half"></i> Course Assignments: {{ course.name }}
+    </h1>
 
-    <div class="card">
-        <div class="card-header fw-bold text-muted">List of courses you teach
-            <a href="{% url 'create_assignment' %}" class="btn btn-primary fw-bold text-uppercase"
-               style="float: right !important;">Create New Assignment</a>
-        </div>
-        <div class="card-body">
-            {% if assignments == None %}
-                <div class="alert alert-danger fw-bold">There are no assignments created for this course!</div>
-            {% endif %}
-            {% if assignments != None %}
-                <ul class="list-group list-group-flush">
-                    {% for assignment in assignments %}
-                        <li class="list-group-item">
-                            <span class="fw-bold"> {{ assignment.title }}</span>
-                            <a href="#"
-                               class="btn btn-outline-primary btn-sm float-end fw-bold text-uppercase">View Originality
-                                Reports</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        </div>
+    <div class="mb-3">
+        <a href="{% url 'create_assignment' %}" class="btn btn-primary fw-bold text-uppercase">Create New
+            Assignment</a>
     </div>
+    {% if assignments == None %}
+        <div class="alert alert-danger fw-bold">There are no assignments created for this course!</div>
+    {% endif %}
+    {% if assignments != None %}
+        {% for assignment in assignments %}
+            <div class="card mb-3 shadow-md">
+                <div class="card-header fw-bold"><span
+                        class="float-start fw-bold">{{ assignment.title }}</span>
+                    <a href="{% url "reports_for_teacher" course.id assignment.id %}"
+                       class="btn btn-outline-primary btn-sm float-end fw-bold text-uppercase"><i
+                            class="bi bi-diagram-3"></i> View Originality &trade;
+                        Reports</a>
+                </div>
+
+                <div class="card-body">
+
+                    <p>{{ assignment.description }}</p>
+
+                    {% for material in assignment.materials %}
+                        <a href="{{ material.driveFile.driveFile.alternateLink }}" target="_blank"
+                           class="badge rounded-pill text-bg-light p-2"
+                           style="background-color: #bcc0c4 !important;">
+                            {{ material.driveFile.driveFile.title }}</a>
+
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
 {% endblock %}
 
