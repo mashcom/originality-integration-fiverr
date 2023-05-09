@@ -33,29 +33,35 @@
 </head>
 
 <body id="vue-app">
+
 {% if user.is_authenticated %}
 
     <nav class="navbar navbar-expand-md navbar-dark bg-dark  shadow-sm">
         <div class="container">
-            <a class="navbar-brand fw-bolder" href="#">Originality Integration</a>
+            <a class="navbar-brand fw-bolder" href="/">Originality Integration</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor02"
                     aria-controls="navbarColor02" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarColor02">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ">
+                <ul class="navbar-nav float-end mb-2 mb-lg-0 ">
+{#                    <li class="nav-item">#}
+{#                        <a class="nav-link" href="/teacher">Teacher</a>#}
+{#                    </li>#}
+{##}
+{#                    <li class="nav-item">#}
+{#                        <a class="nav-link" href="/student">Student</a>#}
+{#                    </li>#}
+                    {% if user.is_superuser %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/config">Originality</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin">Site Settings</a>
+                        </li>
+                    {% endif %}
                     <li class="nav-item">
-                        <a class="nav-link" href="/teacher">Teacher</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/config">Admin</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/student">Student</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Logout</a>
+                        <a class="nav-link fw-bold" href="/accounts/logout">Logout</a>
                     </li>
                 </ul>
 
@@ -74,7 +80,7 @@
 <link href="https://unpkg.com/gijgo@1.9.14/css/gijgo.min.css" rel="stylesheet" type="text/css"/>
 <script>
     var today, datepicker;
-    today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()+1);
+    today = new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() + 1);
     $('#datepicker').datepicker({
         uiLibrary: 'bootstrap5',
         minDate: today

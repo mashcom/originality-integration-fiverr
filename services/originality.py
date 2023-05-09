@@ -2,11 +2,11 @@ import base64
 import os.path
 
 import requests
-import mimetypes
-from originality.models import Submission
-from settings_manager.models import Originality
-from services import google_classroom
 from django.conf import settings
+
+from originality.models import Submission
+from services import google_classroom
+from settings_manager.models import Originality, OriginalityLog
 
 ORIGINALITY_ALLOWED_FILE_TYPES = {".html", ".txt", ".rtf", ".doc", ".docx", ".pdf"}
 
@@ -145,6 +145,14 @@ def _save_setting(name, setting):
     settings.name = name
     settings.setting = setting
     return settings.save()
+
+def log(name, setting, message="", success=False):
+    log = OriginalityLog()
+    log.name = name
+    log.setting = setting
+    log.response = message
+    log.success = success
+    return log.save()
 
 '''
 Get active settings for the Originality Integration

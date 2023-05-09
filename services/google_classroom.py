@@ -1,10 +1,11 @@
 from __future__ import print_function
 
-import os
-from googleapiclient.errors import HttpError
 import mimetypes
+
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaFileUpload
+
 from authentication import google
-from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 
 '''
 Get details about a course

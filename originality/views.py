@@ -1,12 +1,10 @@
 from __future__ import print_function
 
 import os.path
-from django.conf import settings
 import uuid
 from base64 import b64decode
 
 from allauth.socialaccount.models import SocialAccount
-
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, HttpResponse, redirect

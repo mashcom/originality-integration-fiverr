@@ -5,10 +5,10 @@ from django.contrib import messages
 from django.shortcuts import render, HttpResponse
 
 from authentication import google
-from services import google_classroom
-from .forms import NameForm
-from teacher.models import Assignments
 from originality.models import Submission
+from services import google_classroom
+from teacher.models import Assignments
+from .forms import NameForm
 
 def index(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid

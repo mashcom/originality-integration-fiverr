@@ -1,4 +1,9 @@
+import datetime
+import os.path
+import uuid
+
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, HttpResponse, redirect
@@ -7,10 +12,6 @@ from googleapiclient.errors import HttpError
 from authentication import google
 from services import google_classroom, originality
 from teacher.models import Assignments, Courses, AssignmentMaterials
-import os.path
-from django.conf import settings
-import uuid
-import datetime
 
 def index(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid

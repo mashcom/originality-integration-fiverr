@@ -1,0 +1,16 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <h1 class="font-weight-bold mb-4 display-font">Authentication Error!</h1>
+
+    <div class="col-lg-12">
+        <div class="alert alert-danger fw-bold">
+            <i class="bi bi-envelope-exclamation-fill"></i> Your email address '{{ email }}' is does not belong to any user group.
+            Please contact your administrator for assistance
+        </div>
+    </div>
+
+{% endblock %}
+

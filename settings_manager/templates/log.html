@@ -1,0 +1,42 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-clipboard-pulse"></i> Originality Settings Log
+    </h1>
+
+    <div class="card col-lg-6d">
+        <div class="card-header fw-bold text-muted">Settings Log
+        </div>
+        <div class="card-body">
+            <table class="table table-condensed table-striped">
+                <tr>
+                    <th>Setting</th>
+                    <th>Value</th>
+                    <th>Outcome</th>
+                    <th>Time</th>
+                </tr>
+
+                {% for log in logs %}
+                    <tr>
+                        <th>{{ log.name }}</th>
+                        <th>{{ log.setting }}</th>
+                        <th>
+                            {% if log.success == "True" %}
+                                <i class="bi bi-check-circle-fill fw-bold text-success"></i>
+                            {% endif %}
+                            {% if log.success == "False" %}
+                                <i class="bi bi-exclamation-triangle-fill fw-bold text-danger"></i>
+                            {% endif %}
+                        <th>{{ log.created_at }}</th>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+
+    </div>
+
+{% endblock %}
+

@@ -1,12 +1,17 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
+from .models import OriginalityLog
 
 from services import originality
 
 def index(request):
     settings = originality.get_active_settings()
     return render(request, "index.html", {"settings": settings})
+
+def log(request):
+    logs = OriginalityLog.objects.filter().order_by("-created_at")
+    return render(request, "log.html", {"logs": logs})
 
 '''
 Verify and save Originality settings
@@ -36,10 +41,14 @@ def verify_key(request):
         originality._save_setting("originality_status", originality_enabled)
         originality._save_setting("ghost_writer_status", ghost_writer_status)
         originality._save_setting("api_url", api_url)
+        originality.log(name="key", setting=originality_key, success=True)
+        originality.log(name="api_url", setting=api_url, success=True)
         messages.add_message(request, messages.ERROR, "Key updated successfully!",
                              "alert alert-success fw-bold")
         return redirect(request.META.get('HTTP_REFERER'))
 
+    originality.log(name="key", setting=originality_key, success=False)
+    originality.log(name="api_url", setting=api_url, success=False)
     messages.add_message(request, messages.ERROR, "The key '" + originality_key + "' is invalid, please try again!",
                          "alert alert-danger fw-bold")
     return redirect(request.META.get('HTTP_REFERER'))
