@@ -3,13 +3,18 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h1 class="font-weight-bold mb-4 display-font">Authentication Error!</h1>
 
-    <div class="col-lg-12">
-        <div class="alert alert-danger fw-bold">
-            <i class="bi bi-envelope-exclamation-fill"></i> Your email address '{{ email }}' is does not belong to any user group.
-            Please contact your administrator for assistance
-        </div>
+    <div class="col-lg-12 text-center">
+        <i class="bi bi-shield-lock display-1 text-danger mx-auto"></i>
+        <h1 class="font-weight-bold mb-4 display-font text-center">Authorization Error!</h1>
+
+        {{ user.group }}
+        <p class="mx-auto">Your email address <span class="fw-bold">{{ email }}</span> is does not belong to any user
+            group.
+            Please contact your administrator for assistance</p>
+
+        <a href="/accounts/logout" class="btn btn-outline-danger text-uppercase fw-bold">Log out</a>
+
     </div>
 
 {% endblock %}

@@ -1,7 +1,7 @@
 from django.db import models
 
 class Submission(models.Model):
-    id = models.BigIntegerField(primary_key="id", default="")
+    id = models.BigAutoField(primary_key="id")
     file_name = models.TextField(max_length=250, default="")
     sender_ip = models.TextField(max_length=50, default="")
     faculty_code = models.TextField(max_length=20, default="")
@@ -24,7 +24,7 @@ class Submission(models.Model):
     gov_student_id_md5 = models.TextField(max_length=250, default="")
     google_classroom_id = models.TextField(max_length=100, default="")
     google_file_id = models.TextField(max_length=100, default="")
-    originality_id = models.TextField(max_length=100, default="")
+    originality_id = models.BigIntegerField(max_length=100, default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -12,7 +12,11 @@ from googleapiclient.errors import HttpError
 from authentication import google
 from services import google_classroom, originality
 from teacher.models import Assignments, Courses, AssignmentMaterials
+from django.contrib.auth.decorators import login_required
+from originality_project.decorators import check_user_able_to_see_page
 
+@login_required()
+@check_user_able_to_see_page("teachers")
 def index(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     courses = google_classroom.get_classes(uid)
@@ -26,30 +30,47 @@ def index(request):
         new_course.save()
     return render(request, "courses.html", {"courses": courses})
 
+@login_required()
+@check_user_able_to_see_page("teachers")
 def create_course(request):
     return render(request, "create_course.html")
 
+@login_required()
+@check_user_able_to_see_page("teachers")
 def save_course(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     if request.method == "POST":
         name = request.POST["name"]
-        course = google_classroom.create_class(name=name, owner_id=uid)
-        print(course)
-        messages.add_message(request, messages.ERROR, "Class created successfully!",
-                             "alert alert-success fw-bold")
-        return redirect('/teacher')
+        course = google_classroom.create_class(name=name, owner_id=uid, uid=uid)
+        print("result")
+        print(str(course))
+        print(type(course))
+        if course == True:
+            messages.add_message(request, messages.SUCCESS, course,
+                                 "alert alert-success fw-bold")
+            return redirect('/teacher')
+        messages.add_message(request, messages.ERROR, course,
+                             "alert alert-danger fw-bold")
+        return redirect(request.META.get('HTTP_REFERER'))
 
+@login_required()
+@check_user_able_to_see_page("teachers")
 def create_assignment(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     courses = Courses.objects.filter(owner_id=uid).order_by("name")
     return render(request, "create_assignment.html", {"courses": courses})
 
+@login_required()
+@check_user_able_to_see_page("teachers")
 def show_assignments(request, course_id):
-    assignments = google_classroom.classroom_get_course_work(course_id)
+    uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    assignments = google_classroom.classroom_get_course_work(course_id=course_id, uid=uid)
     print(assignments)
-    course = google_classroom.classroom_get_course(course_id)
+    course = google_classroom.classroom_get_course(course_id=course_id, uid=uid)
     return render(request, "assignments_for_course.html", {"course": course, "assignments": assignments})
 
+@login_required()
+@check_user_able_to_see_page("teachers")
 def handle_uploaded_file(upload_file, uuid):
     new_file_name = uuid + "_" + upload_file.name
     root_path = settings.BASE_DIR, 'uploads/assignments/'
@@ -58,6 +79,8 @@ def handle_uploaded_file(upload_file, uuid):
             destination.write(chunk)
     return os.path.join(root_path) + new_file_name
 
+@login_required()
+@check_user_able_to_see_page("teachers")
 def save_assignment(request):
     if request.method == "POST":
 
@@ -87,17 +110,25 @@ def save_assignment(request):
                 uploaded = originality.handle_uploaded_file(upload_file=file, uuid=request_uuid,
                                                             folder="uploads/teacher_assignments/")
                 if uploaded != False:
-                    google_drive_id = google_classroom.upload_file(file_path=uploaded, file_name=file.name)
+                    google_drive_id = google_classroom.upload_file(file_path=uploaded, file_name=file.name, uid=uid)
                     assignment_material = AssignmentMaterials()
                     assignment_material.assignment_id = assignment.id
                     assignment_material.google_drive_id = google_drive_id
                     assignment_material.save()
 
             # return HttpResponse("files")
-            messages.add_message(request, messages.SUCCESS,
-                                 "Assignment created successfully!",
-                                 "alert alert-success fw-bold")
-            create_assignment_in_background(assignment.id)
+
+            created = create_assignment_in_background(id=assignment.id, uid=uid)
+            if created != False:
+                messages.add_message(request, messages.SUCCESS,
+                                     "Assignment created successfully!",
+                                     "alert alert-success fw-bold")
+                return redirect("/teacher/assignments/course/" + course_id)
+
+            messages.add_message(request, messages.ERROR, created,
+                                 "alert alert-danger fw-bold")
+            return redirect(request.META.get('HTTP_REFERER'))
+
         else:
             messages.add_message(request, messages.ERROR, "Assignment could not be created",
                                  "alert alert-danger fw-bold")
@@ -105,7 +136,9 @@ def save_assignment(request):
         return render(request, "create_assignment.html")
     return HttpResponse("Invalid request method")
 
-def create_assignment_in_background(id):
+@login_required()
+@check_user_able_to_see_page("teachers")
+def create_assignment_in_background(id, uid):
     assignment = get_object_or_404(Assignments, id=id)
     due_date = assignment.due_date
     date = datetime.datetime.strptime(due_date, "%m/%d/%Y")
@@ -127,7 +160,7 @@ def create_assignment_in_background(id):
     print(materials)
 
     try:
-        service = google.get_google_service_instance()
+        service = google.get_google_service_instance(uid=uid)
         coursework = {
             'title': assignment.title,
             'description': assignment.description,
@@ -150,8 +183,8 @@ def create_assignment_in_background(id):
         assignment.assignment_id = coursework.get('id')
         assignment.processed = 1
         assignment.save()
-        # messages.add_message(request, messages.INFO, "Hello world.", "alert alert-danger fw-bold")
-        return HttpResponse(coursework)
+        return coursework.get("id")
 
     except HttpError as error:
-        print('An error occurred: %s' % error)
+        print('An errors occurred: %s' % error)
+        return False

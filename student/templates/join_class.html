@@ -1,0 +1,43 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+    <h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-person-plus"></i> Join Class</h1>
+
+    <form class="card" action="{% url "join_class" %}" method="post">
+        <div class="card-header fw-bold text-muted">Enter Class Code
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <div>
+                {% csrf_token %}
+
+                <div class="mb-3 row">
+                    <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Class Code
+                        <span class="text-danger fw-bold">*</span></label>
+                    <div class="">
+                        <input type="text" required placeholder="" class="form-control" id="code" name="code">
+                    </div>
+                </div>
+
+
+            </div>
+
+
+        </div>
+        <div class="card-footer">
+                    <button role="submit" class="btn btn-primary text-uppercase fw-bold"
+                    ><i class="bi bi-plus-circle"></i> Join Class
+                    </button>
+
+        </div>
+    </form>
+
+{% endblock %}
+

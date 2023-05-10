@@ -25,7 +25,7 @@
 
         .display-font {
             font-weight: 700 !important;
-            font-family: 'DM Serif Display', 'Inter', serif !important;
+            font-family: 'Inter Tight', serif !important;
         }
 
     </style>
@@ -45,13 +45,10 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarColor02">
                 <ul class="navbar-nav float-end mb-2 mb-lg-0 ">
-{#                    <li class="nav-item">#}
-{#                        <a class="nav-link" href="/teacher">Teacher</a>#}
-{#                    </li>#}
-{##}
-{#                    <li class="nav-item">#}
-{#                        <a class="nav-link" href="/student">Student</a>#}
-{#                    </li>#}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Courses</a>
+                    </li>
+
                     {% if user.is_superuser %}
                         <li class="nav-item">
                             <a class="nav-link" href="/config">Originality</a>

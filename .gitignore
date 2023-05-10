@@ -2,5 +2,6 @@
 /token.json
 /mydatabase
 /db.sqlite3
-/uploads/
-/uploads/teacher_assignments/
+/uploads/*
+/uploads/teacher_assignments/*
+/tokens/*

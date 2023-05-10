@@ -1,6 +1,6 @@
 import base64
 import os.path
-
+import magic
 import requests
 from django.conf import settings
 
@@ -8,7 +8,24 @@ from originality.models import Submission
 from services import google_classroom
 from settings_manager.models import Originality, OriginalityLog
 
-ORIGINALITY_ALLOWED_FILE_TYPES = {".html", ".txt", ".rtf", ".doc", ".docx", ".pdf"}
+ORIGINALITY_ALLOWED_FILE_TYPES = {
+    "application/pdf",
+    "text/html",
+    "application/xhtml+xml",
+    "text/plain",
+    "application/rtf",
+    "text/csv",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.oasis.opendocument.presentation",
+    "application/vnd.oasis.opendocument.spreadsheet",
+    "application/vnd.oasis.opendocument.text",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+
+}
 
 def readfile(file_path):
     f = open(file_path, 'r')
@@ -17,7 +34,7 @@ def readfile(file_path):
         return contents
     return False
 
-def submit_document(params, file_request, file_path):
+def submit_document(params, file_request, file_path, uid):
     settings = get_active_settings()
     headers = {"Authorization": settings.get('key')}
 
@@ -56,26 +73,30 @@ def submit_document(params, file_request, file_path):
         "GovStudentIdMD5": ""
     }
 
-    fileName, fileExtension = os.path.splitext(file_path)
-
-    print("File Details!")
-    print(os.path.splitext(file_path))
-    print(fileName)
-    print(fileExtension)
-
-    #
-    # if fileExtension in ORIGINALITY_ALLOWED_FILE_TYPES:
-
     # Upload file to google drive and also submit to Google Classroom
-    drive_file = google_classroom.upload_file(file_path, file_request.name)
+    drive_file = google_classroom.upload_file(file_path, file_request.name, uid=uid)
     request_data["google_file_id"] = drive_file
-    modification = google_classroom.modify_student_submission(submission_id=google_submission_id, course_id=CourseCode,
-                                                              course_work_id=AssignmentCode,
-                                                              google_drive_file_id=drive_file)
-    google_student_submission_id = modification.get('id')
+
+    try:
+        modification = google_classroom.modify_student_submission(submission_id=google_submission_id,
+                                                                  course_id=CourseCode,
+                                                                  course_work_id=AssignmentCode,
+                                                                  google_drive_file_id=drive_file, uid=uid)
+
+        google_student_submission_id = modification.get('id')
+    except Exception as error:
+        print("MODIFICATION ERROR!")
+        print(error)
+        return error
+
     request_data["google_student_submission_id"] = google_student_submission_id
     request_data["owner_id"] = OwnerId
-    if originality_check != "YES":
+
+    print("FILE DETAILS!")
+    file_mime = file_path_mime(file_path)
+    print(file_path_mime(file_path))
+
+    if originality_check != "YES" or file_mime not in ORIGINALITY_ALLOWED_FILE_TYPES:
         _save_submission(0, request_data)
         return request_data
 
@@ -83,7 +104,7 @@ def submit_document(params, file_request, file_path):
     try:
         api_request = requests.post(settings.get("api_url") + "documents", request_data, headers=headers)
         response = api_request.json()
-        print(type(response))
+
         response["success"] = False
         if api_request.status_code == 200:
             if "Id" in response:
@@ -101,7 +122,7 @@ def submit_document(params, file_request, file_path):
 
 def _save_submission(originality_id, data):
     submission = Submission()
-    submission.id = originality_id
+    # submission.id = originality_id
     submission.originality_id = originality_id
     submission.file_name = data["FileName"]
     submission.course_code = data["CourseCode"]
@@ -180,3 +201,11 @@ def handle_uploaded_file(upload_file, uuid, folder="uploads/"):
         return os.path.join(settings.BASE_DIR, folder) + new_file_name
     except Exception as error:
         return False
+
+def file_path_mime(file_path):
+    mime = magic.from_file(file_path, mime=True)
+    return mime
+
+def check_in_memory_mime(in_memory_file):
+    mime = magic.from_buffer(in_memory_file.read(), mime=True)
+    return mime

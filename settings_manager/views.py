@@ -4,7 +4,11 @@ from django.views.decorators.http import require_http_methods
 from .models import OriginalityLog
 
 from services import originality
+from django.contrib.auth.decorators import login_required
+from originality_project.decorators import check_user_able_to_see_page
 
+@login_required()
+@check_user_able_to_see_page("admin")
 def index(request):
     settings = originality.get_active_settings()
     return render(request, "index.html", {"settings": settings})
@@ -17,7 +21,9 @@ def log(request):
 Verify and save Originality settings
 '''
 
+@login_required()
 @require_http_methods(["POST"])
+@check_user_able_to_see_page("admin")
 def verify_key(request):
     originality_key = request.POST.get('key', False);
     api_url = request.POST.get("api_url", False)

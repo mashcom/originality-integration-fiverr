@@ -10,7 +10,6 @@ def index(request):
     authenticated = request.user.is_authenticated
     print(request.user.is_authenticated)
     if authenticated:
-
         if request.user.is_superuser:
             return redirect("/config")
 
@@ -21,7 +20,7 @@ def index(request):
         # if no email address is saved update it
         if user.email == "":
             uid = active_user.uid
-            profile = google_classroom.get_user_profile(uid)
+            profile = google_classroom.get_user_profile(user_id=uid, uid=uid)
             email_address = profile.get("emailAddress")
             user.email = email_address
             user.save()

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="bf9c3870-5101-4946-9576-47911dbb3d94" name="mashcom">
+        <fileTransfer rootFolder="/var/www/personal_sites" accessType="SFTP" host="mashcom.co.zw" port="22" sshConfigId="c5ff895e-88b0-4d50-b26b-f4076513fe40" sshConfig="root@mashcom.co.zw:22 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

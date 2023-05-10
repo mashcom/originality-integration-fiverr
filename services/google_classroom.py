@@ -4,30 +4,30 @@ import mimetypes
 
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
-
+from services import originality
 from authentication import google
 
 '''
 Get details about a course
 '''
 
-def classroom_get_course(course_id):
+def classroom_get_course(course_id, uid):
     try:
-        service = google.get_google_service_instance()
+        service = google.get_google_service_instance(uid=uid)
         course = service.courses().get(id=course_id).execute()
         print(f"Course found : {course.get('name')}")
         return course
     except HttpError as error:
         print(f"An error occurred: {error}")
-        print(f"Course not found: {course_id}")
+        print(course_id)
         return error
     return None
 
 '''Get all assignments for a course'''
 
-def classroom_get_course_work(course_id):
+def classroom_get_course_work(course_id, uid):
     try:
-        service = google.get_google_service_instance()
+        service = google.get_google_service_instance(uid)
         results = service.courses().courseWork().list(courseId=course_id).execute()
         if results:
             course_works = results['courseWork']
@@ -44,7 +44,7 @@ Get a list of submissions made by a student
 
 def get_student_submissions(course_id, course_work_id, user_id):
     try:
-        service = google.get_google_service_instance()
+        service = google.get_google_service_instance(user_id)
         results = service.courses().courseWork().studentSubmissions().list(
             courseWorkId=course_work_id, courseId=course_id, userId=user_id).execute()
         return results
@@ -52,9 +52,9 @@ def get_student_submissions(course_id, course_work_id, user_id):
         return error
     return None
 
-def modify_student_submission(submission_id, course_id, course_work_id, google_drive_file_id):
+def modify_student_submission(submission_id, course_id, course_work_id, google_drive_file_id, uid):
     try:
-        service = google.get_google_service_instance()
+        service = google.get_google_service_instance(uid=uid)
         attachments = {
             "addAttachments": [
                 {
@@ -74,25 +74,31 @@ def modify_student_submission(submission_id, course_id, course_work_id, google_d
         return error
     return None
 
-def turn_in_submission(submission_id, course_id, course_work_id):
-    print("submission_id: " + submission_id)
-    print("course_id: " + str(course_id))
-    print("courser_work_id: " + str(course_work_id))
-
+def turn_in_submission(submission_id, course_id, course_work_id, uid):
     try:
-        service = google.get_google_service_instance()
+        service = google.get_google_service_instance(uid=uid)
         results = service.courses().courseWork().studentSubmissions().turnIn(
             courseWorkId=course_work_id, courseId=course_id, id=submission_id).execute()
-        return results
+        return True
+    except Exception as error:
+        return error
+    return None
+
+def reclaim_submission(submission_id, course_id, course_work_id, uid):
+    try:
+        service = google.get_google_service_instance(uid=uid)
+        results = service.courses().courseWork().studentSubmissions().reclaim(
+            courseWorkId=course_work_id, courseId=course_id, id=submission_id).execute()
+        return True
     except Exception as error:
         return error
     return None
 
 '''Get single coursework item of a course'''
 
-def classroom_get_course_work_item(course_id, course_work_id):
+def classroom_get_course_work_item(course_id, course_work_id, uid):
     try:
-        service = google.get_google_service_instance()
+        service = google.get_google_service_instance(uid=uid)
         results = service.courses().courseWork().get(
             id=course_work_id, courseId=course_id).execute()
         return results
@@ -100,9 +106,9 @@ def classroom_get_course_work_item(course_id, course_work_id):
         return error
     return None
 
-def create_class(name, owner_id, section="", description_heading="", description="", room=""):
+def create_class(name, owner_id, uid, section="", description_heading="", description="", room=""):
     try:
-        service = google.get_google_service_instance()
+        service = google.get_google_service_instance(uid=uid)
         course = {
             'name': name,
             'section': section,
@@ -113,15 +119,15 @@ def create_class(name, owner_id, section="", description_heading="", description
             'courseState': 'ACTIVE'
         }
         course = service.courses().create(body=course).execute()
-        return course
+        return True
 
     except HttpError as error:
         print(f"An error occurred: {error}")
-        return error
+        return f"An error occurred: {error}"
 
 def get_classes(uid):
     try:
-        service = google.get_google_service_instance()
+        service = google.get_google_service_instance(uid=uid)
         results = service.courses().list(teacherId=uid, courseStates="ACTIVE").execute()
         courses = results.get('courses', [])
         print(courses)
@@ -129,8 +135,8 @@ def get_classes(uid):
     except Exception as error:
         return error
 
-def upload_file(file_path, file_name):
-    service = google.get_google_service_instance("drive", "v3")
+def upload_file(file_path, file_name, uid):
+    service = google.get_google_service_instance(uid=uid, api="drive", version="v3")
     print("File Name:" + file_name)
     print(file_path)
 
@@ -150,7 +156,27 @@ def upload_file(file_path, file_name):
     print('File ID: ' + file.get('id'))
     return file.get("id")
 
-def get_user_profile(user_id):
-    service = google.get_google_service_instance()
+def get_user_profile(user_id, uid):
+    service = google.get_google_service_instance(uid=uid)
     profile = service.userProfiles().get(userId=user_id).execute()
     return profile
+
+def join_class(course_id, enrollment_code, uid):
+    student = {
+        'userId': uid
+    }
+    try:
+        service = google.get_google_service_instance(uid=uid)
+        student = service.courses().students().create(
+            courseId=course_id,
+            enrollmentCode=enrollment_code,
+            body=student).execute()
+        print(
+            '''User {%s} was enrolled as a student in
+               the course with ID "{%s}"'''
+            % (student.get('profile').get('name').get('fullName'),
+               course_id))
+        return student
+    except HttpError as error:
+        print(error)
+        return error
