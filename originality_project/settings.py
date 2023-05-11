@@ -92,6 +92,11 @@ WSGI_APPLICATION = 'originality_project.wsgi.application'
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'mydatabase',
+    }
+    ,
+    'mysql': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'originality_app',
         'USER': 'root',
@@ -99,6 +104,7 @@ DATABASES = {
         'HOST': '127.0.0.1',
         'PORT': '33306',
     }
+
 }
 
 # Password validation

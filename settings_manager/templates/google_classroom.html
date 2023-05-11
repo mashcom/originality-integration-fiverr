@@ -23,21 +23,28 @@
                 <div class="mb-3 row">
 
                     <div class="col-sm-12">
+                        <div class="alert alert-info fw-bold">
+                            <a href="https://developers.google.com/workspace/guides/create-credentials" target="_blank">
+                                <i class="bi bi-info-circle"></i>  Learn how to get the credentials required below
+                            </a>
+                        </div>
                         <label for="key" class="col-sm-4 col-form-label text-uppercase fw-bold text-muted"><i
                                 class="bi bi-key"></i> Client ID
                             Key</label>
                         <input type="text" required placeholder="" class="form-control"
                                id="google_client_id" name="google_client_id" value="{{ settings.google_client_id }}"/>
 
-                        <label for="key" class="col-sm-4 col-form-label text-uppercase fw-bold mt-3 text-muted"><i
-                                class="bi bi-globe"></i> Project ID</label>
+                        <label for="key" class="col-sm-4 col-form-label text-uppercase fw-bold mt-3 text-muted">
+                            <i class="bi bi-file-binary"></i> Project ID</label>
                         <input type="text" required placeholder="" class="form-control"
-                               id="google_project_id" name="google_project_id" value="{{ settings.google_project_id }}"/>
+                               id="google_project_id" name="google_project_id"
+                               value="{{ settings.google_project_id }}"/>
 
-                        <label for="key" class="col-sm-4 col-form-label text-uppercase fw-bold mt-3 text-muted"><i
-                                class="bi bi-globe"></i> Client Secret</label>
+                        <label for="key" class="col-sm-4 col-form-label text-uppercase fw-bold mt-3 text-muted">
+                            <i class="bi bi-incognito"></i> Client Secret</label>
                         <input type="text" required placeholder="" class="form-control"
-                               id="google_client_secret" name="google_client_secret" value="{{ settings.google_client_secret }}"/>
+                               id="google_client_secret" name="google_client_secret"
+                               value="{{ settings.google_client_secret }}"/>
 
 
                     </div>
