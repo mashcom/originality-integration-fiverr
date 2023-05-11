@@ -18,21 +18,25 @@
     {% for assignment in assignments %}
         <div class="card mb-3 shadow-md">
             <div class="card-header fw-bold"><span class="float-start fw-bold">{{ assignment.title }}</span>
-                <a href="{% url 'submit_assignment' assignment.courseId assignment.id %}"
-                   class="btn btn-primary float-end fw-bold text-uppercase">Submit Assignment</a>
+
             </div>
 
             <div class="card-body">
 
                 <p>{{ assignment.description }}</p>
+
                 {% for material in assignment.materials %}
-                    {#                    {{ material.driveFile.driveFile }}#}
                     <a href="{{ material.driveFile.driveFile.alternateLink }}" target="_blank"
-                       class="badge rounded-pill text-bg-light p-2" style="background-color: #bcc0c4 !important;">
-                        {{ material.driveFile.driveFile.title }}</a>
+                       class="badge bg-light text-dark p-2">
+                        {{ material.driveFile.driveFile.title }} <i class="bi bi-cloud-download"></i></a>
 
                 {% endfor %}
 
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'submit_assignment' assignment.courseId assignment.id %}"
+                   class="btn btn-primary fw-bold text-uppercase"><i class="bi bi-folder2-open"></i> Manage
+                    Submissions</a>
             </div>
         </div>
     {% endfor %}
