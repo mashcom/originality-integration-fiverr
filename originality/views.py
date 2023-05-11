@@ -6,14 +6,14 @@ from base64 import b64decode
 
 from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.signing import Signer
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, HttpResponse, redirect
 
-from services import google_classroom, originality
-from .models import Submission, Report
-from django.core.signing import Signer
-from django.contrib.auth.decorators import login_required
 from originality_project.decorators import check_user_able_to_see_page
+from services import google_service, originality_service
+from .models import Submission, Report
 
 @login_required()
 def index(request):
@@ -26,17 +26,12 @@ def index(request):
 def submit_to_originality(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     if request.method == "POST":
-        print("params")
         params = request.POST.dict()
-        redirect_url = "/student/course/" + \
-                       params.get("CourseCode") + "/assignment/" + \
-                       params.get("AssignmentCode")
 
         file = request.FILES["file"]
         request_uuid = str(uuid.uuid4())
-        uploaded_file_path = originality.handle_uploaded_file(upload_file=file, uuid=request_uuid)
-
-        response = originality.submit_document(params, file, uploaded_file_path, uid=uid)
+        uploaded_file_path = originality_service.handle_uploaded_file(upload_file=file, uuid=request_uuid)
+        response = originality_service.submit_document(params, file, uploaded_file_path, uid=uid)
 
         try:
             if response["success"]:
@@ -63,9 +58,9 @@ def reports_for_teacher(request, course_id, assignment_id):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     submissions = Submission.objects.filter(owner_id=uid, assignment_code=assignment_id)
     try:
-        assignment_details = google_classroom.classroom_get_course_work_item(course_id=course_id,
-                                                                             course_work_id=assignment_id, uid=uid)
-        course_details = google_classroom.classroom_get_course(course_id=course_id, uid=uid)
+        assignment_details = google_service.classroom_get_course_work_item(course_id=course_id,
+                                                                           course_work_id=assignment_id, uid=uid)
+        course_details = google_service.classroom_get_course(course_id=course_id, uid=uid)
     except Exception as error:
         messages.add_message(request, messages.ERROR, "There was an errors connecting to Google APIs",
                              "alert alert-success fw-bold")
@@ -75,7 +70,7 @@ def reports_for_teacher(request, course_id, assignment_id):
         report = Report.objects.filter(id=submission.id).first()
         if report:
             report.submitted_by = submission.student_code
-            report.profile = google_classroom.get_user_profile(user_id=submission.student_code, uid=uid)
+            report.profile = google_service.get_user_profile(user_id=submission.student_code, uid=uid)
             reports.append(report)
             print(report.profile)
 
@@ -117,7 +112,7 @@ def _download_base64(request, id, base64_string, file_name):
         file_path = path
         if os.path.exists(file_path):
             with open(file_path, 'rb') as fh:
-                mime = originality.file_path_mime(file_path)
+                mime = originality_service.file_path_mime(file_path)
                 response = HttpResponse(fh.read(), content_type=mime)
                 response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
                 return response

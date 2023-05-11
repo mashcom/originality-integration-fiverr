@@ -45,12 +45,16 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarColor02">
                 <ul class="navbar-nav float-end mb-2 mb-lg-0 ">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/">Courses</a>
-                    </li>
-
+                    {% if not user.is_superuser %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/">Courses</a>
+                        </li>
+                    {% endif %}
                     {% if user.is_superuser %}
                         <li class="nav-item">
+                            <a class="nav-link" href="{% url "google_classroom_settings" %}">Google Classroom</a>
+                        </li>
+                        <li class=" nav-item">
                             <a class="nav-link" href="/config">Originality</a>
                         </li>
                         <li class="nav-item">
@@ -67,7 +71,7 @@
     </nav>
 
 {% endif %}
-<div class="container py-4">
+<div class="container col-lg-9 py-4">
     {% block content %}{% endblock %}
 </div>
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>

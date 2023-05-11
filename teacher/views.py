@@ -5,21 +5,21 @@ import uuid
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, HttpResponse, redirect
 from googleapiclient.errors import HttpError
 
-from authentication import google
-from services import google_classroom, originality
+import services.google_service
+from originality_project.decorators import check_user_able_to_see_page, google_authentication_required
+from services import google_service, originality_service
 from teacher.models import Assignments, Courses, AssignmentMaterials
-from django.contrib.auth.decorators import login_required
-from originality_project.decorators import check_user_able_to_see_page
 
 @login_required()
-@check_user_able_to_see_page("teachers")
+@google_authentication_required()
 def index(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
-    courses = google_classroom.get_classes(uid)
+    courses = google_service.get_teacher_classes(uid)
     Courses.objects.filter(owner_id=uid).delete()
     for course in courses:
         new_course = Courses()
@@ -31,17 +31,19 @@ def index(request):
     return render(request, "courses.html", {"courses": courses})
 
 @login_required()
+@google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def create_course(request):
     return render(request, "create_course.html")
 
 @login_required()
+@google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def save_course(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     if request.method == "POST":
         name = request.POST["name"]
-        course = google_classroom.create_class(name=name, owner_id=uid, uid=uid)
+        course = google_service.create_class(name=name, owner_id=uid, uid=uid)
         print("result")
         print(str(course))
         print(type(course))
@@ -54,6 +56,7 @@ def save_course(request):
         return redirect(request.META.get('HTTP_REFERER'))
 
 @login_required()
+@google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def create_assignment(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
@@ -61,15 +64,17 @@ def create_assignment(request):
     return render(request, "create_assignment.html", {"courses": courses})
 
 @login_required()
+@google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def show_assignments(request, course_id):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
-    assignments = google_classroom.classroom_get_course_work(course_id=course_id, uid=uid)
+    assignments = google_service.classroom_get_course_work(course_id=course_id, uid=uid)
     print(assignments)
-    course = google_classroom.classroom_get_course(course_id=course_id, uid=uid)
+    course = google_service.classroom_get_course(course_id=course_id, uid=uid)
     return render(request, "assignments_for_course.html", {"course": course, "assignments": assignments})
 
 @login_required()
+@google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def handle_uploaded_file(upload_file, uuid):
     new_file_name = uuid + "_" + upload_file.name
@@ -80,6 +85,7 @@ def handle_uploaded_file(upload_file, uuid):
     return os.path.join(root_path) + new_file_name
 
 @login_required()
+@google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def save_assignment(request):
     if request.method == "POST":
@@ -107,16 +113,15 @@ def save_assignment(request):
             files = request.FILES.getlist("files")
             for file in files:
                 request_uuid = str(uuid.uuid4())
-                uploaded = originality.handle_uploaded_file(upload_file=file, uuid=request_uuid,
-                                                            folder="uploads/teacher_assignments/")
+                uploaded = originality_service.handle_uploaded_file(upload_file=file, uuid=request_uuid,
+                                                                    folder="uploads/teacher_assignments/")
                 if uploaded != False:
-                    google_drive_id = google_classroom.upload_file(file_path=uploaded, file_name=file.name, uid=uid)
+                    google_drive_id = google_service.upload_to_google_drive(file_path=uploaded, file_name=file.name,
+                                                                            uid=uid)
                     assignment_material = AssignmentMaterials()
                     assignment_material.assignment_id = assignment.id
                     assignment_material.google_drive_id = google_drive_id
                     assignment_material.save()
-
-            # return HttpResponse("files")
 
             created = create_assignment_in_background(id=assignment.id, uid=uid)
             if created != False:
@@ -137,6 +142,7 @@ def save_assignment(request):
     return HttpResponse("Invalid request method")
 
 @login_required()
+@google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def create_assignment_in_background(id, uid):
     assignment = get_object_or_404(Assignments, id=id)
@@ -160,7 +166,7 @@ def create_assignment_in_background(id, uid):
     print(materials)
 
     try:
-        service = google.get_google_service_instance(uid=uid)
+        service = services.google_service.get_google_service_instance(uid=uid)
         coursework = {
             'title': assignment.title,
             'description': assignment.description,

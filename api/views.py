@@ -4,11 +4,11 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 
 from originality.models import Report
-from services import originality
+from services import originality_service
 
 @csrf_exempt
 def report(request):
-    settings = originality.get_active_settings()
+    settings = originality_service.get_active_settings()
     current_key = settings.get("key")
     if request.method == "POST":
         print("params")

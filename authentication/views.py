@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 
-from services import google_classroom
+from services import google_service
 
 def index(request):
     authenticated = request.user.is_authenticated
@@ -20,7 +20,7 @@ def index(request):
         # if no email address is saved update it
         if user.email == "":
             uid = active_user.uid
-            profile = google_classroom.get_user_profile(user_id=uid, uid=uid)
+            profile = google_service.get_user_profile(user_id=uid, uid=uid)
             email_address = profile.get("emailAddress")
             user.email = email_address
             user.save()
