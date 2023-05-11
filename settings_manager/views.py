@@ -13,6 +13,7 @@ from .models import OriginalityLog
 @check_user_able_to_see_page("admins")
 def index(request):
     settings = originality_service.get_active_settings()
+    print(settings)
     return render(request, "index.html", {"settings": settings})
 
 @login_required()
@@ -62,7 +63,7 @@ def google_classroom_settings(request):
                                  "alert alert-danger fw-bold")
             return redirect(request.META.get('HTTP_REFERER'))
 
-    settings = originality_service.get_active_settings()
+    settings = originality_service.get_google_active_settings()
     return render(request, "google_classroom.html", {"settings": settings})
 
 '''

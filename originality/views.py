@@ -30,10 +30,11 @@ def submit_to_originality(request):
 
         file = request.FILES["file"]
         request_uuid = str(uuid.uuid4())
-        uploaded_file_path = originality_service.handle_uploaded_file(upload_file=file, uuid=request_uuid)
-        response = originality_service.submit_document(params, file, uploaded_file_path, uid=uid)
+
 
         try:
+            uploaded_file_path = originality_service.handle_uploaded_file(upload_file=file, uuid=request_uuid)
+            response = originality_service.submit_document(params, file, uploaded_file_path, uid=uid)
             if response["success"]:
                 messages.add_message(request, messages.SUCCESS, "Submission successfully sent ",
                                      "alert alert-success fw-bold")

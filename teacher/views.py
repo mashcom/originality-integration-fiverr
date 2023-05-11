@@ -1,6 +1,7 @@
 import datetime
 import os.path
 import uuid
+from datetime import time
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
@@ -8,7 +9,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, HttpResponse, redirect
+from django.utils import timezone
 from googleapiclient.errors import HttpError
+from django.core.exceptions import PermissionDenied, BadRequest
 
 import services.google_service
 from originality_project.decorators import check_user_able_to_see_page, google_authentication_required
@@ -66,11 +69,32 @@ def create_assignment(request):
 @login_required()
 @google_authentication_required()
 @check_user_able_to_see_page("teachers")
+def edit_assignment(request, course_id, assignment_id):
+    uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    assignment_details = google_service.classroom_get_course_work_item(course_id=course_id,
+                                                                       course_work_id=assignment_id, uid=uid)
+    courses = Courses.objects.filter(course_id=course_id)
+    return render(request, "create_assignment.html", {"courses": courses, "assignment": assignment_details})
+
+@login_required()
+@google_authentication_required()
+@check_user_able_to_see_page("teachers")
 def show_assignments(request, course_id):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     assignments = google_service.classroom_get_course_work(course_id=course_id, uid=uid)
-    print(assignments)
     course = google_service.classroom_get_course(course_id=course_id, uid=uid)
+    # Get the local details of the extracted Google Classroom
+    if assignments is not None:
+        for assignment in assignments:
+            assignment_id = assignment.get("id")
+            local_assignment_details = Assignments.objects.filter(assignment_id=assignment_id).first()
+            print(local_assignment_details)
+            assignment["originality_check_required"] = False
+            assignment["api_created"] = False
+            if local_assignment_details is not None:
+                assignment["api_created"] = True
+                assignment["originality_check_required"] = (local_assignment_details.originality_check == "YES")
+
     return render(request, "assignments_for_course.html", {"course": course, "assignments": assignments})
 
 @login_required()
@@ -83,6 +107,25 @@ def handle_uploaded_file(upload_file, uuid):
         for chunk in upload_file.chunks():
             destination.write(chunk)
     return os.path.join(root_path) + new_file_name
+
+@login_required()
+@google_authentication_required()
+@check_user_able_to_see_page("teachers")
+def toggle_originality(request, assignment_id):
+    assignment = get_object_or_404(Assignments, assignment_id=assignment_id)
+    uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    if uid != assignment.owner_id:
+        raise PermissionDenied
+
+    new_setting = "NO"
+    if assignment.originality_check == "NO":
+        new_setting = "YES"
+        assignment.resubmission_requested = timezone.now()
+    assignment.originality_check = new_setting
+    assignment.save()
+    messages.add_message(request, messages.ERROR, "Originality status updated successfully",
+                         "alert alert-success fw-bold")
+    return redirect(request.META.get('HTTP_REFERER'))
 
 @login_required()
 @google_authentication_required()
@@ -123,8 +166,8 @@ def save_assignment(request):
                     assignment_material.google_drive_id = google_drive_id
                     assignment_material.save()
 
-            created = create_assignment_in_background(id=assignment.id, uid=uid)
-            if created != False:
+            created = create_assignment_in_background(request, id=assignment.id, uid=uid)
+            if created:
                 messages.add_message(request, messages.SUCCESS,
                                      "Assignment created successfully!",
                                      "alert alert-success fw-bold")
@@ -144,7 +187,7 @@ def save_assignment(request):
 @login_required()
 @google_authentication_required()
 @check_user_able_to_see_page("teachers")
-def create_assignment_in_background(id, uid):
+def create_assignment_in_background(request, id, uid):
     assignment = get_object_or_404(Assignments, id=id)
     due_date = assignment.due_date
     date = datetime.datetime.strptime(due_date, "%m/%d/%Y")
@@ -189,7 +232,8 @@ def create_assignment_in_background(id, uid):
         assignment.assignment_id = coursework.get('id')
         assignment.processed = 1
         assignment.save()
-        return coursework.get("id")
+        coursework.get("id")
+        return True
 
     except HttpError as error:
         print('An errors occurred: %s' % error)

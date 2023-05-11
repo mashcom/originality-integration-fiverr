@@ -133,7 +133,7 @@ def classroom_get_course_work_item(course_id, course_work_id, uid):
             id=course_work_id, courseId=course_id).execute()
         return results
     except Exception as error:
-        return error
+        return None
 
 def create_class(name, owner_id, uid, section="", description_heading="", description="", room=""):
     try:

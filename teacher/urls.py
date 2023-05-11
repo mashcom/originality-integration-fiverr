@@ -9,5 +9,9 @@ urlpatterns = [
 
     path("assignment/create", views.create_assignment, name="create_assignment"),
     path("assignment", views.save_assignment, name="save_assignment"),
-    path("assignments/course/<int:course_id>", views.show_assignments, name="show_assignments_for_course")
+    path("assignments/course/<int:course_id>", views.show_assignments, name="show_assignments_for_course"),
+    path("assignments/course/<int:course_id>/assignmemt/<str:assignment_id>/edit", views.edit_assignment,
+         name="edit_assignment"),
+    path("toggle_originality/<str:assignment_id>", views.toggle_originality, name="toggle_originality"),
+
 ]

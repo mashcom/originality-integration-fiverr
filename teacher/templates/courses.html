@@ -17,28 +17,37 @@
                 {% endfor %}
             {% endif %}
             <ul class="list-group list-group-flush">
-                {% if courses %}
-                    {% for course in courses %}
+                {% for course in courses %}
+                    <a href="{% url 'show_assignments_for_course' course.id %}"
+                       class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1"><span class="fw-bold"><i
+                                    class="bi bi-people"></i> {{ course.name }}</span>
+                            </h5>
+                            <small class="text-muted">
+                                <button
+                                        class="btn btn-outline-primary btn-sm float-end fw-bold text-uppercase"><i
+                                        class="bi bi-book-half"></i> Assignments
+                                </button>
+                            </small>
+                        </div>
+                        <p class="mb-1">Enrolment Code: <span
+                                class="badge bg-secondary fw-bold ">{{ course.enrollmentCode }}</span></p>
+                        <small class="text-muted">{{ course.descriptionHeading }}</small>
+                    </a>
+                {% empty %}
+                    <div class="col-lg-8 mx-auto py-5">
+                        <center>
+                            <i class="bi bi-info-circle  fw-bold mx-auto text-muted text-center display-1"></i>
+                            <p class="text-muted text-center fw-bold">No courses found at the moment</p>
 
-                        <a href="{% url 'show_assignments_for_course' course.id %}"
-                           class="list-group-item list-group-item-action">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1"><span class="fw-bold"><i
-                                        class="bi bi-people"></i> {{ course.name }}</span>
-                                </h5>
-                                <small class="text-muted">
-                                    <button
-                                            class="btn btn-outline-primary btn-sm float-end fw-bold text-uppercase"><i
-                                            class="bi bi-book-half"></i> Assignments
-                                    </button>
-                                </small>
-                            </div>
-                            <p class="mb-1">Enrolment Code: <span
-                                    class="badge bg-secondary fw-bold ">{{ course.enrollmentCode }}</span></p>
-                            <small class="text-muted">{{ course.descriptionHeading }}</small>
-                        </a>
-                    {% endfor %}
-                {% endif %}
+                            <a href="{% url 'create_course' %}" class="btn btn-primary mx-auto fw-bold text-uppercase">Create
+                                New Course</a>
+                        </center>
+
+                    </div>
+                {% endfor %}
+
             </ul>
         </div>
     </div>

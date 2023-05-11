@@ -13,6 +13,7 @@ class Assignments(models.Model):
     owner_id = models.TextField(max_length=100)
     processed = models.BooleanField(max_length=20, default=False)
     created_at = models.DateTimeField(default=timezone.now())
+    resubmission_requested = models.DateTimeField(auto_now_add=True)
 
 class AssignmentMaterials(models.Model):
     assignment_id = models.TextField(max_length=250)

@@ -7,38 +7,84 @@
     </h1>
 
     <div class="mb-3">
-        <a href="{% url 'create_assignment' %}" class="btn btn-primary fw-bold text-uppercase">Create New
-            Assignment</a>
+        {% if assignments != None %}
+            <a href="{% url 'create_assignment' %}" class="btn btn-primary fw-bold text-uppercase"><i
+                    class="bi bi-plus-circle"></i> Create New
+                Assignment</a>
+        {% endif %}
     </div>
-    {% if assignments == None %}
-        <div class="alert alert-danger fw-bold">There are no assignments created for this course!</div>
-    {% endif %}
-    {% if assignments != None %}
-        {% for assignment in assignments %}
-            <div class="card mb-3 shadow-md">
-                <div class="card-header fw-bold"><span
-                        class="float-start fw-bold">{{ assignment.title }}</span>
-                    <a href="{% url "reports_for_teacher" course.id assignment.id %}"
-                       class="btn btn-outline-primary btn-sm float-end fw-bold text-uppercase"><i
-                            class="bi bi-diagram-3"></i> View Originality &trade;
-                        Reports</a>
-                </div>
-
-                <div class="card-body">
-
-                    <p>{{ assignment.description }}</p>
-
-                    {% for material in assignment.materials %}
-                        <a href="{{ material.driveFile.driveFile.alternateLink }}" target="_blank"
-                           class="badge rounded-pill text-bg-light p-2"
-                           style="background-color: #bcc0c4 !important;">
-                            {{ material.driveFile.driveFile.title }}</a>
-
-                    {% endfor %}
-                </div>
-            </div>
+    {% if messages %}
+        {% for message in messages %}
+            <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
         {% endfor %}
     {% endif %}
+    {% for assignment in assignments %}
+        <div class="card mb-3 shadow-md">
+            <div class="card-header fw-bold"><span
+                    class="float-start fw-bold">{{ assignment.title }}</span>
+
+            </div>
+
+            <div class="card-body">
+
+                {% if  assignment.originality_check_required %}
+                    <p class="fw-bold text-success">
+                        <i class="bi bi-check-circle-fill text-success"></i> Originality Check Enabled
+                    </p>
+                {% endif %}
+
+                {% if  not assignment.originality_check_required %}
+                    <p class="fw-bold text-danger">
+                        <i class="bi bi-exclamation-circle-fill text-danger"></i> Originality Check Disabled
+                    </p>
+                {% endif %}
+
+                <p>{{ assignment.description }}</p>
+
+                {% for material in assignment.materials %}
+                    <a href="{{ material.driveFile.driveFile.alternateLink }}" target="_blank"
+                       class="badge bg-light text-dark p-2"
+                      ">
+                        {{ material.driveFile.driveFile.title }}  <i class="bi bi-cloud-download"></i></a>
+
+                {% endfor %}
+            </div>
+            <div class="card-footer">
+                <a href="{% url "reports_for_teacher" course.id assignment.id %}"
+                   class="btn btn-primary fw-bold text-uppercase"><i class="bi bi-eye"></i> View
+                    Originality &trade;
+                    Reports</a>
+
+                {% if assignment.api_created %}
+                    {% if  not assignment.originality_check_required %}
+                        <a href="{% url "toggle_originality" assignment.id %}"
+                           class="btn btn-success  fw-bold text-uppercase"><i class="bi bi-toggle-on"></i> Enable
+                            Originality Check</a>
+                    {% endif %}
+
+                    {% if   assignment.originality_check_required %}
+                        <a href="{% url "toggle_originality" assignment.id %}"
+                           class="btn btn-warning  fw-bold text-uppercase"><i class="bi bi-toggle-off"></i> Disable
+                            Originality Check</a>
+                    {% endif %}
+                {% endif %}
+
+            </div>
+        </div>
+
+    {% empty %}
+        <div class="col-lg-8 mx-auto py-5">
+            <center>
+                <i class="bi bi-info-circle  fw-bold mx-auto text-muted text-center display-1"></i>
+                <p class="text-muted text-center fw-bold">There are no assignments created for this course!</p>
+
+                <a href="{% url 'create_assignment' %}" class="btn btn-primary mx-auto fw-bold text-uppercase">Create
+                    New Assignment</a>
+            </center>
+
+        </div>
+    {% endfor %}
+
 
 {% endblock %}
 
