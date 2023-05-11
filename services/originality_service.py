@@ -194,23 +194,33 @@ def get_active_settings():
         api_url = Originality.objects.get(name="api_url")
         originality_status = Originality.objects.get(name="originality_status")
         ghost_writer_status = Originality.objects.get(name="ghost_writer_status")
-        google_client_id = Originality.objects.get(name="google_client_id")
-        google_client_secret = Originality.objects.get(name="google_client_secret")
-        google_project_id = Originality.objects.get(name="google_project_id")
         settings = {
         "key": key.setting,
         "api_url": api_url.setting,
         "originality_status": originality_status.setting,
         "ghost_writer_status": ghost_writer_status.setting,
+         }
+        return settings
+    except Exception as error:
+        pass
+
+'''
+Get active settings for the Google Classroom Integration
+'''
+def get_google_active_settings():
+
+    try:
+        google_client_id = Originality.objects.get(name="google_client_id")
+        google_client_secret = Originality.objects.get(name="google_client_secret")
+        google_project_id = Originality.objects.get(name="google_project_id")
+        settings = {
         "google_client_id":google_client_id.setting,
         "google_client_secret":google_client_secret.setting,
         "google_project_id":google_project_id.setting
          }
         return settings
-    except Exception:
+    except Exception as error:
         pass
-
-
 
 def handle_uploaded_file(upload_file, uuid, folder="uploads/"):
     new_file_name = uuid + "_" + upload_file.name

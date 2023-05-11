@@ -26,7 +26,9 @@ SECRET_KEY = 'zudx3$9x^7*ib9wb&@ctul@dek&^avs-7(r4ref(+8kkxyrfvm'
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    '127.0.0.1'
+    '127.0.0.1',
+    'fiverr.mashcom.co.zw',
+    '137.184.79.178'
 ]
 
 # Application definition
@@ -92,17 +94,12 @@ WSGI_APPLICATION = 'originality_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'mydatabase',
-    }
-    ,
-    'mysql': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'originality_app',
         'USER': 'root',
-        'PASSWORD': 'password',
+        'PASSWORD': 'nhema2017',
         'HOST': '127.0.0.1',
-        'PORT': '33306',
+        'PORT': '3306',
     }
 
 }
@@ -142,7 +139,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = 'var/static_root/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 STATICFILES_DIRS = [BASE_DIR / "assets"]
 
 MEDIA_URL = '/media/'
