@@ -28,9 +28,9 @@ def google_classroom_settings(request):
         google_client_id = request.POST.get('google_client_id', "")
         google_project_id = request.POST.get('google_project_id', "")
         google_client_secret = request.POST.get('google_client_secret', "")
-        originality_service._save_setting("google_client_id", google_client_id)
-        originality_service._save_setting("google_client_secret", google_client_secret)
-        originality_service._save_setting("google_project_id", google_project_id)
+        originality_service.save_setting("google_client_id", google_client_id)
+        originality_service.save_setting("google_client_secret", google_client_secret)
+        originality_service.save_setting("google_project_id", google_project_id)
 
         credentials_structure = {
             "installed": {
@@ -49,6 +49,7 @@ def google_classroom_settings(request):
         content_for_config = json.dumps(credentials_structure)
 
         try:
+            # Create the credentials.json file that used by Google to authenticate
             filename = "credentials.json"
             with open(filename, 'w') as file_object:
                 file_object.write(content_for_config)
@@ -88,13 +89,12 @@ def verify_key(request):
         ghost_writer_status = False
 
     try:
-        verification_status = originality_service._make_verification_request(originality_key, api_url)
-        print(verification_status)
-        if verification_status['Pong'] == True:
-            originality_service._save_setting("key", originality_key)
-            originality_service._save_setting("originality_status", originality_enabled)
-            originality_service._save_setting("ghost_writer_status", ghost_writer_status)
-            originality_service._save_setting("api_url", api_url)
+        verification_status = originality_service.make_verification_request(originality_key, api_url)
+        if verification_status['Pong']:
+            originality_service.save_setting("key", originality_key)
+            originality_service.save_setting("originality_status", originality_enabled)
+            originality_service.save_setting("ghost_writer_status", ghost_writer_status)
+            originality_service.save_setting("api_url", api_url)
             originality_service.log(name="key", setting=originality_key, success=True)
             originality_service.log(name="api_url", setting=api_url, success=True)
             messages.add_message(request, messages.ERROR, "Key updated successfully!",

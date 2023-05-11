@@ -8,6 +8,7 @@ from originality.models import Submission
 from services import google_service
 from settings_manager.models import Originality, OriginalityLog
 
+# This is a list of file mime types that can be sent to Originality server for similarity evaluation
 ORIGINALITY_ALLOWED_FILE_TYPES = {
     "application/pdf",
     "text/html",
@@ -34,6 +35,9 @@ def readfile(file_path):
         return contents
     return False
 
+'''
+Send file to Originality server and Google Classroom
+'''
 def submit_document(params, file_request, file_path, uid):
     settings = get_active_settings()
     headers = {"Authorization": settings.get('key')}
@@ -47,6 +51,7 @@ def submit_document(params, file_request, file_path, uid):
     google_submission_id = params.get("google_submission_id")
     originality_check = params.get("originality_check")
 
+    # encode upload file to base64 and save the encoded file
     encoded_file_path = file_path + "_base64"
     base64.encode(open(file_path, 'rb'), open(encoded_file_path, 'wb'))
     base64_encode_file = readfile(encoded_file_path)
@@ -73,16 +78,18 @@ def submit_document(params, file_request, file_path, uid):
         "GovStudentIdMD5": ""
     }
 
-    # Upload file to google drive and also submit to Google Classroom
-    drive_file = google_service.upload_to_google_drive(file_path, file_request.name, uid=uid)
-    request_data["google_file_id"] = drive_file
 
     try:
+        # Upload file to google drive and also submit to Google Classroom
+        drive_file = google_service.upload_to_google_drive(file_path, file_request.name, uid=uid)
+        request_data["google_file_id"] = drive_file
+
+        #modify the submission of a student for specific course work
         modification = google_service.modify_student_submission(submission_id=google_submission_id,
                                                                 course_id=CourseCode,
                                                                 course_work_id=AssignmentCode,
-                                                                google_drive_file_id=drive_file, uid=uid)
-
+                                                                google_drive_file_id=drive_file,
+                                                                uid=uid)
         google_student_submission_id = modification.get('id')
     except Exception as error:
         print("MODIFICATION ERROR!")
@@ -92,10 +99,11 @@ def submit_document(params, file_request, file_path, uid):
     request_data["google_student_submission_id"] = google_student_submission_id
     request_data["owner_id"] = OwnerId
 
-    print("FILE DETAILS!")
+    # The file details and mime
     file_mime = file_path_mime(file_path)
     print(file_path_mime(file_path))
 
+    # If an assignment is marked that its not supposed to be check for originality or its not allowed then submit only to Google Classroom
     if originality_check != "YES" or file_mime not in ORIGINALITY_ALLOWED_FILE_TYPES:
         _save_submission(0, request_data)
         return request_data
@@ -106,12 +114,13 @@ def submit_document(params, file_request, file_path, uid):
         response = api_request.json()
 
         response["success"] = False
+
+        # The file was successfully submitted to Originality server
         if api_request.status_code == 200:
             if "Id" in response:
                 request_data["success"] = True
                 request_data["originality_id"] = response["Id"]
                 request_data["id"] = response["Id"]
-                print("originality_id: " + str(response["Id"]))
                 _save_submission(response["Id"], request_data)
                 return request_data
             return False
@@ -122,7 +131,6 @@ def submit_document(params, file_request, file_path, uid):
 
 def _save_submission(originality_id, data):
     submission = Submission()
-    # submission.id = originality_id
     submission.originality_id = originality_id
     submission.file_name = data["FileName"]
     submission.course_code = data["CourseCode"]
@@ -143,14 +151,11 @@ def _save_submission(originality_id, data):
 Verify a key with Originality API
 '''
 
-def _make_verification_request(originality_key, api_url):
+def make_verification_request(originality_key, api_url):
     headers = {"Authorization": originality_key}
-
     try:
         api_request = requests.get(api_url + "/customers/ping", headers=headers)
         response = api_request.json()
-        print(type(response))
-        print(response['Pong'])
         return response
     except ConnectionError as error:
         raise error
@@ -161,12 +166,15 @@ def _make_verification_request(originality_key, api_url):
 Save setting key value pair to database
 '''
 
-def _save_setting(name, setting):
+def save_setting(name, setting):
     settings = Originality()
     settings.name = name
     settings.setting = setting
     return settings.save()
 
+'''
+Log changes to settings attempts
+'''
 def log(name, setting, message="", success=False):
     log = OriginalityLog()
     log.name = name

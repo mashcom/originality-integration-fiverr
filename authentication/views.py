@@ -7,34 +7,32 @@ from django.shortcuts import render, redirect
 from services import google_service
 
 def index(request):
-    authenticated = request.user.is_authenticated
-    print(request.user.is_authenticated)
-    if authenticated:
-        if request.user.is_superuser:
-            return redirect("/config")
+    if not request.user.is_authenticated:
+        return render(request, "login.html", {"authenticated": request.user.is_authenticated})
 
-        active_user = SocialAccount.objects.filter(user=request.user)[0]
-        user_id = active_user.user_id
-        user = User.objects.filter(id=user_id).first()
+    if request.user.is_superuser:
+        return redirect("/config")
 
-        # if no email address is saved update it
-        if user.email == "":
-            uid = active_user.uid
-            profile = google_service.get_user_profile(user_id=uid, uid=uid)
-            email_address = profile.get("emailAddress")
-            user.email = email_address
-            user.save()
+    active_user = SocialAccount.objects.filter(user=request.user)[0]
+    user_id = active_user.user_id
+    user = User.objects.filter(id=user_id).first()
 
-        # check user groups and redirect accordingly
-        if User.objects.filter(pk=user_id, groups__name='teachers').exists():
-            return redirect("/teacher")
+    # if no email address is saved update it
+    if user.email == "":
+        uid = active_user.uid
+        profile = google_service.get_user_profile(user_id=uid, uid=uid)
+        email_address = profile.get("emailAddress")
+        user.email = email_address
+        user.save()
 
-        if User.objects.filter(pk=user_id, groups__name='students').exists():
-            return redirect("/student")
+    # check user groups and redirect accordingly
+    if User.objects.filter(pk=user_id, groups__name='teachers').exists():
+        return redirect("/teacher")
 
-        return render(request, "no_group.html", {"email": user.email})
+    if User.objects.filter(pk=user_id, groups__name='students').exists():
+        return redirect("/student")
 
-    return render(request, "login.html", {"authenticated": authenticated})
+    return render(request, "no_group.html", {"email": user.email})
 
 def attempt(request):
     username = request.POST["username"]
@@ -44,7 +42,7 @@ def attempt(request):
         login(request, user)
         messages.add_message(request, messages.SUCCESS, "Login successful!",
                              "alert alert-success fw-bold")
-        ...
+
     else:
         messages.add_message(request, messages.ERROR, "Invalid username or password!",
                              "alert alert-danger fw-bold")

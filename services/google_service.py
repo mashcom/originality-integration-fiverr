@@ -10,6 +10,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 
+# List of scopes required to access Google APIs
 SCOPES = ['https://www.googleapis.com/auth/classroom.courses',
           'https://www.googleapis.com/auth/classroom.coursework.students',
           'https://www.googleapis.com/auth/classroom.coursework.me',
@@ -22,6 +23,35 @@ SCOPES = ['https://www.googleapis.com/auth/classroom.courses',
           'https://www.googleapis.com/auth/drive.file',
           'https://www.googleapis.com/auth/drive.install',
           ]
+
+def get_google_service_instance(uid, api="classroom", version="v1"):
+    # uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    token_file = "tokens/" + str(uid) + "_token.json"
+    google_credentials = None
+    # The file token.json stores the user's access and refresh tokens, and is
+    # created automatically when the authorization flow completes for the first
+    # time.
+    if os.path.exists(token_file):
+        google_credentials = Credentials.from_authorized_user_file(token_file, SCOPES)
+    # If there are no (valid) credentials available, let the user log in.
+    if not google_credentials or not google_credentials.valid:
+        if google_credentials and google_credentials.expired and google_credentials.refresh_token:
+            google_credentials.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                'credentials.json', SCOPES)
+            google_credentials = flow.run_local_server(port=0, open_browser=True)
+        # Save the credentials for the next run
+        with open(token_file, 'w') as token:
+            token.write(google_credentials.to_json())
+
+    try:
+        service = build(api, version, credentials=google_credentials)
+        return service
+    except HttpError as error:
+        print('An errors occurred: %s' % error)
+        return False
+
 '''
 Get details about a course
 '''
@@ -30,11 +60,8 @@ def classroom_get_course(course_id, uid):
     try:
         service = get_google_service_instance(uid=uid)
         course = service.courses().get(id=course_id).execute()
-        print(f"Course found : {course.get('name')}")
         return course
     except HttpError as error:
-        print(f"An error occurred: {error}")
-        print(course_id)
         return error
 
 '''Get all assignments for a course'''
@@ -123,9 +150,8 @@ def create_class(name, owner_id, uid, section="", description_heading="", descri
         service.courses().create(body=course).execute()
         return True
 
-    except HttpError as error:
-        print(f"An error occurred: {error}")
-        return f"An error occurred: {error}"
+    except HttpError:
+        return False
 
 def get_teacher_classes(uid):
     try:
@@ -147,13 +173,14 @@ def get_student_classes(uid):
 
 def upload_to_google_drive(file_path, file_name, uid):
     service = get_google_service_instance(uid=uid, api="drive", version="v3")
-    print("File Name:" + file_name)
-    print(file_path)
 
+    # handle the mime type correctly
     mime_type = '*/*'
     guess_mime_type = mimetypes.guess_type(file_path)
+
     if guess_mime_type:
         mime_type = guess_mime_type[0]
+
     file_metadata = {
         'name': file_name,
         'mimeType': mime_type
@@ -161,10 +188,11 @@ def upload_to_google_drive(file_path, file_name, uid):
     media = MediaFileUpload(file_path,
                             mimetype=mime_type,
                             resumable=True)
-
-    file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
-    print('File ID: ' + file.get('id'))
-    return file.get("id")
+    try:
+        file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        return file.get("id")
+    except Exception:
+        return False
 
 def get_user_profile(user_id, uid):
     service = get_google_service_instance(uid=uid)
@@ -181,40 +209,6 @@ def join_class(course_id, enrollment_code, uid):
             courseId=course_id,
             enrollmentCode=enrollment_code,
             body=student).execute()
-        print(
-            '''User {%s} was enrolled as a student in
-               the course with ID "{%s}"'''
-            % (student.get('profile').get('name').get('fullName'),
-               course_id))
         return student
     except HttpError as error:
-        print(error)
         return error
-
-def get_google_service_instance(uid, api="classroom", version="v1"):
-    # uid = SocialAccount.objects.filter(user=request.user)[0].uid
-    token_file = "tokens/" + str(uid) + "_token.json"
-    creds = None
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists(token_file):
-        creds = Credentials.from_authorized_user_file(token_file, SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0, open_browser=True)
-        # Save the credentials for the next run
-        with open(token_file, 'w') as token:
-            token.write(creds.to_json())
-
-    try:
-        service = build(api, version, credentials=creds)
-        return service
-    except HttpError as error:
-        print('An errors occurred: %s' % error)
-        return False
