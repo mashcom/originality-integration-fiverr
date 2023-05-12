@@ -155,3 +155,75 @@ To generate Google Classroom API credentials file, you need to create a new proj
 
 _**_`Important ** Ensure that you enable the Google Drive API so that the Google Classroom will be able to attach files to Google Drive `_**_
 
+# **API documentation:**
+
+#### **API Endpoint**
+
+**POST** /api/v1/report
+
+Use this endpoint to create a new report.
+
+#### **Request Headers**
+
+**Content-Type :**	The content type of the request body. (e.g., application/json)
+**Authorization :**	The authorization token for accessing the API.
+
+
+#### **Request Body**
+
+The request body should contain the necessary data to create the resource. The structure and fields required may vary depending on the specific API endpoint. Provide a detailed description of the expected request body, including any required or optional fields, their data types, and any validation rules.
+
+**Example Request Body:**
+
+The request should provide json content
+
+    `{
+      "OriginalityFileId": "Unique Identifier of Similarity Report",
+      "Grade": "Number",
+      "file": "Base64 encoded file",
+    }`
+
+**Response:**
+
+Response Codes
+<table>
+<tr>
+    <td>200</td>
+    <td>OK</td>
+    <td>The request was successful, and the resource was created.</td>
+</tr>
+<tr>
+    <td>400</td>
+    <td>Bad</td>
+    <td>Request	The request body was invalid or missing required fields.</td>
+</tr>
+<tr>
+    <td>401</td>
+    <td>Unauthorized</td>
+    <td>The request lacks valid authentication credentials.</td>
+</tr>
+<tr>
+    <td>500</td>
+    <td>Internal Server Error</td>
+    <td>An unexpected error occurred on the server.</td>
+</tr>
+
+</table>
+
+
+**Response Body**
+
+The response body will contain a message if applicable. Make sure you pay attention to the **Response Code** to determine if a request was successful or not 
+
+**Example Response Body (Success):**
+
+    `{
+        "Id": originality report id, 
+        "Message": "Report transfer successful"
+    }`
+    
+**Example Response Body (Failure):**
+
+    `{
+        "Message": "Report transfer successful"
+    }`
