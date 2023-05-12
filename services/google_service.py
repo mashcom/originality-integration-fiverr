@@ -9,8 +9,11 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
+from httplib2 import ServerNotFoundError
 
 # List of scopes required to access Google APIs
+
+
 SCOPES = ['https://www.googleapis.com/auth/classroom.courses',
           'https://www.googleapis.com/auth/classroom.coursework.students',
           'https://www.googleapis.com/auth/classroom.coursework.me',
@@ -27,6 +30,8 @@ SCOPES = ['https://www.googleapis.com/auth/classroom.courses',
 def get_google_service_instance(uid, api="classroom", version="v1"):
     # uid = SocialAccount.objects.filter(user=request.user)[0].uid
     token_file = "tokens/" + str(uid) + "_token.json"
+    token_file = " token.json"
+
     google_credentials = None
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -159,8 +164,10 @@ def get_teacher_classes(uid):
         results = service.courses().list(teacherId=uid, courseStates="ACTIVE").execute()
         courses = results.get('courses', [])
         return courses
+    except ServerNotFoundError as error:
+        raise error
     except Exception as error:
-        return error
+        raise error
 
 def get_student_classes(uid):
     try:

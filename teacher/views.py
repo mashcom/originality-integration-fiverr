@@ -12,6 +12,7 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.utils import timezone
 from googleapiclient.errors import HttpError
 from django.core.exceptions import PermissionDenied, BadRequest
+from httplib2 import ServerNotFoundError
 
 import services.google_service
 from originality_project.decorators import check_user_able_to_see_page, google_authentication_required
@@ -22,16 +23,23 @@ from teacher.models import Assignments, Courses, AssignmentMaterials
 @google_authentication_required()
 def index(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
-    courses = google_service.get_teacher_classes(uid)
     Courses.objects.filter(owner_id=uid).delete()
-    for course in courses:
-        new_course = Courses()
-        new_course.course_id = course.get("id")
-        new_course.name = course.get("name")
-        new_course.description = ""  # course.get("description")
-        new_course.owner_id = course.get("ownerId")
-        new_course.save()
-    return render(request, "courses.html", {"courses": courses})
+
+    try:
+        courses = google_service.get_teacher_classes(uid)
+        for course in courses:
+            new_course = Courses()
+            new_course.course_id = course.get("id")
+            new_course.name = course.get("name")
+            new_course.description = ""  # course.get("description")
+            new_course.owner_id = course.get("ownerId")
+            new_course.save()
+        return render(request, "courses.html", {"courses": courses})
+    except Exception:
+        courses = {}
+        messages.add_message(request, messages.ERROR, "Request could not be completed, please check your connection!",
+                             "alert alert-danger fw-bold")
+        return render(request, "courses.html", {"courses": courses})
 
 @login_required()
 @google_authentication_required()
@@ -46,17 +54,19 @@ def save_course(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     if request.method == "POST":
         name = request.POST["name"]
-        course = google_service.create_class(name=name, owner_id=uid, uid=uid)
-        print("result")
-        print(str(course))
-        print(type(course))
-        if course == True:
-            messages.add_message(request, messages.SUCCESS, course,
-                                 "alert alert-success fw-bold")
-            return redirect('/teacher')
-        messages.add_message(request, messages.ERROR, course,
-                             "alert alert-danger fw-bold")
-        return redirect(request.META.get('HTTP_REFERER'))
+        try:
+            course = google_service.create_class(name=name, owner_id=uid, uid=uid)
+            if course == True:
+                messages.add_message(request, messages.SUCCESS, course,
+                                     "alert alert-success fw-bold")
+                return redirect('/teacher')
+            messages.add_message(request, messages.ERROR, course,
+                                 "alert alert-danger fw-bold")
+            return redirect(request.META.get('HTTP_REFERER'))
+        except Exception as error:
+            messages.add_message(request, messages.ERROR, error,
+                                 "alert alert-danger fw-bold")
+            return redirect(request.META.get('HTTP_REFERER'))
 
 @login_required()
 @google_authentication_required()

@@ -167,11 +167,14 @@ Save setting key value pair to database
 '''
 
 def save_setting(name, setting):
+    Originality.objects.filter(name=name).delete()
     settings = Originality()
     settings.name = name
     settings.setting = setting
     return settings.save()
 
+def setting_defined(name):
+    return Originality.objects.filter(name=name).exists()
 '''
 Log changes to settings attempts
 '''

@@ -1,6 +1,7 @@
 import json
 
 from django.http import JsonResponse
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
 from originality.models import Report
@@ -37,6 +38,8 @@ def report(request):
         new_report.id = params.get("OriginalityFileId")
         new_report.grade = params.get("Grade")
         new_report.file = params.get("file")
+        new_report.created_at = timezone.now()
+        new_report.updated_at = timezone.now()
         new_report.save()
         return JsonResponse({"Id": new_report.id, "Message": "Report transfer successful"}, status=200)
 

@@ -26,6 +26,7 @@ SECRET_KEY = 'zudx3$9x^7*ib9wb&@ctul@dek&^avs-7(r4ref(+8kkxyrfvm'
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    '*',
     '127.0.0.1',
     'fiverr.mashcom.co.zw',
     '137.184.79.178'
@@ -40,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'debug_toolbar',
+    # 'debug_toolbar',
     'django_bootstrap5',
     'settings_manager',
     'student',
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'authentication',
     'services',
     'originality',
+    'setup',
     'django.contrib.sites',  # must
     'allauth',  # must
     'allauth.account',  # must
@@ -64,7 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
 
 ]
 
@@ -98,8 +100,8 @@ DATABASES = {
         'NAME': 'originality_app',
         'USER': 'root',
         'PASSWORD': 'password',
-        'HOST': '127.0.0.1',
-        'PORT': '33306',
+        'PORT': '3306',
+        # 'HOST': 'db',
     }
 
 }
@@ -127,7 +129,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Harare'
 
 USE_I18N = True
 
@@ -163,4 +165,41 @@ AUTHENTICATION_BACKENDS = [
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = ''
+
+# these are the required settings for Originality and Google Classroom
+
+REQUIRED_ORIGINALITY_INTEGRATION_SETTINGS = [
+    {
+        "name": "key",
+        "setting": ""
+    },
+    {
+        "name": "originality_status",
+        "setting": "True"
+    },
+    {
+        "name": "ghost_writer_status",
+        "setting": "True"
+    },
+    {
+        "name": "api_url",
+        "setting": ""
+    },
+    {
+        "name": "google_client_id",
+        "setting": ""
+    },
+    {
+        "name": "google_client_secret",
+        "setting": ""
+    },
+    {
+        "name": "google_project_id",
+        "setting": ""
+    },
+    {
+        "name": "integration_version",
+        "setting": "v0.1"
+    }
+]

@@ -14,10 +14,6 @@ urlpatterns = [
     path("student/", include("student.urls")),
     path("teacher/", include("teacher.urls")),
     path('accounts/', include('allauth.urls')),
-]
-if settings.DEBUG:
-    import debug_toolbar
+    path('setup/', include('setup.urls')),
 
-    urlpatterns = [
-                      path('__debug__/', include(debug_toolbar.urls)),
-                  ] + urlpatterns
+]
