@@ -101,7 +101,6 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': 'password',
         'PORT': '3306',
-        # 'HOST': 'db',
     }
 
 }
