@@ -86,7 +86,7 @@ To add a social app on the Django admin interface using, follow these steps:
 
 **1. Create a Social App:** 
 
-Open your Django project's admin interface by accessing the URL **http://localhost:8000/admin/**. Log in with your superuser credentials.
+Open your Django project's admin interface by accessing the URL **http://127.0.0.1:8000/admin/**. Log in with your superuser credentials.
 
 **2. Navigate to Social Applications:** 
 
@@ -143,15 +143,15 @@ To generate Google Classroom API credentials file, you need to create a new proj
 
 10. Enter a name for your OAuth 2.0 client ID (e.g., "Google Classroom API Credentials").
 
-11. Under "Authorized JavaScript origins," enter the URL where your application will be hosted. If you're developing locally, you can enter "http://localhost:8000".
+11. Under "Authorized JavaScript origins," enter the URL where your application will be hosted. If you're developing locally, you can enter "http://127.0.0.1:8000".
 
-12. Under "Authorized redirect URIs," enter the redirect URL where users will be sent after granting access. This will typically be the URL of your application's authentication page. For example, you can use "http://localhost:8000/auth/google/callback".
+12. Under "Authorized redirect URIs," enter the redirect URL where users will be sent after granting access. This will typically be the URL of your application's authentication page. For example, you can use "http://127.0.0.1:8000/auth/google/callback".
 
 13. Click the "Create" button to create the OAuth client ID.
 
 14. On the credentials page, you will see your newly created client ID listed. Click on the download icon on the right-hand side of the client ID row to download the JSON file. This file contains your credentials and will be named "credentials.json" by default.
 
-15. Add the credentials details on the Google Classroom configuration page **http://localhost/config/google_classroom** 
+15. Add the credentials details on the Google Classroom configuration page **http://127.0.0.1/config/google_classroom** 
 
 _**_`Important ** Ensure that you enable the Google Drive API so that the Google Classroom will be able to attach files to Google Drive `_**_
 
