@@ -6,3 +6,5 @@
 /uploads/teacher_assignments/*
 /tokens/*
 /uploads/teacher_assignments/
+/ token.json
+/mysql-data/

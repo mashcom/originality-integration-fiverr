@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.core.exceptions import BadRequest
 from django.db import ProgrammingError
 from django.shortcuts import render, redirect, HttpResponse
+from oauthlib.oauth2 import InvalidClientError
+
 from originality_project import settings
 from originality_project.settings import REQUIRED_ORIGINALITY_INTEGRATION_SETTINGS
 from settings_manager.models import Originality
@@ -45,12 +47,15 @@ def index(request):
     user = User.objects.filter(id=user_id).first()
 
     # if no email address is saved update it
-    if user.email == "":
-        uid = active_user[0].uid
-        profile = google_service.get_user_profile(user_id=uid, uid=uid)
-        email_address = profile.get("emailAddress")
-        user.email = email_address
-        user.save()
+    try:
+        if user.email == "":
+            uid = active_user[0].uid
+            profile = google_service.get_user_profile(user_id=uid, uid=uid)
+            email_address = profile.get("emailAddress")
+            user.email = email_address
+            user.save()
+    except InvalidClientError as error:
+        pass
 
     # check user groups and redirect accordingly
     if User.objects.filter(pk=user_id, groups__name='teachers').exists():

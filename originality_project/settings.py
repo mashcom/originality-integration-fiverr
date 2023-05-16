@@ -12,6 +12,11 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 import os
 from pathlib import Path
+from dotenv import load_dotenv, dotenv_values
+
+load_dotenv()  # take environment variables from .env.
+
+config = dotenv_values(".env")
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -97,10 +102,11 @@ WSGI_APPLICATION = 'originality_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'originality_app',
-        'USER': 'root',
-        'PASSWORD': 'password',
-        'PORT': '3306',
+        'NAME': config.get("DATABASE_NAME"),
+        'USER': config.get("DATABASE_USERNAME"),
+        'PASSWORD': config.get("DATABASE_PASSWORD"),
+        'PORT': config.get("DATABASE_PORT"),
+        'HOST': config.get("DATABASE_HOST")
     }
 
 }
@@ -164,7 +170,7 @@ AUTHENTICATION_BACKENDS = [
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-LOGIN_REDIRECT_URL = ''
+LOGIN_REDIRECT_URL = '/'
 
 # these are the required settings for Originality and Google Classroom
 
