@@ -36,6 +36,7 @@ def index(request):
 
     if not request.user.is_authenticated:
         return render(request, "login.html", {"authenticated": request.user.is_authenticated})
+        # return redirect("/accounts/google/login")
 
     if request.user.is_superuser:
         return redirect("/config")

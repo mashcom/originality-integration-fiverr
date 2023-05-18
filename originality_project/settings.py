@@ -30,6 +30,7 @@ SECRET_KEY = 'zudx3$9x^7*ib9wb&@ctul@dek&^avs-7(r4ref(+8kkxyrfvm'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+
 ALLOWED_HOSTS = [
     '*',
     '127.0.0.1',
@@ -172,8 +173,8 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 LOGIN_REDIRECT_URL = '/'
 
-# these are the required settings for Originality and Google Classroom
 
+# these are the required settings for Originality and Google Classroom
 REQUIRED_ORIGINALITY_INTEGRATION_SETTINGS = [
     {
         "name": "key",

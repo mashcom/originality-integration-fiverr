@@ -3,10 +3,14 @@ import os.path
 import magic
 import requests
 from django.conf import settings
-
+from json import JSONDecodeError
 from originality.models import Submission
 from services import google_service
 from settings_manager.models import Originality, OriginalityLog
+from django.core.signing import Signer
+from django.contrib.sites.models import Site
+import json
+
 
 # This is a list of file mime types that can be sent to Originality server for similarity evaluation
 ORIGINALITY_ALLOWED_FILE_TYPES = {
@@ -41,6 +45,15 @@ Send file to Originality server and Google Classroom
 def submit_document(params, file_request, file_path, uid):
     settings = get_active_settings()
     headers = {"Authorization": settings.get('key')}
+    originality_check = params.get("originality_check")
+    originality_api_url = settings.get("api_url")
+    originality_key = settings.get('key')
+
+    #before we begin send request lets check id the server is reachable and settings valid
+    if originality_check == "YES":
+        originality_connection_working = make_verification_request(originality_key=originality_key,api_url=originality_api_url,return_bool=True)
+        if originality_connection_working != True:
+            raise Exception("The originality server is not working at the moment!")
 
     CourseCode = params.get('CourseCode')
     AssignmentCode = params.get('AssignmentCode')
@@ -49,12 +62,13 @@ def submit_document(params, file_request, file_path, uid):
     GroupMembers = params.get('GroupMembers')
     OwnerId = params.get('ownerId')
     google_submission_id = params.get("google_submission_id")
-    originality_check = params.get("originality_check")
+
 
     # encode upload file to base64 and save the encoded file
     encoded_file_path = file_path + "_base64"
     base64.encode(open(file_path, 'rb'), open(encoded_file_path, 'wb'))
     base64_encode_file = readfile(encoded_file_path)
+
 
     request_data = {
         "FileName": file_request.name,
@@ -83,13 +97,16 @@ def submit_document(params, file_request, file_path, uid):
         # Upload file to google drive and also submit to Google Classroom
         drive_file = google_service.upload_to_google_drive(file_path, file_request.name, uid=uid)
         request_data["google_file_id"] = drive_file
-
+        download_link = generate_external_file_link(google_file_id=drive_file,file_name=file_request.name)
+        request_data["LinkMoodleFile"] = download_link
         #modify the submission of a student for specific course work
         modification = google_service.modify_student_submission(submission_id=google_submission_id,
                                                                 course_id=CourseCode,
                                                                 course_work_id=AssignmentCode,
                                                                 google_drive_file_id=drive_file,
                                                                 uid=uid)
+
+
         google_student_submission_id = modification.get('id')
     except Exception as error:
         print("MODIFICATION ERROR!")
@@ -108,16 +125,16 @@ def submit_document(params, file_request, file_path, uid):
         _save_submission(0, request_data)
         return request_data
 
+    print("uploading...")
+    print(json.dumps(request_data))
     # make request to Originality Server
+    api_request = requests.post(settings.get("api_url") + "documents", json=request_data, headers=headers)
     try:
-        api_request = requests.post(settings.get("api_url") + "documents", request_data, headers=headers)
-        print("response")
-        print(api_request.status_code)
 
-        try:
-            response = api_request.json()
-        except Exception as error:
-            raise Exception("The Originality server returned a malformed response. Please try again!")
+
+        #api_request.raise_for_status()
+        response = api_request.json()
+        print(response)
 
         response["success"] = False
 
@@ -128,14 +145,18 @@ def submit_document(params, file_request, file_path, uid):
                 request_data["originality_id"] = response["Id"]
                 request_data["id"] = response["Id"]
                 _save_submission(response["Id"], request_data)
-                return request_data
+                return True
             return False
         else:
             return response["Message"]
+    except requests.exceptions.HTTPError as e:
+        raise e
     except Exception as error:
         return error
 
+
 def _save_submission(originality_id, data):
+
     submission = Submission()
     submission.originality_id = originality_id
     submission.file_name = data["FileName"]
@@ -147,21 +168,36 @@ def _save_submission(originality_id, data):
     submission.doc_sequence = data["DocSequence"]
     submission.file = data["file"]
     submission.ghost_writer_check = data["GhostWriterCheck"]
-    submission.link_moodle_file = data["AssignmentCode"]
+    submission.link_moodle_file = data["LinkMoodleFile"]
     submission.owner_id = data["owner_id"]
     submission.google_file_id = data["google_file_id"]
     submission.google_classroom_id = data["google_student_submission_id"]
     return submission.save()
 
+
+def generate_external_file_link(google_file_id,file_name):
+    # make url signature to download file in future
+    signer = Signer()
+    signature = signer.sign(file_name)
+    document_signature = signature
+    host_url = Site.objects.get_current().domain
+
+    url = host_url+"/originality/external/download/submission/"+google_file_id+"/"+document_signature
+    print(url)
+    return url
+
+
 '''
 Verify a key with Originality API
 '''
 
-def make_verification_request(originality_key, api_url):
+def make_verification_request(originality_key, api_url,return_bool =False):
     headers = {"Authorization": originality_key}
     try:
         api_request = requests.get(api_url + "/customers/ping", headers=headers)
         response = api_request.json()
+        if return_bool:
+            return response['Pong']
         return response
     except ConnectionError as error:
         raise error

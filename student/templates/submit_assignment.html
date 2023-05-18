@@ -159,14 +159,14 @@
                 </ul>
             </div>
             {% if submission_state != "TURNED_IN" %}
-                <div class="card-footer">
-
-                    <button data-bs-toggle="modal" data-bs-target="#turninModal"
-                            class="btn btn-primary btn-block fw-bold text-uppercase"><i
-                            class="bi bi-send-check-fill"></i> Turn In Assignment
-                    </button>
-
-                </div>
+{#                <div class="card-footer">#}
+{##}
+{#                    <button data-bs-toggle="modal" data-bs-target="#turninModal"#}
+{#                            class="btn btn-primary btn-block fw-bold text-uppercase"><i#}
+{#                            class="bi bi-send-check-fill"></i> Turn In Assignment#}
+{#                    </button>#}
+{##}
+{#                </div>#}
             {% endif %}
         </div>
     {% endif %}
@@ -188,11 +188,11 @@
                     <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}">
 
                 </div>
-                <div class="modal-footer">
-                    <button role="submit" class="btn btn-primary btn-block fw-bold text-uppercase"><i
-                            class="bi bi-send-check-fill"></i> Turn In Assignment
-                    </button>
-                </div>
+{#                <div class="modal-footer">#}
+{#                    <button role="submit" class="btn btn-primary btn-block fw-bold text-uppercase"><i#}
+{#                            class="bi bi-send-check-fill"></i> Turn In Assignment#}
+{#                    </button>#}
+{#                </div>#}
             </div>
         </form>
     </div>

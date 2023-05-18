@@ -3,7 +3,7 @@ from __future__ import print_function
 import os.path
 import uuid
 from base64 import b64decode
-
+from json import JSONDecodeError
 from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -31,11 +31,10 @@ def submit_to_originality(request):
         file = request.FILES["file"]
         request_uuid = str(uuid.uuid4())
 
-
         try:
             uploaded_file_path = originality_service.handle_uploaded_file(upload_file=file, uuid=request_uuid)
             response = originality_service.submit_document(params, file, uploaded_file_path, uid=uid)
-            if response["success"]:
+            if response:
                 messages.add_message(request, messages.SUCCESS, "Submission successfully sent ",
                                      "alert alert-success fw-bold")
                 return redirect(request.META.get('HTTP_REFERER'))
@@ -47,6 +46,12 @@ def submit_to_originality(request):
             messages.add_message(request, messages.ERROR, 'Request could not be completed check your connection',
                                  "alert alert-danger fw-bold")
             return redirect(request.META.get('HTTP_REFERER'))
+
+        except JSONDecodeError as error:
+            messages.add_message(request, messages.ERROR, error,
+                                 "alert alert-danger fw-bold")
+            return redirect(request.META.get('HTTP_REFERER'))
+
         except Exception as error:
             print(error)
             messages.add_message(request, messages.ERROR, error,
@@ -92,7 +97,7 @@ def download_submission(request, id, signature):
     b64 = submission.file
     return _download_base64(request, submission.id, b64, submission.file_name)
 
-@login_required()
+# @login_required()
 def file_signature_valid(file_name, signature):
     try:
         signer = Signer()
@@ -101,7 +106,14 @@ def file_signature_valid(file_name, signature):
     except Exception:
         return False
 
-@login_required()
+def external_download_submission(request,file_id, signature):
+    submission = get_object_or_404(Submission, google_file_id=file_id)
+    if not file_signature_valid(submission.file_name, signature):
+        return HttpResponse("Invalid url")
+    b64 = submission.file
+    return _download_base64(request, submission.id, b64, submission.file_name)
+
+# @login_required()
 def _download_base64(request, id, base64_string, file_name):
     try:
         # Decode the Base64 string, making sure that it contains only valid characters

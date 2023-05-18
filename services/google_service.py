@@ -112,13 +112,16 @@ def modify_student_submission(submission_id, course_id, course_work_id, google_d
         return error
 
 def turn_in_submission(submission_id, course_id, course_work_id, uid):
+
     try:
         service = get_google_service_instance(uid=uid)
-        service.courses().courseWork().studentSubmissions().turnIn(
+        turn_in = service.courses().courseWork().studentSubmissions().turnIn(
             courseWorkId=course_work_id, courseId=course_id, id=submission_id).execute()
+        print("turn in")
+        print(turn_in)
         return True
     except Exception as error:
-        return error
+        return False
 
 def reclaim_submission(submission_id, course_id, course_work_id, uid):
     try:

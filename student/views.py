@@ -75,6 +75,7 @@ def course_assignments(request, course_id, assignment_id):
 
     try:
         all_submissions = google_service.get_student_submissions(course_id, assignment_id, uid)
+        print(all_submissions)
         submission_id = all_submissions['studentSubmissions'][0].get("id")
         submission_state = all_submissions['studentSubmissions'][0].get("state")
         course_details = google_service.classroom_get_course(course_id=course_id, uid=uid)
@@ -88,11 +89,10 @@ def course_assignments(request, course_id, assignment_id):
             "submission_state": submission_state
         }
         return render(request, "submit_assignment.html", response)
-
     except Exception as error:
         messages.add_message(request, messages.ERROR, 'An errors occurred: %s' % error,
                              "alert alert-danger fw-bold")
-        return render(request, "submit_assignment.html", response)
+        return render(request, "submit_assignment.html")
 
 @login_required
 @check_user_able_to_see_page("students")
