@@ -70,9 +70,8 @@ def course_assignments(request, course_id, assignment_id):
         document.signature = signature
         document.originality_submitted = (str(document.originality_id) != "" or str(document.originality_id) != "0")
         document.google_submitted = (str(document.google_file_id) != "" or str(document.google_file_id) != "0")
-        print("submitted")
         document.originality_submitted
-        print(document.originality_submitted)
+
 
     try:
         all_submissions = google_service.get_student_submissions(course_id, assignment_id, uid)

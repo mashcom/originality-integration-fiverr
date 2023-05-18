@@ -102,7 +102,7 @@ def submit_document(params, file_request, file_path, uid):
     # The file details and mime
     file_mime = file_path_mime(file_path)
     print(file_path_mime(file_path))
-
+    print("allowed: "+ str(file_mime in ORIGINALITY_ALLOWED_FILE_TYPES))
     # If an assignment is marked that its not supposed to be check for originality or its not allowed then submit only to Google Classroom
     if originality_check != "YES" or file_mime not in ORIGINALITY_ALLOWED_FILE_TYPES:
         _save_submission(0, request_data)
@@ -111,7 +111,13 @@ def submit_document(params, file_request, file_path, uid):
     # make request to Originality Server
     try:
         api_request = requests.post(settings.get("api_url") + "documents", request_data, headers=headers)
-        response = api_request.json()
+        print("response")
+        print(api_request.status_code)
+
+        try:
+            response = api_request.json()
+        except Exception as error:
+            raise Exception("The Originality server returned a malformed response. Please try again!")
 
         response["success"] = False
 

@@ -208,3 +208,7 @@ REQUIRED_ORIGINALITY_INTEGRATION_SETTINGS = [
         "setting": "v0.1"
     }
 ]
+
+REQUIRED_GROUPS = [
+    "teachers", "students", "admins"
+]

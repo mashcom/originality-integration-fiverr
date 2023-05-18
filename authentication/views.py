@@ -8,7 +8,7 @@ from django.shortcuts import render, redirect, HttpResponse
 from oauthlib.oauth2 import InvalidClientError
 
 from originality_project import settings
-from originality_project.settings import REQUIRED_ORIGINALITY_INTEGRATION_SETTINGS
+from originality_project.settings import REQUIRED_ORIGINALITY_INTEGRATION_SETTINGS, REQUIRED_GROUPS
 from settings_manager.models import Originality
 from services import originality_service
 from django.contrib.sites.models import Site
