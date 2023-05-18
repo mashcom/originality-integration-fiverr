@@ -15,10 +15,11 @@ from django.contrib.sites.models import Site
 from services import google_service
 from django.core.management import call_command
 
-
 def index(request):
     try:
-        User.objects.all().exists()
+        user_count = User.objects.all().count()
+        if user_count == 0:
+            return render(request, "no_super_user.html")
     except ProgrammingError:
         return render(request, "migrations_pending.html")
 

@@ -101,9 +101,13 @@ Click on the **"ADD SOCIAL APPLICATION"** button to create a new social app.
 In the **"Add Social Application"** form, you need to provide the following information:
 
 **Provider:** Select the **Google**  from the drop-down menu
+
 **Name:** Enter a descriptive name for the social app.
+
 **Client ID:** Enter the client ID or API key provided by the social provider.
+
 **Secret Key:** Enter the secret key or API secret provided by the social provider.
+
 **Sites:** Select the site(s) for which this social app should be active.
 
 
