@@ -198,10 +198,10 @@ def get_active_settings():
         originality_status = Originality.objects.get(name="originality_status")
         ghost_writer_status = Originality.objects.get(name="ghost_writer_status")
         settings = {
-        "key": key.setting,
-        "api_url": api_url.setting,
-        "originality_status": originality_status.setting,
-        "ghost_writer_status": ghost_writer_status.setting,
+            "key": key.setting,
+            "api_url": api_url.setting,
+            "originality_status": originality_status.setting,
+            "ghost_writer_status": ghost_writer_status.setting,
          }
         return settings
     except Exception as error:
