@@ -1,18 +1,16 @@
 import datetime
 import os.path
 import uuid
-from datetime import time
 
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, HttpResponse, redirect
 from django.utils import timezone
 from googleapiclient.errors import HttpError
-from django.core.exceptions import PermissionDenied, BadRequest
-from httplib2 import ServerNotFoundError
 
 import services.google_service
 from originality_project.decorators import check_user_able_to_see_page, google_authentication_required
@@ -101,9 +99,22 @@ def show_assignments(request, course_id):
             print(local_assignment_details)
             assignment["originality_check_required"] = False
             assignment["api_created"] = False
+
             if local_assignment_details is not None:
                 assignment["api_created"] = True
                 assignment["originality_check_required"] = (local_assignment_details.originality_check == "YES")
+            else:
+                # save assignment in cache
+                cache_assignment = Assignments()
+                cache_assignment.course_id = assignment.get("courseId")
+                cache_assignment.assignment_id = assignment_id
+                cache_assignment.owner_id = uid
+                cache_assignment.title = assignment.get("title")
+                cache_assignment.description = assignment.get("description")
+                cache_assignment.originality_check = "NO"
+                cache_assignment.processed = 1
+                cache_assignment.save()
+
 
     return render(request, "assignments_for_course.html", {"course": course, "assignments": assignments})
 
