@@ -135,7 +135,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'Africa/Harare'
+TIME_ZONE = 'UCT'
 
 USE_I18N = True
 

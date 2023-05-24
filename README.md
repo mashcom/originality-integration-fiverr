@@ -21,7 +21,7 @@ Make sure you have Git installed. Run the following command to verify:
 
 **1. Clone the GitHub repository to your local machine using the following command:**
 
-`git clone https://github.com/username/repository.git
+`git clone https://github.com/mashcom/originality-integration-fiverr
 `
 Replace "username/repository" with the name of the repository you want to clone.
 
@@ -61,20 +61,20 @@ Please ensure that you have MySQL version 8 is running and add the required mysq
         }
 
 
-`python manage.py makemigrations`
+`python3 manage.py makemigrations`
 
-`python manage.py migrate`
+`python3 manage.py migrate`
 
 **6. Create a superuser for the Django application by running the following command:**
 
 
-`python manage.py createsuperuser`
+`python3 manage.py createsuperuser`
 
 Follow the prompts to set a username and password for the superuser.
 
 **7. Run the Django application by running the following command:**
 
-`python manage.py runserver
+`python3 manage.py runserver
 `
 Open a web browser and navigate to **http://127.0.0.1:8000/admin/** to access the Django admin panel. Log in using the username and password you set for the superuser in step 6.
 
