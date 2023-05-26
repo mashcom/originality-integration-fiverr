@@ -6,18 +6,17 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: 'originality_app'
-#      MYSQL_USER: 'root'
-#      MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
     volumes:
       - ./mysql-data:/var/lib/mysql
 
   web:
     build: .
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    restart: always
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:80"
     volumes:
       - .:/code
     ports:
-      - 8000:8000
+      - 80:80
     depends_on:
       - db
