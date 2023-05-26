@@ -25,5 +25,6 @@ services:
       - ./myapp.conf:/etc/apache2/sites-enabled/myapp.conf  # Mount the Apache configuration file
     ports:
       - 80:80
+    command: bash -c "a2enmod proxy && apache2-foreground"
     depends_on:
       - web
