@@ -40,7 +40,7 @@ COPY myapp.conf /etc/apache2/sites-enabled/myapp.conf
 RUN a2enmod rewrite
 
 # Run database migrations
-RUN python manage.py migrate
+#RUN python manage.py migrate
 
 # Expose port 80 for Apache
 EXPOSE 80
