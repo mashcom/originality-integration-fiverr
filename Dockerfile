@@ -39,7 +39,7 @@ RUN python manage.py collectstatic --no-input
 COPY myapp.conf /etc/apache2/sites-enabled/myapp.conf
 RUN a2enmod rewrite
 
-RUN chmod +x wait-for-it.sh
+RUN chmod a+x wait-for-it.sh
 
 # Expose port 80 for Apache
 EXPOSE 80
