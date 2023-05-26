@@ -2,7 +2,7 @@
 
 # Update the package index and upgrade the system packages
 sudo apt update
-sudo apt upgrade -y
+#sudo apt upgrade -y
 
 # Install necessary packages to allow apt to use repositories over HTTPS
 sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
@@ -18,7 +18,7 @@ sudo apt update
 
 # Install Docker
 sudo apt install -y docker-ce docker-ce-cli containerd.io
-
+a
 # Verify Docker installation
 sudo docker run hello-world
 
@@ -27,5 +27,15 @@ sudo usermod -aG docker $USER
 
 # Display a message to logout and log back in for the changes to take effect
 echo "Please logout and log back in to use Docker without 'sudo'."
+
+
+#installer docker composer
+
+sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+
+sudo chmod +x /usr/local/bin/docker-compose
+
+docker-compose --version
 
 # End of script
