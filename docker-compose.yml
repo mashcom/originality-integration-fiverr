@@ -8,26 +8,25 @@ services:
     volumes:
       - ./mysql-data:/var/lib/mysql
 
+
   web:
     build: .
     restart: always
-    command: sh -c "./wait-for-it.sh db:3306 -- python manage.py migrate && python manage.py runserver 0.0.0.0:80"
+    command: sh -c "./wait-for-it.sh db:3306 -- python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/code
     ports:
-      - 80:80
+      - 8000:8000
     depends_on:
       - db
 
-  apache:
-    image: httpd:2.4
-    build: .
-    #    restart: always
-    volumes:
-      - .:/code
-      - ./myapp.conf:/etc/apache2/sites-enabled/myapp.conf  # Mount the Apache configuration file
-    ports:
-      - 80:80
-    command: bash -c "a2enmod proxy && apachectl -D FOREGROUND"
-    depends_on:
-      - web
+#  apache:
+#    image: httpd:2.4
+#    build: .
+#    #    restart: always
+#    volumes:
+#      - .:/code
+#      - ./myapp.conf:/etc/apache2/sites-enabled/myapp.conf  # Mount the Apache configuration file
+#    command: bash -c "a2enmod proxy && apachectl -D FOREGROUND"
+#    depends_on:
+#      - web
