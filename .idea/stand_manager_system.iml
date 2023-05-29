@@ -23,7 +23,13 @@
     <option name="TEMPLATE_CONFIGURATION" value="Django" />
     <option name="TEMPLATE_FOLDERS">
       <list>
-        <option value="$MODULE_DIR$/../stand_manager_system\templates" />
+        <option value="$MODULE_DIR$/templates" />
+        <option value="$MODULE_DIR$/authentication/templates" />
+        <option value="$MODULE_DIR$/originality/templates" />
+        <option value="$MODULE_DIR$/originality_project/templates" />
+        <option value="$MODULE_DIR$/settings_manager/templates" />
+        <option value="$MODULE_DIR$/student/templates" />
+        <option value="$MODULE_DIR$/teacher/templates" />
       </list>
     </option>
   </component>

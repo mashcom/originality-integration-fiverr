@@ -25,11 +25,18 @@ RUN apt-get update \
 # Install Python dependencies
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+# Create a virtual environment
+RUN python -m venv .venv
+
+# Activate the virtual environment
+RUN /bin/bash -c "source .venv/bin/activate"
+
+
 
 # Copy the Django project code into the container
 COPY . .
 
-RUN pip install gunicorn
+#RUN pip install gunicorn
 
 # Collect static files
 RUN python manage.py collectstatic --no-input
@@ -38,6 +45,9 @@ RUN python manage.py collectstatic --no-input
 # Configure Apache
 COPY myapp.conf /etc/apache2/sites-enabled/myapp.conf
 RUN a2enmod rewrite
+# Enable required Apache modules
+RUN a2enmod proxy
+
 
 RUN chmod a+x wait-for-it.sh
 

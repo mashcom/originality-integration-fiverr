@@ -1,4 +1,4 @@
-import { $$, ajaxForm, replaceToolbarState } from "./utils.js";
+import {$$, ajaxForm, replaceToolbarState} from "./utils.js";
 
 const djDebug = document.getElementById("djDebug");
 

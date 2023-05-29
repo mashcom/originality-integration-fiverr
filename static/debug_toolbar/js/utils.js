@@ -71,7 +71,7 @@ const $$ = {
 };
 
 function ajax(url, init) {
-    init = Object.assign({ credentials: "same-origin" }, init);
+    init = Object.assign({credentials: "same-origin"}, init);
     return fetch(url, init)
         .then(function (response) {
             if (response.ok) {
@@ -135,4 +135,4 @@ function debounce(func, delay) {
     };
 }
 
-export { $$, ajax, ajaxForm, replaceToolbarState, debounce };
+export {$$, ajax, ajaxForm, replaceToolbarState, debounce};

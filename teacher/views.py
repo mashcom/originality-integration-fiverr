@@ -20,24 +20,27 @@ from teacher.models import Assignments, Courses, AssignmentMaterials
 @login_required()
 @google_authentication_required()
 def index(request):
-    uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    uid = get_user_google_ui(request)
     Courses.objects.filter(owner_id=uid).delete()
 
     try:
         courses = google_service.get_teacher_classes(uid)
         for course in courses:
-            new_course = Courses()
-            new_course.course_id = course.get("id")
-            new_course.name = course.get("name")
-            new_course.description = ""  # course.get("description")
-            new_course.owner_id = course.get("ownerId")
-            new_course.save()
+            cache_course(course)
         return render(request, "courses.html", {"courses": courses})
     except Exception:
         courses = {}
         messages.add_message(request, messages.ERROR, "Request could not be completed, please check your connection!",
                              "alert alert-danger fw-bold")
         return render(request, "courses.html", {"courses": courses})
+
+def cache_course(course):
+    new_course = Courses()
+    new_course.course_id = course.get("id")
+    new_course.name = course.get("name")
+    new_course.description = ""  # course.get("description")
+    new_course.owner_id = course.get("ownerId")
+    return new_course.save()
 
 @login_required()
 @google_authentication_required()
@@ -49,12 +52,12 @@ def create_course(request):
 @google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def save_course(request):
-    uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    uid = get_user_google_ui(request)
     if request.method == "POST":
         name = request.POST["name"]
         try:
             course = google_service.create_class(name=name, owner_id=uid, uid=uid)
-            if course == True:
+            if course:
                 messages.add_message(request, messages.SUCCESS, course,
                                      "alert alert-success fw-bold")
                 return redirect('/teacher')
@@ -70,7 +73,7 @@ def save_course(request):
 @google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def create_assignment(request):
-    uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    uid = get_user_google_ui(request)
     courses = Courses.objects.filter(owner_id=uid).order_by("name")
     return render(request, "create_assignment.html", {"courses": courses})
 
@@ -78,7 +81,7 @@ def create_assignment(request):
 @google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def edit_assignment(request, course_id, assignment_id):
-    uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    uid = get_user_google_ui(request)
     assignment_details = google_service.classroom_get_course_work_item(course_id=course_id,
                                                                        course_work_id=assignment_id, uid=uid)
     courses = Courses.objects.filter(course_id=course_id)
@@ -88,14 +91,20 @@ def edit_assignment(request, course_id, assignment_id):
 @google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def show_assignments(request, course_id):
-    uid = SocialAccount.objects.filter(user=request.user)[0].uid
-    assignments = google_service.classroom_get_course_work(course_id=course_id, uid=uid)
-    course = google_service.classroom_get_course(course_id=course_id, uid=uid)
+    uid = get_user_google_ui(request)
+    try:
+        assignments = google_service.classroom_get_course_work(course_id=course_id, uid=uid)
+        course = google_service.classroom_get_course(course_id=course_id, uid=uid)
+    except Exception as error:
+        messages.add_message(request, messages.ERROR, error,
+                             "alert alert-success fw-bold")
+        return render(request, "assignments_for_course.html", {"course": course, "assignments": assignments})
+
     # Get the local details of the extracted Google Classroom
     if assignments is not None:
         for assignment in assignments:
             assignment_id = assignment.get("id")
-            local_assignment_details = Assignments.objects.filter(assignment_id=assignment_id).first()
+            local_assignment_details = get_assignment_details(assignment_id)
             print(local_assignment_details)
             assignment["originality_check_required"] = False
             assignment["api_created"] = False
@@ -104,19 +113,26 @@ def show_assignments(request, course_id):
                 assignment["api_created"] = True
                 assignment["originality_check_required"] = (local_assignment_details.originality_check == "YES")
             else:
-                # save assignment in cache
-                cache_assignment = Assignments()
-                cache_assignment.course_id = assignment.get("courseId")
-                cache_assignment.assignment_id = assignment_id
-                cache_assignment.owner_id = uid
-                cache_assignment.title = assignment.get("title")
-                cache_assignment.description = assignment.get("description")
-                cache_assignment.originality_check = "NO"
-                cache_assignment.processed = 1
-                cache_assignment.save()
-
+                save_assignment_to_cache(assignment, assignment_id, uid)
 
     return render(request, "assignments_for_course.html", {"course": course, "assignments": assignments})
+
+def get_assignment_details(assignment_id):
+    return Assignments.objects.filter(assignment_id=assignment_id).first()
+
+def get_user_google_ui(request):
+    return SocialAccount.objects.filter(user=request.user)[0].uid
+
+def save_assignment_to_cache(assignment, assignment_id, uid):
+    cache_assignment = Assignments()
+    cache_assignment.course_id = assignment.get("courseId")
+    cache_assignment.assignment_id = assignment_id
+    cache_assignment.owner_id = uid
+    cache_assignment.title = assignment.get("title")
+    cache_assignment.description = assignment.get("description")
+    cache_assignment.originality_check = "NO"
+    cache_assignment.processed = 1
+    return cache_assignment.save()
 
 @login_required()
 @google_authentication_required()
@@ -134,7 +150,7 @@ def handle_uploaded_file(upload_file, uuid):
 @check_user_able_to_see_page("teachers")
 def toggle_originality(request, assignment_id):
     assignment = get_object_or_404(Assignments, assignment_id=assignment_id)
-    uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    uid = get_user_google_ui(request)
     if uid != assignment.owner_id:
         raise PermissionDenied
 
@@ -160,7 +176,7 @@ def save_assignment(request):
         originality_enabled = request.POST["originality_enabled"]
         due_date = request.POST["due_date"]
         due_time = request.POST["due_time"]
-        uid = SocialAccount.objects.filter(user=request.user)[0].uid
+        uid = get_user_google_ui(request)
 
         assignment = Assignments()
         assignment.title = title
@@ -182,10 +198,7 @@ def save_assignment(request):
                 if uploaded != False:
                     google_drive_id = google_service.upload_to_google_drive(file_path=uploaded, file_name=file.name,
                                                                             uid=uid)
-                    assignment_material = AssignmentMaterials()
-                    assignment_material.assignment_id = assignment.id
-                    assignment_material.google_drive_id = google_drive_id
-                    assignment_material.save()
+                    save_assignment_material(assignment, google_drive_id)
 
             created = create_assignment_in_background(request, id=assignment.id, uid=uid)
             if created:
@@ -204,6 +217,12 @@ def save_assignment(request):
 
         return render(request, "create_assignment.html")
     return HttpResponse("Invalid request method")
+
+def save_assignment_material(assignment, google_drive_id):
+    assignment_material = AssignmentMaterials()
+    assignment_material.assignment_id = assignment.id
+    assignment_material.google_drive_id = google_drive_id
+    assignment_material.save()
 
 @login_required()
 @google_authentication_required()

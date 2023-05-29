@@ -1,4 +1,4 @@
-import { $$, ajax, replaceToolbarState, debounce } from "./utils.js";
+import {$$, ajax, debounce, replaceToolbarState} from "./utils.js";
 
 function onKeyDown(event) {
     if (event.keyCode === 27) {
@@ -35,7 +35,7 @@ const djdt = {
                 this.parentElement.classList.add("djdt-active");
 
                 const inner = current.querySelector(
-                        ".djDebugPanelContent .djdt-scroll"
+                    ".djDebugPanelContent .djdt-scroll"
                     ),
                     storeId = djDebug.dataset.storeId;
                 if (storeId && inner.children.length === 0) {
@@ -52,14 +52,14 @@ const djdt = {
                         $$.applyStyles(inner);
                         djDebug.dispatchEvent(
                             new CustomEvent("djdt.panel.render", {
-                                detail: { panelId: panelId },
+                                detail: {panelId: panelId},
                             })
                         );
                     });
                 } else {
                     djDebug.dispatchEvent(
                         new CustomEvent("djdt.panel.render", {
-                            detail: { panelId: panelId },
+                            detail: {panelId: panelId},
                         })
                     );
                 }
@@ -157,6 +157,7 @@ const djdt = {
         });
         let startPageY, baseY;
         const handle = document.getElementById("djDebugToolbarHandle");
+
         function onHandleMove(event) {
             // Chrome can send spurious mousemove events, so don't do anything unless the
             // cursor really moved.  Otherwise, it will be impossible to expand the toolbar
@@ -174,6 +175,7 @@ const djdt = {
                 djdt.handleDragged = true;
             }
         }
+
         $$.on(djDebug, "mousedown", "#djShowToolBarButton", function (event) {
             event.preventDefault();
             startPageY = event.pageY;
@@ -193,7 +195,7 @@ const djdt = {
                         djdt.ensureHandleVisibility();
                     }
                 },
-                { once: true }
+                {once: true}
             );
         });
 

@@ -5,7 +5,6 @@ import datetime
 from django.db import migrations, models
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('teacher', '0038_rename_link_assignmentmaterials_google_drive_id_and_more'),
     ]
@@ -14,6 +13,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='assignments',
             name='created_at',
-            field=models.DateTimeField(default=datetime.datetime(2023, 5, 9, 10, 18, 45, 632053, tzinfo=datetime.timezone.utc)),
+            field=models.DateTimeField(
+                default=datetime.datetime(2023, 5, 9, 10, 18, 45, 632053, tzinfo=datetime.timezone.utc)),
         ),
     ]

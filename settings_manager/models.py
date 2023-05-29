@@ -3,7 +3,7 @@ from django.utils import timezone
 
 class Originality(models.Model):
     id = models.BigAutoField(primary_key="id", null=False)
-    name = models.CharField(max_length=100,)
+    name = models.CharField(max_length=100, )
     setting = models.TextField(max_length=100)
 
 class OriginalityLog(models.Model):

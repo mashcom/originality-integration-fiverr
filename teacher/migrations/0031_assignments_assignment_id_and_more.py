@@ -5,7 +5,6 @@ import datetime
 from django.db import migrations, models
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('teacher', '0030_alter_assignments_created_at_alter_courses_course_id_and_more'),
     ]
@@ -24,6 +23,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='assignments',
             name='created_at',
-            field=models.DateTimeField(default=datetime.datetime(2023, 5, 5, 9, 14, 58, 707641, tzinfo=datetime.timezone.utc)),
+            field=models.DateTimeField(
+                default=datetime.datetime(2023, 5, 5, 9, 14, 58, 707641, tzinfo=datetime.timezone.utc)),
         ),
     ]

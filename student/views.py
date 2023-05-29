@@ -19,24 +19,24 @@ from .forms import NameForm
 def index(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     form = NameForm()
+    courses = {}
     try:
         courses = google_service.get_student_classes(uid=uid)
         if not courses:
             messages.add_message(request, messages.ERROR, 'No active course found!',
                                  "alert alert-danger fw-bold")
 
-        return render(request, "classes.html", {"form": form, "classes": courses})
-
     except TransportError as error:
         messages.add_message(request, messages.ERROR,
                              'There was an issue connecting to remote server, please try again',
                              "alert alert-danger fw-bold")
-        return render(request, "classes.html", {"form": form, "classes": {}})
     except Exception:
         messages.add_message(request, messages.ERROR,
                              'There was a general error connecting to remote server, please try again',
                              "alert alert-danger fw-bold")
-        return render(request, "classes.html", {"form": form, "classes": {}})
+
+    finally:
+        return render(request, "classes.html", {"form": form, "classes": courses})
 
 @login_required
 @check_user_able_to_see_page("students")
@@ -71,7 +71,6 @@ def course_assignments(request, course_id, assignment_id):
         document.originality_submitted = (str(document.originality_id) != "" or str(document.originality_id) != "0")
         document.google_submitted = (str(document.google_file_id) != "" or str(document.google_file_id) != "0")
         document.originality_submitted
-
 
     try:
         all_submissions = google_service.get_student_submissions(course_id, assignment_id, uid)

@@ -2,9 +2,7 @@
 
 from django.db import migrations
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('originality', '0015_rename_resubmission_created_at_submission_resubmission_requested'),
     ]

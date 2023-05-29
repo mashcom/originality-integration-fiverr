@@ -11,15 +11,18 @@ services:
   web:
     build: .
     restart: always
-    command: sh -c "./wait-for-it.sh db:3306 -- python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: sh -c "./wait-for-it.sh db:3306 -- python manage.py migrate && python manage.py runserver 0.0.0.0:80"
     volumes:
       - .:/code
+    ports:
+      - 80:80
     depends_on:
       - db
 
   apache:
+    image: httpd:2.4
     build: .
-    restart: always
+    #    restart: always
     volumes:
       - .:/code
       - ./myapp.conf:/etc/apache2/sites-enabled/myapp.conf  # Mount the Apache configuration file

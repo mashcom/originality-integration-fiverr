@@ -7,6 +7,10 @@ from django.views.decorators.csrf import csrf_exempt
 from originality.models import Report
 from services import originality_service
 
+def index(request):
+    host_url = request.scheme + "://" + request.get_host() + request.get_full_path()
+    return JsonResponse({"Message": "The API is active", "Host": host_url}, status=200)
+
 '''
 This is a simple API to receive similarity reports from Originality
 '''

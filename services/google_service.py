@@ -112,7 +112,6 @@ def modify_student_submission(submission_id, course_id, course_work_id, google_d
         return error
 
 def turn_in_submission(submission_id, course_id, course_work_id, uid):
-
     try:
         service = get_google_service_instance(uid=uid)
         turn_in = service.courses().courseWork().studentSubmissions().turnIn(

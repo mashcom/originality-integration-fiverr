@@ -33,7 +33,7 @@ echo "Please logout and log back in to use Docker without 'sudo'."
 
 sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 
-
+#make the docker-composer executible
 sudo chmod +x /usr/local/bin/docker-compose
 
 docker-compose --version

@@ -4,6 +4,7 @@ import os.path
 import uuid
 from base64 import b64decode
 from json import JSONDecodeError
+
 from allauth.socialaccount.models import SocialAccount
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -106,7 +107,7 @@ def file_signature_valid(file_name, signature):
     except Exception:
         return False
 
-def external_download_submission(request,file_id, signature):
+def external_download_submission(request, file_id, signature):
     submission = get_object_or_404(Submission, google_file_id=file_id)
     if not file_signature_valid(submission.file_name, signature):
         return HttpResponse("Invalid url")

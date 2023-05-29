@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('originality', '0012_alter_submission_originality_id'),
     ]

@@ -2,9 +2,7 @@
 
 from django.db import migrations, models
 
-
 class Migration(migrations.Migration):
-
     dependencies = [
         ('originality', '0007_submission_google_classroom_id'),
     ]

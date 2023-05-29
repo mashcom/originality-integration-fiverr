@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 import os
 from pathlib import Path
+
 from dotenv import load_dotenv, dotenv_values
 
 load_dotenv()  # take environment variables from .env.
@@ -30,12 +31,8 @@ SECRET_KEY = 'zudx3$9x^7*ib9wb&@ctul@dek&^avs-7(r4ref(+8kkxyrfvm'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-
 ALLOWED_HOSTS = [
     '*',
-    '127.0.0.1',
-    'fiverr.mashcom.co.zw',
-    '137.184.79.178'
 ]
 
 # Application definition
@@ -172,7 +169,6 @@ AUTHENTICATION_BACKENDS = [
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 LOGIN_REDIRECT_URL = '/'
-
 
 # these are the required settings for Originality and Google Classroom
 REQUIRED_ORIGINALITY_INTEGRATION_SETTINGS = [
