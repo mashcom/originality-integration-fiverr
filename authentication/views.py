@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import BadRequest
 from django.db import ProgrammingError
 from django.shortcuts import render, redirect
+from google_auth_oauthlib.flow import InstalledAppFlow
 from oauthlib.oauth2 import InvalidClientError
 
 from originality_project.settings import REQUIRED_ORIGINALITY_INTEGRATION_SETTINGS
@@ -81,3 +82,16 @@ def attempt(request):
 
 def no_group(request):
     return render(request, "no_group.html")
+
+def oauth_callback(request):
+    flow = InstalledAppFlow.from_client_secrets_file('credentials.json', google_service.SCOPES)
+
+    #
+    # Exchange the authorization code for credentials
+    flow.fetch_token(authorization_response=request.build_absolute_uri())
+
+    # Save the credentials for the next run
+    creds = flow.credentials
+    # Save the credentials to token.json or any other preferred storage method
+    print(creds)
+    return render(request, 'oauth_app/callback.html')

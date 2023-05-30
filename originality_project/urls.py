@@ -5,7 +5,7 @@ from authentication import views
 
 urlpatterns = [
     path("", views.index),
-    path("auth", include("authentication.urls")),
+    path("auth/", include("authentication.urls")),
     path("originality/", include("originality.urls")),
     path("api/v1/", include("api.urls")),
     path("admin/", admin.site.urls),

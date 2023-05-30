@@ -43,9 +43,12 @@ def get_google_service_instance(uid, api="classroom", version="v1"):
         if google_credentials and google_credentials.expired and google_credentials.refresh_token:
             google_credentials.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            google_credentials = flow.run_local_server(port=0, open_browser=True)
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            flow.redirect_uri = "http://127.0.0.1:8000/auth/oauth_callback"
+
+            auth_url, _ = flow.authorization_url(prompt='consent')
+            print(auth_url)
+            return auth_url
         # Save the credentials for the next run
         with open(token_file, 'w') as token:
             token.write(google_credentials.to_json())

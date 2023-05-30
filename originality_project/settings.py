@@ -99,13 +99,17 @@ WSGI_APPLICATION = 'originality_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': config.get("DATABASE_NAME"),
-        'USER': config.get("DATABASE_USERNAME"),
-        'PASSWORD': config.get("DATABASE_PASSWORD"),
-        'PORT': config.get("DATABASE_PORT"),
-        'HOST': config.get("DATABASE_HOST")
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'NAME': config.get("DATABASE_NAME"),
+    #     'USER': config.get("DATABASE_USERNAME"),
+    #     'PASSWORD': config.get("DATABASE_PASSWORD"),
+    #     'PORT': config.get("DATABASE_PORT"),
+    #     'HOST': config.get("DATABASE_HOST")
+    # }
 
 }
 
