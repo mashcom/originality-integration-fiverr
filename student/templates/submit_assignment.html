@@ -58,13 +58,16 @@
         <div class="card-header fw-bold text-muted">Submit to Originality &trade;
         </div>
         <div class="card-body">
-            {#            {{ course_details }}#}
-            <h4>{{ assignment_details.title }}</h4>
+<!--            {{assignment_details}}-->
+            <h4 class="fw-bold">{{ assignment_details.title }}</h4>
             <p>{{ assignment_details.description }}</p>
             <input type="hidden" readonly name="CourseCode" value="{{ assignment_details.courseId }}">
+            <input type="hidden" readonly name="CourseName" value="{{ assignment_details.title }}">
+
+
             <input type="hidden" readonly name="AssignmentCode" value="{{ assignment_details.id }}">
             <input type="hidden" readonly name="StudentCode" value="{{ uid }}">
-            <input type="hidden" readonly name="ownerId" value="{{ course_details.ownerId }}">
+            <input type="hidden" readonly name="ownerId" value="{{ assignment_details.creatorUserId }}">
             <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}">
             <input type="hidden" readonly name="originality_check"
                    value="{{ local_assignment_config.originality_check }}">
@@ -78,7 +81,7 @@
                     have acknowledged the use of the works of others.
                 </div>
 
-                {% if local_assignment_config.originality_check == "YES" %}
+                {% if local_assignment_config.originality_check == "YES" and originality_settings == "True" %}
                     <input required type="checkbox" name="agreed"> I am aware and in full agreement that this assignment
                     may
                     be
@@ -96,7 +99,7 @@
         </div>
         {% if submission_state != "TURNED_IN" %}
             <div class="card-footer">
-                <button type="submit" class="btn btn-primary fw-bold text-uppercase">
+                <button role="submit" type="submit" class="btn btn-primary fw-bold text-uppercase">
                     <i class="bi bi-cloud-upload-fill"></i> Upload Document
                 </button>
             </div>

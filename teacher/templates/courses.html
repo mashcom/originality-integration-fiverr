@@ -3,53 +3,53 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-people"></i> My Courses</h1>
+<h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-people"></i> My Courses</h1>
+ <div class="col-lg-12">
+     <a href="{% url 'create_course' %}" class="btn btn-primary fw-bold text-uppercase mb-3"><i class="bi bi-plus-circle"></i> Create New Course</a>
+ </div>
+<div class="card col-lg-12">
+    <div class="card-header fw-bold text-muted">List of courses you teach
 
-    <div class="card">
-        <div class="card-header fw-bold text-muted">List of courses you teach
-            <a href="{% url 'create_course' %}" class="btn btn-primary fw-bold text-uppercase"
-               style="float: right !important;"><i class="bi bi-plus-circle"></i> Create New Course</a>
-        </div>
-        <div class="card-body">
-            {% if messages %}
-                {% for message in messages %}
-                    <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-            <ul class="list-group list-group-flush">
-                {% for course in courses %}
-                    <a href="{% url 'show_assignments_for_course' course.id %}"
-                       class="list-group-item list-group-item-action">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1"><span class="fw-bold"><i
-                                    class="bi bi-people"></i> {{ course.name }}</span>
-                            </h5>
-                            <small class="text-muted">
-                                <button
-                                        class="btn btn-outline-primary btn-sm float-end fw-bold text-uppercase"><i
-                                        class="bi bi-book-half"></i> Assignments
-                                </button>
-                            </small>
-                        </div>
-                        <p class="mb-1">Enrolment Code: <span
-                                class="badge bg-secondary fw-bold ">{{ course.enrollmentCode }}</span></p>
-                        <small class="text-muted">{{ course.descriptionHeading }}</small>
-                    </a>
-                {% empty %}
-                    <div class="col-lg-8 mx-auto py-5">
-                        <center>
-                            <i class="bi bi-info-circle  fw-bold mx-auto text-muted text-center display-1"></i>
-                            <p class="text-muted text-center fw-bold">No courses found at the moment</p>
-
-                            <a href="{% url 'create_course' %}" class="btn btn-primary mx-auto fw-bold text-uppercase">Create
-                                New Course</a>
-                        </center>
-
-                    </div>
-                {% endfor %}
-
-            </ul>
-        </div>
     </div>
+    <div class="card-body">
+        {% if messages %}
+        {% for message in messages %}
+        <div {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+        <ul class="list-group list-group-flush">
+            {% for course in courses %}
+            <li
+               class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"><span class="fw-bold"><i
+                            class="bi bi-people"></i> {{ course.name }}</span>
+                    </h5>
+                    <small class="text-muted">
+                        <a href="{% url 'show_assignments_for_course' course.id %}" class="btn btn-outline-secondary  float-end fw-bold text-uppercase">
+                            <i class="bi bi-folder2-open"></i> Open Course
+                        </a>
+                    </small>
+                </div>
+                <p class="mb-1">Enrolment Code: <span
+                        class="badge bg-secondary fw-bold ">{{ course.enrollmentCode }}</span></p>
+                <small class="text-muted">{{ course.descriptionHeading }}</small>
+            </li>
+            {% empty %}
+            <div class="col-lg-8 mx-auto py-5">
+                <center>
+                    <i class="bi bi-info-circle  fw-bold mx-auto text-muted text-center display-1"></i>
+                    <p class="text-muted text-center fw-bold">No courses found at the moment</p>
+
+                    <a href="{% url 'create_course' %}" class="btn btn-primary mx-auto fw-bold text-uppercase">Create
+                        New Course</a>
+                </center>
+
+            </div>
+            {% endfor %}
+
+        </ul>
+    </div>
+</div>
 {% endblock %}
 

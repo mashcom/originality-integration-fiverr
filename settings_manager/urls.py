@@ -8,6 +8,8 @@ urlpatterns = [
     path("verify_key", views.verify_key, name="verify_key"),
     path("log", views.log, name="log"),
     path("google_classroom", views.google_classroom_settings, name="google_classroom_settings"),
+    path("health", views.check_file_system, name="check_file_system"),
+
 ]
 
 admin.site.site_header = 'Originality Super Admin'  # default: "Django Administration"

@@ -11,10 +11,17 @@ from django.contrib.auth.decorators import login_required
 from django.core.signing import Signer
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, HttpResponse, redirect
+from django.conf import settings
+
 
 from originality_project.decorators import check_user_able_to_see_page
 from services import google_service, originality_service
 from .models import Submission, Report
+
+import logging
+
+# Get a logger instance
+logger = logging.getLogger(__name__)
 
 @login_required()
 def index(request):
@@ -31,10 +38,10 @@ def submit_to_originality(request):
 
         file = request.FILES["file"]
         request_uuid = str(uuid.uuid4())
-
+        uploaded_file_path = originality_service.handle_uploaded_file(upload_file=file, uuid=request_uuid)
+        response = originality_service.submit_document(params, file, uploaded_file_path, uid=uid)
         try:
-            uploaded_file_path = originality_service.handle_uploaded_file(upload_file=file, uuid=request_uuid)
-            response = originality_service.submit_document(params, file, uploaded_file_path, uid=uid)
+
             if response:
                 messages.add_message(request, messages.SUCCESS, "Submission successfully sent ",
                                      "alert alert-success fw-bold")
@@ -54,7 +61,8 @@ def submit_to_originality(request):
             return redirect(request.META.get('HTTP_REFERER'))
 
         except Exception as error:
-            print(error)
+            logger.debug("ORIGINALITY SUBMIT")
+            logger.debug(error)
             messages.add_message(request, messages.ERROR, error,
                                  "alert alert-danger fw-bold")
             return redirect(request.META.get('HTTP_REFERER'))
@@ -64,6 +72,8 @@ def submit_to_originality(request):
 def reports_for_teacher(request, course_id, assignment_id):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     submissions = Submission.objects.filter(owner_id=uid, assignment_code=assignment_id)
+    logger.debug("SUBMISSIONS")
+    logger.debug(submissions)
     try:
         assignment_details = google_service.classroom_get_course_work_item(course_id=course_id,
                                                                            course_work_id=assignment_id, uid=uid)
@@ -73,13 +83,21 @@ def reports_for_teacher(request, course_id, assignment_id):
                              "alert alert-success fw-bold")
         return redirect(request.META.get('HTTP_REFERER'))
     reports = []
+    unique_reports_set = set()
+
     for submission in submissions:
-        report = Report.objects.filter(id=submission.id).first()
-        if report:
+        report_entries = Report.objects.filter(assignment_id=submission.assignment_code)
+        logger.debug("REPORT ENTRY")
+        logger.debug(report_entries)
+
+        for report in report_entries:
             report.submitted_by = submission.student_code
-            report.profile = google_service.get_user_profile(user_id=submission.student_code, uid=uid)
-            reports.append(report)
-            print(report.profile)
+            report.profile = originality_service.get_user_profile(uid=report.user_id)
+
+            # Check if the report is already in the set
+            if report not in unique_reports_set:
+                reports.append(report)
+                unique_reports_set.add(report)
 
     return render(request, "report.html",
                   {"reports": reports, "assignment": assignment_details, "course_details": course_details})
@@ -118,8 +136,9 @@ def external_download_submission(request, file_id, signature):
 def _download_base64(request, id, base64_string, file_name):
     try:
         # Decode the Base64 string, making sure that it contains only valid characters
+
         bytes = b64decode(base64_string)
-        path = "reports/" + str(id) + '_' + file_name
+        path = os.path.join(settings.BASE_DIR,"reports/" + str(id) + '_' + file_name)
         f = open(path, 'wb')
         f.write(bytes)
         f.close()

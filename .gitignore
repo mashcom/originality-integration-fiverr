@@ -8,3 +8,8 @@
 /uploads/teacher_assignments/
 / token.json
 /mysql-data/
+/.env
+/logs/*.*
+/reports/*.*
+/myenv
+/django.log

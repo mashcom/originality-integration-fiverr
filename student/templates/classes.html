@@ -3,31 +3,48 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-people"></i> My Courses</h1>
+<h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-people"></i> My Courses</h1>
 
-    <div class="card">
-        <div class="card-header fw-bold text-muted">
-            List of courses you are enrolled in
-        </div>
-        <div class="card-body">
-            {% if messages %}
-                {% for message in messages %}
-                    <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-            <ul class="list-group list-group-flush">
-                {% for class in classes %}
-                    <a href="{% url 'course' class.id %}" class="list-group-item list-group-item-action"
-                       aria-current="true">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1 fw-bold"><i class="bi bi-people"></i> {{ class.name }}</h5>
-                            <small>{{ class.creationTime }}</small>
-                        </div>
-                        <p class="mb-1">{{ class.descriptionHeading }}</p>
-                    </a>
-                {% endfor %}
-            </ul>
-        </div>
+<div class="card">
+    <div class="card-header fw-bold text-muted">
+        List of courses you are enrolled in
     </div>
+    <div class="card-body">
+        <!--            {% if messages %}-->
+        <!--                {% for message in messages %}-->
+        <!--                    <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>-->
+        <!--                {% endfor %}-->
+        <!--            {% endif %}-->
+        <ul class="list-group list-group-flush">
+            {% for class in classes %}
+            <a href="{% url 'course' class.id %}" class="list-group-item list-group-item-action"
+               aria-current="true">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1 fw-bold"><i class="bi bi-people"></i> {{ class.name }}</h5>
+                    <small>{{ class.creationTime }}</small>
+                </div>
+                <p class="mb-1">{{ class.descriptionHeading }}</p>
+            </a>
+            {% empty %}
+            <div class="col-lg-8 mx-auto py-5">
+                <center>
+                    <div class="Lqr2e" style="background-image: url('https://www.gstatic.com/classroom/empty_states_home.svg');background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    flex-shrink: 1;
+    height: 23.75rem;
+    margin-bottom: 1.875rem;
+    max-height: 15rem;
+    width: 90%;"></div>
+<!--                    <i class="bi bi-info-circle  fw-bold mx-auto text-muted text-center display-1"></i>-->
+                    <p class="text-muted text-center fw-bold">No courses found at the moment</p>
+
+                </center>
+
+            </div>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 {% endblock %}
 

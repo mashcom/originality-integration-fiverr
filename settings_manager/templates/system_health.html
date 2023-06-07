@@ -1,0 +1,52 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+<h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-gear-wide-connected"></i> System Health
+</h1>
+<div class="card col-lg-6d">
+    <div class="card-header fw-bold text-muted">File System Permission
+
+    </div>
+    <div class="card-body">
+
+        {% if messages %}
+        {% for message in messages %}
+        <div {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="alert alert-info fw-bold">Result for file permission check</div>
+        <table class="table table-striped">
+            <thead class="text-uppercase fw-bold table-dark">
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Folder</th>
+                <th scope="col">Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for key, value in file_system.items %}
+            <tr>
+                <td class="fw-bold">{{ key }}</td>
+                <td>{{ value.folder }}</td>
+                <td>
+                    {% if value.status %}
+                    <span class="badge bg-success">Writable</span>
+                    {% else %}
+                    <span class="badge bg-danger">Not Writable</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+    </div>
+
+</div>
+</form>
+{% endblock %}
+

@@ -10,14 +10,47 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+import logging
 import os
 from pathlib import Path
 
+from django.conf import settings
 from dotenv import load_dotenv, dotenv_values
+
+BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
+
+# Build the path to the log file
+log_file = os.path.join(BASE_DIR, 'logs', 'django.log')
+
+# Configure logging settings
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',  # Set the desired log level
+            'class': 'logging.FileHandler',
+            'filename': log_file,
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['file'],
+            'level': 'DEBUG',  # Set the desired log level
+            'propagate': True,
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        },
+    },
+}
 
 load_dotenv()  # take environment variables from .env.
 
-config = dotenv_values(".env")
+config = dotenv_values(os.path.join(settings.BASE_DIR,".env"))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -29,7 +62,7 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 SECRET_KEY = 'zudx3$9x^7*ib9wb&@ctul@dek&^avs-7(r4ref(+8kkxyrfvm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config.get("DEBUG",False)
 
 ALLOWED_HOSTS = [
     '*',
@@ -99,17 +132,13 @@ WSGI_APPLICATION = 'originality_project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': config.get("DATABASE_NAME"),
+        'USER': config.get("DATABASE_USERNAME"),
+        'PASSWORD': config.get("DATABASE_PASSWORD"),
+        'PORT': config.get("DATABASE_PORT"),
+        'HOST': config.get("DATABASE_HOST")
     }
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.mysql',
-    #     'NAME': config.get("DATABASE_NAME"),
-    #     'USER': config.get("DATABASE_USERNAME"),
-    #     'PASSWORD': config.get("DATABASE_PASSWORD"),
-    #     'PORT': config.get("DATABASE_PORT"),
-    #     'HOST': config.get("DATABASE_HOST")
-    # }
 
 }
 

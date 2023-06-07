@@ -3,44 +3,56 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h2 class="font-weight-bold mb-4 display-font"><i class="bi bi-book-half"></i>
-        Assignments: {{ course_details.name }}</h2>
+<h2 class="font-weight-bold mb-4 display-font"><i class="bi bi-book-half"></i>
+    Assignments: {{ course_details.name }}</h2>
 
-    {% if messages %}
-        {% for message in messages %}
-            <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+{% if messages %}
+{% for message in messages %}
+<div {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+{% for assignment in assignments %}
+<div class="card mb-3 shadow-md">
+    <div class="card-header fw-bold"><span class="float-start fw-bold">{{ assignment.title }}</span>
+
+    </div>
+
+    <div class="card-body">
+
+        <p>{{ assignment.description }}</p>
+
+        {% for material in assignment.materials %}
+        <a href="{{ material.driveFile.driveFile.alternateLink }}" target="_blank"
+           class="badge bg-light text-dark p-2">
+            {{ material.driveFile.driveFile.title }} <i class="bi bi-cloud-download"></i></a>
+
         {% endfor %}
-    {% endif %}
 
-    {% if not assignments %}
-        <div class="alert alert-danger fw-bold">No assignments posted for this course!</div>
-    {% endif %}
-    {% for assignment in assignments %}
-        <div class="card mb-3 shadow-md">
-            <div class="card-header fw-bold"><span class="float-start fw-bold">{{ assignment.title }}</span>
+    </div>
+    <div class="card-footer">
+        <a href="{% url 'submit_assignment' assignment.courseId assignment.id %}"
+           class="btn btn-primary fw-bold text-uppercase"><i class="bi bi-folder2-open"></i> Open Assignment</a>
+    </div>
+</div>
+{% empty %}
+<div class="col-lg-8 mx-auto py-5">
+    <center>
+        <div class="Lqr2e" style="background-image: url('https://www.gstatic.com/classroom/empty_states_home.svg');background-position: center center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    flex-shrink: 1;
+    height: 23.75rem;
+    margin-bottom: 1.875rem;
+    max-height: 15rem;
+    width: 90%;"></div>
+        <!--                    <i class="bi bi-info-circle  fw-bold mx-auto text-muted text-center display-1"></i>-->
+        <p class="text-muted text-center fw-bold">No assignments found at the moment</p>
 
-            </div>
+    </center>
 
-            <div class="card-body">
-
-                <p>{{ assignment.description }}</p>
-
-                {% for material in assignment.materials %}
-                    <a href="{{ material.driveFile.driveFile.alternateLink }}" target="_blank"
-                       class="badge bg-light text-dark p-2">
-                        {{ material.driveFile.driveFile.title }} <i class="bi bi-cloud-download"></i></a>
-
-                {% endfor %}
-
-            </div>
-            <div class="card-footer">
-                <a href="{% url 'submit_assignment' assignment.courseId assignment.id %}"
-                   class="btn btn-primary fw-bold text-uppercase"><i class="bi bi-folder2-open"></i> Manage
-                    Submissions</a>
-            </div>
-        </div>
-    {% endfor %}
-
+</div>
+{% endfor %}
 
 {% endblock %}
 

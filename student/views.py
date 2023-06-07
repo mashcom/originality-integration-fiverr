@@ -6,11 +6,12 @@ from django.contrib.auth.decorators import login_required
 from django.core.signing import Signer
 from django.shortcuts import render, HttpResponse, redirect
 from google.auth.exceptions import TransportError
-
 from originality.models import Submission
 from originality_project.decorators import check_user_able_to_see_page, google_authentication_required
-from services import google_service
+from services import google_service, originality_service
+from services.exceptions import NoGoogleTokenException
 from teacher.models import Assignments
+
 from .forms import NameForm
 
 @login_required
@@ -25,18 +26,25 @@ def index(request):
         if not courses:
             messages.add_message(request, messages.ERROR, 'No active course found!',
                                  "alert alert-danger fw-bold")
+        return render(request, "classes.html", {"form": form, "classes": courses})
 
+    except NoGoogleTokenException as error:
+        messages.add_message(request, messages.ERROR, error,
+                             "alert alert-danger fw-bold")
+        return render(request, "google_permission.html", {"email": "", "url": error})
     except TransportError as error:
         messages.add_message(request, messages.ERROR,
                              'There was an issue connecting to remote server, please try again',
                              "alert alert-danger fw-bold")
+        return render(request, "classes.html", {"form": form, "classes": courses})
+
     except Exception:
         messages.add_message(request, messages.ERROR,
                              'There was a general error connecting to remote server, please try again',
                              "alert alert-danger fw-bold")
-
-    finally:
         return render(request, "classes.html", {"form": form, "classes": courses})
+
+
 
 @login_required
 @check_user_able_to_see_page("students")
@@ -60,6 +68,8 @@ def course_assignments(request, course_id, assignment_id):
     course_details = {}
     assignment_details = {}
     all_submissions = {}
+    originality_settings = originality_service.get_active_settings()
+    sender_ip = originality_service.construct_report_api_uri()
     local_assignment_config = Assignments.objects.filter(assignment_id=assignment_id).first()
     submitted_documents = Submission.objects.filter(assignment_code=assignment_id, course_code=course_id,
                                                     student_code=uid).order_by("-created_at")
@@ -85,7 +95,9 @@ def course_assignments(request, course_id, assignment_id):
             "local_assignment_config": local_assignment_config,
             "submissions": submitted_documents,
             "google_submission_id": submission_id,
-            "submission_state": submission_state
+            "submission_state": submission_state,
+            "originality_settings": originality_settings.get("originality_status",False),
+            "sender_ip":sender_ip
         }
         return render(request, "submit_assignment.html", response)
     except Exception as error:

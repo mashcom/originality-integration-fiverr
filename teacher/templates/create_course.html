@@ -3,78 +3,92 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-journal-plus"></i> Create New Course</h1>
+{% if course.id %}
+<h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-pencil-square"></i> Edit Course</h1>
+{% else %}
+<h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-journal-plus"></i> Create New Course</h1>
+{% endif %}
 
-    <form class="card" action="{% url "save_course" %}" method="post">
-        <div class="card-header fw-bold text-muted">Course Details
-        </div>
-        <div class="card-body">
-            {% if messages %}
-                {% for message in messages %}
-                    <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
-                {% endfor %}
-            {% endif %}
 
-            <div>
-                {% csrf_token %}
-
-                <div class="mb-3 row">
-                    <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Class Name
-                        <span class="text-danger fw-bold">*</span></label>
-                    <div class="">
-                        <input type="text" required placeholder="10th Grade Mathematics Probability-2"
-                               class="form-control" id="name"
-                               name="name">
-                    </div>
+<form class="card" action="{% url 'save_course' %}" method="post">
+    <div class="card-header fw-bold text-muted">Course Details
+    </div>
+    <div class="card-body">
+        {% if messages %}
+        {% for message in messages %}
+        <div {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+      <p><span class="text-danger mb-3 mt-3 fw-bold">* Fields are required</span></p>
+        <div>
+            {% csrf_token %}
+            <input type="hidden" readonly placeholder="10th Grade Mathematics Probability-2"
+                   class="form-control" id="id"
+                   name="id" value="{{course.id}}">
+            <div class="mb-3 row">
+                <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Course Name
+                    <span class="text-danger fw-bold">*</span></label>
+                <div class="">
+                    <input type="text" required placeholder="10th Grade Mathematics Probability-2"
+                           class="form-control" id="name"
+                           name="name" value="{{course.name}}">
                 </div>
-                <div class="mb-3 row">
-                    <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Description
-                        Heading
-                        <span class="text-danger fw-bold">*</span></label>
-                    <div class="">
-                        <input class="form-control" rows="5" name="description_heading"
-                               placeholder="Welcome to 10th Grade Mathematics"/>
-                    </div>
+            </div>
+            <div class="mb-3 row">
+                <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Description
+                    Heading
+                    <span class="text-danger fw-bold">*</span></label>
+                <div class="">
+                    <input class="form-control" rows="5" name="description_heading"
+                           placeholder="Welcome to 10th Grade Mathematics" value="{{course.description_heading}}"/>
                 </div>
+            </div>
 
-                <div class="mb-3 row">
-                    <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Description
-                    </label>
-                    <div class="">
+            <div class="mb-3 row">
+                <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Description
+                </label>
+                <div class="">
                         <textarea class="form-control" rows="5" name="description"
-                                  placeholder="We'll be learning about about the polynomials combination of textbooks and guest lectures. Expect to be excited!"></textarea>
-                    </div>
-                </div>
-
-            </div>
-            <div class="mb-3 row">
-                <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Section
-                </label>
-                <div class="">
-                    <input class="form-control" rows="5" name="section" placeholder="Period 3"/>
+                                  placeholder="We'll be learning about about the polynomials combination of textbooks and guest lectures. Expect to be excited!">{{course.description}}</textarea>
                 </div>
             </div>
-
-            <div class="mb-3 row">
-                <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Room
-                </label>
-                <div class="">
-                    <input class="form-control" rows="5" name="room" placeholder="302"/>
-                </div>
-            </div>
-
 
         </div>
-        <div class="card-footer">
-            <div class="mb-3 row">
-                <label for="title" class="col-sm-4 col-form-label text-uppercase"></label>
-                <div class="col-smd-8">
-                    <button role="submit" class="btn btn-primary text-uppercase fw-bold"
-                    ><i class="bi bi-plus-circle"></i> Create New Course
-                    </button>
-                </div>
+        <div class="mb-3 row">
+            <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Section
+            </label>
+            <div class="">
+                <input class="form-control" rows="5" name="section" placeholder="Period 3" value="{{course.section}}"/>
             </div>
         </div>
-    </form>
+
+        <div class="mb-3 row">
+            <label for="title" class="col-sm-4 col-form-label text-uppercase text-muted fw-bold">Room
+            </label>
+            <div class="">
+                <input class="form-control" rows="5" name="room" placeholder="302" value="{{course.room}}"/>
+            </div>
+        </div>
+
+
+    </div>
+    <div class="card-footer">
+        <div class="mb-3 row">
+            <label for="title" class="col-sm-4 col-form-label text-uppercase"></label>
+            <div class="col-smd-8">
+                {% if course.id %}
+                 <button type="submit" class="btn btn-primary text-uppercase fw-bold"
+                ><i class="bi bi-pencil-square"></i> Save Changes
+                </button>
+                {% else %}
+
+                <button type="submit" class="btn btn-primary text-uppercase fw-bold"
+                ><i class="bi bi-plus-circle"></i> Create New Course
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</form>
 {% endblock %}
 

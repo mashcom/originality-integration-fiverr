@@ -1,7 +1,9 @@
 import datetime
+import logging
 import os.path
 import uuid
 
+import services.google_service
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.contrib import messages
@@ -11,26 +13,31 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import render, HttpResponse, redirect
 from django.utils import timezone
 from googleapiclient.errors import HttpError
-
-import services.google_service
 from originality_project.decorators import check_user_able_to_see_page, google_authentication_required
 from services import google_service, originality_service
+from services.exceptions import NoGoogleTokenException
 from teacher.models import Assignments, Courses, AssignmentMaterials
+
+# Get a logger instance
+logger = logging.getLogger(__name__)
 
 @login_required()
 @google_authentication_required()
 def index(request):
     uid = get_user_google_ui(request)
     Courses.objects.filter(owner_id=uid).delete()
-
+    courses = {}
     try:
         courses = google_service.get_teacher_classes(uid)
         for course in courses:
             cache_course(course)
         return render(request, "courses.html", {"courses": courses})
-    except Exception:
-        courses = {}
-        messages.add_message(request, messages.ERROR, "Request could not be completed, please check your connection!",
+    except NoGoogleTokenException as error:
+        messages.add_message(request, messages.ERROR, error,
+                             "alert alert-danger fw-bold")
+        return render(request, "google_permission.html", {"email": "", "url": error})
+    except Exception as error:
+        messages.add_message(request, messages.ERROR, error,
                              "alert alert-danger fw-bold")
         return render(request, "courses.html", {"courses": courses})
 
@@ -51,16 +58,35 @@ def create_course(request):
 @login_required()
 @google_authentication_required()
 @check_user_able_to_see_page("teachers")
+def edit_course(request, course_id):
+    uid = get_user_google_ui(request)
+    try:
+        course = google_service.classroom_get_course(course_id=course_id, uid=uid)
+        return render(request, "create_course.html", {"course": course})
+    except Exception as error:
+        pass
+
+@login_required()
+@google_authentication_required()
+@check_user_able_to_see_page("teachers")
 def save_course(request):
     uid = get_user_google_ui(request)
     if request.method == "POST":
         name = request.POST["name"]
+        description = request.POST["description"]
+        description_heading = request.POST["description_heading"]
+        section = request.POST["section"]
+        room = request.POST["room"]
+        id = request.POST["id"]
+
         try:
-            course = google_service.create_class(name=name, owner_id=uid, uid=uid)
+            course = google_service.create_class(name=name, owner_id=uid, uid=uid, section=section,
+                                                 description_heading=description_heading, description=description,
+                                                 room=room, id=id)
             if course:
-                messages.add_message(request, messages.SUCCESS, course,
+                messages.add_message(request, messages.SUCCESS, "Course request successful",
                                      "alert alert-success fw-bold")
-                return redirect('/teacher')
+                return redirect(request.META.get('HTTP_REFERER'))
             messages.add_message(request, messages.ERROR, course,
                                  "alert alert-danger fw-bold")
             return redirect(request.META.get('HTTP_REFERER'))
@@ -74,18 +100,35 @@ def save_course(request):
 @check_user_able_to_see_page("teachers")
 def create_assignment(request):
     uid = get_user_google_ui(request)
+    settings = originality_service.get_active_settings()
+    originality_status_setting = settings.get('originality_status')
+    originality_status = False
+    if originality_status_setting == "True":
+        originality_status = True
     courses = Courses.objects.filter(owner_id=uid).order_by("name")
-    return render(request, "create_assignment.html", {"courses": courses})
+    return render(request, "create_assignment.html", {"courses": courses, "originality_status": originality_status})
 
 @login_required()
 @google_authentication_required()
 @check_user_able_to_see_page("teachers")
 def edit_assignment(request, course_id, assignment_id):
     uid = get_user_google_ui(request)
+    settings = originality_service.get_active_settings()
+    originality_status_setting = settings.get('originality_status')
+    originality_status = False
+    if originality_status_setting == "True":
+        originality_status = True
     assignment_details = google_service.classroom_get_course_work_item(course_id=course_id,
                                                                        course_work_id=assignment_id, uid=uid)
+    course = google_service.classroom_get_course(course_id=course_id, uid=uid)
+
+    local_assignment = Assignments.objects.filter(assignment_id=assignment_id).first()
+    due_time = local_assignment.due_time
     courses = Courses.objects.filter(course_id=course_id)
-    return render(request, "create_assignment.html", {"courses": courses, "assignment": assignment_details})
+    return render(request, "create_assignment.html",
+                  {"courses": courses, "assignment": assignment_details, "originality_status": originality_status,
+                   "course": course,
+                   "due_time": due_time, "edit_mode": True})
 
 @login_required()
 @google_authentication_required()
@@ -124,12 +167,17 @@ def get_user_google_ui(request):
     return SocialAccount.objects.filter(user=request.user)[0].uid
 
 def save_assignment_to_cache(assignment, assignment_id, uid):
+    description = "No description"
+    if assignment.get("description"):
+        # The description is empty or evaluates to False
+        description = assignment.get("description")
+
     cache_assignment = Assignments()
     cache_assignment.course_id = assignment.get("courseId")
     cache_assignment.assignment_id = assignment_id
     cache_assignment.owner_id = uid
     cache_assignment.title = assignment.get("title")
-    cache_assignment.description = assignment.get("description")
+    cache_assignment.description = description
     cache_assignment.originality_check = "NO"
     cache_assignment.processed = 1
     return cache_assignment.save()
@@ -139,7 +187,10 @@ def save_assignment_to_cache(assignment, assignment_id, uid):
 @check_user_able_to_see_page("teachers")
 def handle_uploaded_file(upload_file, uuid):
     new_file_name = uuid + "_" + upload_file.name
-    root_path = settings.BASE_DIR, 'uploads/assignments/'
+    root_path = os.path.join(settings.BASE_DIR, 'uploads/assignments/')
+    os.makedirs(root_path, exist_ok=True)  # Create the directory if it doesn't exist
+
+    # root_path = settings.BASE_DIR, 'uploads/assignments/'
     with open(os.path.join(root_path) + new_file_name, 'wb+') as destination:
         for chunk in upload_file.chunks():
             destination.write(chunk)
@@ -169,16 +220,22 @@ def toggle_originality(request, assignment_id):
 @check_user_able_to_see_page("teachers")
 def save_assignment(request):
     if request.method == "POST":
-
+        assignment_id = request.POST["assignment_id"]
         title = request.POST["title"]
         course_id = request.POST["course"]
         description = request.POST["description"]
         originality_enabled = request.POST["originality_enabled"]
         due_date = request.POST["due_date"]
         due_time = request.POST["due_time"]
-        uid = get_user_google_ui(request)
 
-        assignment = Assignments()
+        uid = get_user_google_ui(request)
+        assignment = None
+        if assignment_id:
+            assignment = Assignments.objects.filter(assignment_id=assignment_id).first()
+        if not assignment:
+            assignment = Assignments()
+        logger.debug("ASSIGNMENT!!")
+        logger.debug(assignment)
         assignment.title = title
         assignment.course_id = course_id
         assignment.description = description
@@ -187,8 +244,12 @@ def save_assignment(request):
         assignment.owner_id = uid
         assignment.due_date = due_date
         assignment.due_time = due_time
+        assignment_saved = assignment.save()
 
-        if assignment.save() is None:
+        logger.debug("ASSIGNMENT SAVED!!")
+        logger.debug(assignment_saved)
+
+        if assignment_saved is None:
             print(assignment)
             files = request.FILES.getlist("files")
             for file in files:
@@ -203,7 +264,7 @@ def save_assignment(request):
             created = create_assignment_in_background(request, id=assignment.id, uid=uid)
             if created:
                 messages.add_message(request, messages.SUCCESS,
-                                     "Assignment created successfully!",
+                                     "Assignment request successful!",
                                      "alert alert-success fw-bold")
                 return redirect("/teacher/assignments/course/" + course_id)
 
@@ -245,12 +306,12 @@ def create_assignment_in_background(request, id, uid):
                 }
             }
         }, )
-
-    print(materials)
+    logger.debug("MATERIAL!")
+    logger.debug(materials)
 
     try:
         service = services.google_service.get_google_service_instance(uid=uid)
-        coursework = {
+        coursework_body = {
             'title': assignment.title,
             'description': assignment.description,
             'materials': materials,
@@ -267,8 +328,32 @@ def create_assignment_in_background(request, id, uid):
             }
 
         }
-        coursework = service.courses().courseWork().create(courseId=assignment.course_id, body=coursework).execute()
-        print(f"Assignment created with ID {coursework.get('id')}")
+
+        google_assignment_id = assignment.assignment_id
+        update_mask = 'title,description,dueDate,dueTime,state'  # Specify the fields to update
+
+        coursework = None
+        if google_assignment_id:
+            materials = coursework_body.get("materials")
+            coursework_body.pop('materials', None)
+            coursework = service.courses().courseWork().patch(courseId=assignment.course_id,
+                                                              id=google_assignment_id,
+                                                              body=coursework_body,
+                                                              updateMask=update_mask
+                                                              ).execute()
+
+            material_update = service.courses().courseWork().patch(courseId=assignment.course_id,
+                                                                   id=google_assignment_id,
+                                                                   body={"materials": materials},
+                                                                   updateMask='materials',
+                                                                   ).execute()
+            logger.debug("UPDATED COURSE!")
+            logger.debug(material_update)
+
+        if not google_assignment_id:
+            coursework = service.courses().courseWork().create(courseId=assignment.course_id,
+                                                               body=coursework_body).execute()
+
         assignment.assignment_id = coursework.get('id')
         assignment.processed = 1
         assignment.save()
@@ -276,5 +361,48 @@ def create_assignment_in_background(request, id, uid):
         return True
 
     except HttpError as error:
-        print('An errors occurred: %s' % error)
+        logger.debug('An errors occurred: %s' % error)
         return False
+
+@login_required()
+@google_authentication_required()
+@check_user_able_to_see_page("teachers")
+def delete_assignment(request):
+    if request.method == "POST":
+        assignment_id = request.POST["assignment_id"]
+        course_id = request.POST["course_id"]
+        uid = get_user_google_ui(request)
+        try:
+            google_service.delete_assignment(uid=uid, assignment_id=assignment_id, course_id=course_id)
+            assignment = Assignments.objects.get(assignment_id=assignment_id)
+            assignment.delete()
+            messages.add_message(request, messages.SUCCESS, "Assignment was deleted successfully",
+                                 "alert alert-success fw-bold")
+            return redirect(request.META.get('HTTP_REFERER'))
+        except Exception as error:
+            messages.add_message(request, messages.ERROR, error,
+                                 "alert alert-danger fw-bold")
+            return redirect(request.META.get('HTTP_REFERER'))
+
+    return HttpResponse("Invalid Request!")
+
+@login_required()
+@google_authentication_required()
+@check_user_able_to_see_page("teachers")
+def delete_course(request):
+    if request.method == "POST":
+        course_id = request.POST["course_id"]
+        uid = get_user_google_ui(request)
+        try:
+            google_service.delete_course(uid=uid, course_id=course_id)
+            course = Courses.objects.get(course_id=course_id)
+            course.delete()
+            messages.add_message(request, messages.SUCCESS, "Course was deleted successfully",
+                                 "alert alert-success fw-bold")
+            return redirect('/teacher')
+        except Exception as error:
+            messages.add_message(request, messages.ERROR, error,
+                                 "alert alert-danger fw-bold")
+            return redirect(request.META.get('HTTP_REFERER'))
+
+    return HttpResponse("Invalid Request!")

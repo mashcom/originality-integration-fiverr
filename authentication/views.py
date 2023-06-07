@@ -1,4 +1,7 @@
+import os.path
+
 from allauth.socialaccount.models import SocialAccount, SocialApp
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
@@ -7,10 +10,10 @@ from django.db import ProgrammingError
 from django.shortcuts import render, redirect
 from google_auth_oauthlib.flow import InstalledAppFlow
 from oauthlib.oauth2 import InvalidClientError
-
 from originality_project.settings import REQUIRED_ORIGINALITY_INTEGRATION_SETTINGS
 from services import google_service
 from services import originality_service
+from services.exceptions import NoGoogleTokenException
 
 def index(request):
     try:
@@ -53,6 +56,10 @@ def index(request):
             email_address = profile.get("emailAddress")
             user.email = email_address
             user.save()
+    except NoGoogleTokenException as error:
+        messages.add_message(request, messages.ERROR, error,
+                             "alert alert-danger fw-bold")
+        return render(request, "google_permission.html", {"email": user.email, "url": error})
     except InvalidClientError as error:
         pass
 
@@ -84,14 +91,50 @@ def no_group(request):
     return render(request, "no_group.html")
 
 def oauth_callback(request):
-    flow = InstalledAppFlow.from_client_secrets_file('credentials.json', google_service.SCOPES)
+    uid = ""
+    try:
+        uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    except Exception:
+        pass
+    credentials_file = os.path.join(settings.BASE_DIR, "credentials.json")
+    flow = InstalledAppFlow.from_client_secrets_file(credentials_file, google_service.SCOPES,
+                                                     redirect_uri=request.build_absolute_uri(
+                                                         '/') + "auth/oauth_callback"
+                                                     )
 
     #
     # Exchange the authorization code for credentials
     flow.fetch_token(authorization_response=request.build_absolute_uri())
 
     # Save the credentials for the next run
-    creds = flow.credentials
+    google_credentials = flow.credentials
     # Save the credentials to token.json or any other preferred storage method
-    print(creds)
-    return render(request, 'oauth_app/callback.html')
+    with open(google_service.token_file(uid), 'w') as token:
+        token.write(google_credentials.to_json())
+    messages.add_message(request, messages.SUCCESS,
+                         google_credentials.to_json(),
+                         "alert alert-info fw-bold")
+    return redirect(request.build_absolute_uri('/')+"auth/completed")
+
+
+def auth_completed(request):
+    try:
+        uid = SocialAccount.objects.filter(user=request.user)[0].uid
+        profile = google_service.get_user_profile(user_id=uid, uid=uid)
+        storage = messages.get_messages(request)
+
+        # Iterate over messages and delete them
+        for message in storage:
+            pass  # Do nothing, effectively deleting the message
+
+        # Reset the storage to remove deleted messages
+        storage.used = True
+        return render(request, "auth_completed.html")
+    except NoGoogleTokenException as error:
+        messages.add_message(request, messages.ERROR, error,
+                             "alert alert-danger fw-bold")
+        return render(request, "google_permission.html", {"url": error})
+    except Exception:
+        messages.add_message(request, messages.ERROR, "",
+                             "alert alert-danger fw-bold")
+        return redirect("/")

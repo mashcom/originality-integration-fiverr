@@ -3,7 +3,7 @@ from django.db import models
 class Submission(models.Model):
     id = models.BigAutoField(primary_key="id")
     file_name = models.TextField(max_length=250, default="")
-    sender_ip = models.TextField(max_length=50, default="")
+    sender_ip = models.TextField(max_length=250, default="")
     faculty_code = models.TextField(max_length=20, default="")
     faculty_name = models.TextField(max_length=50, default="")
     dept_code = models.TextField(max_length=50, default="")
@@ -29,8 +29,15 @@ class Submission(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class Report(models.Model):
-    id = models.BigIntegerField(primary_key="id", default="")
+    id = models.BigAutoField(primary_key="id")
     file = models.TextField(default="")
+    file_name = models.TextField(default="")
     grade = models.TextField(max_length=20, default="")
+    user_id = models.TextField(default="")
+    assignment_id = models.TextField(default="")
+    user_id = models.TextField(default="")
+    doc_sequence = models.TextField(default="")
+    ghostwrite_report = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
