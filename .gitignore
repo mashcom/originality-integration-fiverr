@@ -2,14 +2,14 @@
 /token.json
 /mydatabase
 /db.sqlite3
-/uploads/*
-/uploads/teacher_assignments/*
-/tokens/*
-/uploads/teacher_assignments/
+#/uploads/*
+#/uploads/teacher_assignments/*
+#/tokens/*
+#/uploads/teacher_assignments/
 / token.json
 /mysql-data/
 /.env
-/logs/*.*
-/reports/*.*
+#/logs/*.*
+#/reports/*.*
 /myenv
 /django.log
