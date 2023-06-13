@@ -150,4 +150,6 @@ def _download_base64(request, id, base64_string, file_name):
                 response['Content-Disposition'] = 'inline; filename=' + os.path.basename(file_path)
                 return response
     except Exception as error:
+        logger.error("DOWNLOAD ERROR")
+        logger.error(error)
         return error

@@ -3,132 +3,132 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h3 class="font-weight-bold mb-4 display-font"><i class="bi bi-send-plus-fill"></i> Submit
-        Assignment: {{ course_details.name }}</h3>
+<h3 class="font-weight-bold mb-4 display-font"><i class="bi bi-send-plus-fill"></i> Submit
+    Assignment: {{ course_details.name }}</h3>
 
-    <!-- Modal -->
-    <div class="modal fade" id="reclaimModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <form method="post" action="{% url "reclaim_submission" %}" class="modal-dialog modal-dialog-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5 fw-bold" id="exampleModalLabel"><i class="bi bi-info-circle-fill"></i>
-                        Reclaim Submission</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>This assignment is marked as turned in on Google
-                        Classroom. Reclaiming submitted work will make your submission unavailable to the teacher until
-                        you turn in again. Are you sure you want to proceed?</p>
-                    {% csrf_token %}
-                    <input type="hidden" readonly name="course_id" value="{{ assignment_details.courseId }}"/>
-                    <input type="hidden" readonly name="assignment_id" value="{{ assignment_details.id }}"/>
-                    <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}"/>
+<!-- Modal -->
+<div class="modal fade" id="reclaimModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <form method="post" action="{% url 'reclaim_submission' %}" class="modal-dialog modal-dialog-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5 fw-bold" id="exampleModalLabel"><i class="bi bi-info-circle-fill"></i>
+                Reclaim Submission</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <p>This assignment is marked as turned in on Google
+                Classroom. Reclaiming submitted work will make your submission unavailable to the teacher until
+                you turn in again. Are you sure you want to proceed?</p>
+            {% csrf_token %}
+            <input type="hidden" readonly name="course_id" value="{{ assignment_details.courseId }}"/>
+            <input type="hidden" readonly name="assignment_id" value="{{ assignment_details.id }}"/>
+            <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}"/>
 
-                </div>
-                <div class="modal-footer">
-                    <button role="submit" class="btn btn-warning btn-block fw-bold text-uppercase"><i
-                            class="bi bi-repeat"></i> Yes, Reclaim Assignment
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    {% if submission_state == "TURNED_IN" %}
-        <div class="alert alert-info">
-            <p><i class="bi bi-info-circle-fill"></i> This assignment is marked as turned in on Google Classroom. To
-                modify please reclaim the assignment and submit again</p>
-
-            <button data-bs-toggle="modal" data-bs-target="#reclaimModal"
-                    class="btn btn-warning btn-block fw-bold text-uppercase"><i
-                    class="bi bi-repeat"></i> Reclaim Assignment
+        </div>
+        <div class="modal-footer">
+            <button role="submit" class="btn btn-warning btn-block fw-bold text-uppercase"><i
+                    class="bi bi-repeat"></i> Yes, Reclaim Assignment
             </button>
-
         </div>
-    {% endif %}
-
-    {% if messages %}
-        {% for message in messages %}
-            <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
-        {% endfor %}
-    {% endif %}
-
-    <form method="post" action="/originality/submit" class="card" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="card-header fw-bold text-muted">Submit to Originality &trade;
-        </div>
-        <div class="card-body">
-<!--            {{assignment_details}}-->
-            <h4 class="fw-bold">{{ assignment_details.title }}</h4>
-            <p>{{ assignment_details.description }}</p>
-            <input type="hidden" readonly name="CourseCode" value="{{ assignment_details.courseId }}">
-            <input type="hidden" readonly name="CourseName" value="{{ assignment_details.title }}">
-
-
-            <input type="hidden" readonly name="AssignmentCode" value="{{ assignment_details.id }}">
-            <input type="hidden" readonly name="StudentCode" value="{{ uid }}">
-            <input type="hidden" readonly name="ownerId" value="{{ assignment_details.creatorUserId }}">
-            <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}">
-            <input type="hidden" readonly name="originality_check"
-                   value="{{ local_assignment_config.originality_check }}">
-            <input type="hidden" readonly name="GroupMembers" value="gm">
-            {% if submission_state != "TURNED_IN" %}
-                <div class="alert alert-warning fw-bold text-italic"><i class="bi bi-info-circle"></i> This submission
-                    is
-                    genuinely mine, it was written by me
-                    and I take full responsibility of its authenticity. This assignment is my work, in exception to
-                    where I
-                    have acknowledged the use of the works of others.
-                </div>
-
-                {% if local_assignment_config.originality_check == "YES" and originality_settings == "True" %}
-                    <input required type="checkbox" name="agreed"> I am aware and in full agreement that this assignment
-                    may
-                    be
-                    examined
-                    by "Originality Group" in order to detect plagiarism and I accept the
-                    <a class="fw-bold" href="#">terms of
-                        this examination</a></input>
-                {% endif %}
-                <div class="mb-3 mt-3">
-                    <label for="file" class="form-label fw-bold text-uppercase">Select File</label>
-                    <input required class="form-control" type="file" name="file">
-                </div>
-            {% endif %}
-
-        </div>
-        {% if submission_state != "TURNED_IN" %}
-            <div class="card-footer">
-                <button role="submit" type="submit" class="btn btn-primary fw-bold text-uppercase">
-                    <i class="bi bi-cloud-upload-fill"></i> Upload Document
-                </button>
-            </div>
-        {% endif %}
+    </div>
     </form>
+</div>
+
+{% if submission_state == "TURNED_IN" %}
+<div class="alert alert-info">
+    <p><i class="bi bi-info-circle-fill"></i> This assignment is marked as turned in on Google Classroom. To
+        modify please reclaim the assignment and submit again</p>
+
+    <button data-bs-toggle="modal" data-bs-target="#reclaimModal"
+            class="btn btn-warning btn-block fw-bold text-uppercase"><i
+            class="bi bi-repeat"></i> Reclaim Assignment
+    </button>
+
+</div>
+{% endif %}
+
+{% if messages %}
+{% for message in messages %}
+<div {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</div>
+{% endfor %}
+{% endif %}
+
+<form method="post" action="/originality/submit" class="card" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="card-header fw-bold text-muted">Submit to Originality &trade;
+    </div>
+    <div class="card-body">
+        <!--            {{assignment_details}}-->
+        <h4 class="fw-bold">{{ assignment_details.title }}</h4>
+        <p>{{ assignment_details.description }}</p>
+        <input type="hidden" readonly name="CourseCode" value="{{ assignment_details.courseId }}">
+        <input type="hidden" readonly name="CourseName" value="{{ assignment_details.title }}">
 
 
-    {% if submissions %}
-        <div class="card mt-3">
-            <div class="card-header fw-bold text-muted">Submitted Files
-            </div>
-            <div class="card-body">
+        <input type="hidden" readonly name="AssignmentCode" value="{{ assignment_details.id }}">
+        <input type="hidden" readonly name="StudentCode" value="{{ uid }}">
+        <input type="hidden" readonly name="ownerId" value="{{ assignment_details.creatorUserId }}">
+        <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}">
+        <input type="hidden" readonly name="originality_check"
+               value="{{ local_assignment_config.originality_check }}">
+        <input type="hidden" readonly name="GroupMembers" value="gm">
+        {% if submission_state != "TURNED_IN" %}
+        <div class="alert alert-warning fw-bold text-italic"><i class="bi bi-info-circle"></i> This submission
+            is
+            genuinely mine, it was written by me
+            and I take full responsibility of its authenticity. This assignment is my work, in exception to
+            where I
+            have acknowledged the use of the works of others.
+        </div>
 
-                <ul class="list-group">
-                    {% for submission in submissions %}
-                        <div class="list-group-item list-group-item-action list-group-flush">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1"><i class="bi bi-file-earmark-text-fill"></i> {{ submission.file_name }}
-                                </h5>
-                                <small class="text-body-secondary">
-                                    <a target="_blank"
-                                       href="{% url "download_submission" submission.id  submission.signature %}"
-                                       class="btn btn-outline-primary btn-sm  fw-bold float-end text-uppercase">Download
-                                        <i
-                                                class="bi bi-cloud-download-fill"></i></a>
+        {% if local_assignment_config.originality_check == "YES" and originality_settings == "True" %}
+        <input required type="checkbox" name="agreed"> I am aware and in full agreement that this assignment
+        may
+        be
+        examined
+        by "Originality Group" in order to detect plagiarism and I accept the
+        <a class="fw-bold" href="#">terms of
+            this examination</a></input>
+        {% endif %}
+        <div class="mb-3 mt-3">
+            <label for="file" class="form-label fw-bold text-uppercase">Select File</label>
+            <input required class="form-control" type="file" name="file">
+        </div>
+        {% endif %}
 
-                                </small>
-                            </div>
-                            <p class="mb-1"><span>Google Classroom &trade;:
+    </div>
+    {% if submission_state != "TURNED_IN" %}
+    <div class="card-footer">
+        <button role="submit" type="submit" class="btn btn-primary fw-bold text-uppercase">
+            <i class="bi bi-cloud-upload-fill"></i> Upload Document
+        </button>
+    </div>
+    {% endif %}
+</form>
+
+
+{% if submissions %}
+<div class="card mt-3">
+    <div class="card-header fw-bold text-muted">Submitted Files
+    </div>
+    <div class="card-body">
+
+        <ul class="list-group">
+            {% for submission in submissions %}
+            <div class="list-group-item list-group-item-action list-group-flush">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"><i class="bi bi-file-earmark-text-fill"></i> {{ submission.file_name }}
+                    </h5>
+                    <small class="text-body-secondary">
+                        <a target="_blank"
+                           href="{% url 'download_submission' submission.id submission.signature %}"
+                        class="btn btn-outline-primary btn-sm fw-bold float-end text-uppercase">Download
+                        <i
+                                class="bi bi-cloud-download-fill"></i></a>
+
+                    </small>
+                </div>
+                <p class="mb-1"><span>Google Classroom &trade;:
                                 {% if submission.google_classroom_id == "" %}
                                     <i class="bi bi-exclamation-triangle-fill  fw-bold text-danger"></i>
                                 {% endif %}
@@ -138,7 +138,7 @@
                                        data-bs-title="Default tooltip"></i>
                                 {% endif %}
                         </span>
-                                <span class="ml-5">Originality &trade;:
+                    <span class="ml-5">Originality &trade;:
                                     {% if submission.originality_id == 0 %}
                                         <i class="bi bi-exclamation-triangle-fill  fw-bold text-danger"></i>
                                     {% endif %}
@@ -148,56 +148,54 @@
                                     {% endif %}
                         </span>
 
-                            </p>
+                </p>
 
-                            <small class="text-body-secondary fw-bold">{{ submission.created_at }}</small>
-                        </div>
-
-                    {% empty %}
-                        <div class="alert alert-info">
-                            <i class="bi bi-stopwatch fw-bold"></i> <span
-                                class="">There are no uploaded documents at the moment</span>
-                        </div>
-                    {% endfor %}
-                </ul>
+                <small class="text-body-secondary fw-bold">{{ submission.created_at }}</small>
             </div>
-            {% if submission_state != "TURNED_IN" %}
-                {#                <div class="card-footer">#}
-                {##}
-                {#                    <button data-bs-toggle="modal" data-bs-target="#turninModal"#}
-                {#                            class="btn btn-primary btn-block fw-bold text-uppercase"><i#}
-                {#                            class="bi bi-send-check-fill"></i> Turn In Assignment#}
-                {#                    </button>#}
-                {##}
-                {#                </div>#}
-            {% endif %}
-        </div>
-    {% endif %}
-    <div class="modal fade" id="turninModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <form method="post" action="{% url "turn_in" %}" class="modal-dialog modal-dialog-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5 fw-bold" id="exampleModalLabel"><i class="bi bi-info-circle-fill"></i>
-                        Turn In Assignment</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>You are about to turn in your assignment. Are you sure you want to proceed?</p>
-                    {% csrf_token %}
-                    <input type="hidden" readonly name="course_id" value="{{ assignment_details.courseId }}">
-                    <input type="hidden" readonly name="assignment_id" value="{{ assignment_details.id }}">
-                    <input type="hidden" readonly name="student_id" value="{{ uid }}">
-                    <input type="hidden" readonly name="owner_id" value="{{ course_details.ownerId }}">
-                    <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}">
 
-                </div>
-                {#                <div class="modal-footer">#}
-                {#                    <button role="submit" class="btn btn-primary btn-block fw-bold text-uppercase"><i#}
-                {#                            class="bi bi-send-check-fill"></i> Turn In Assignment#}
-                {#                    </button>#}
-                {#                </div>#}
+            {% empty %}
+            <div class="alert alert-info">
+                <i class="bi bi-stopwatch fw-bold"></i> <span
+                    class="">There are no uploaded documents at the moment</span>
             </div>
-        </form>
+            {% endfor %}
+        </ul>
     </div>
+    {% if submission_state != "TURNED_IN" %}
+    <div class="card-footer">
+        <button data-bs-toggle="modal" data-bs-target="#turninModal"
+                class="btn btn-primary btn-block fw-bold text-uppercase">
+            <i class="bi bi-send-check-fill"></i>  Turn In On Google Classroom
+        </button>
+    </div>
+
+    {% endif %}
+</div>
+{% endif %}
+<div class="modal fade" id="turninModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <form method="post" action="{% url 'turn_in' %}" class="modal-dialog modal-dialog-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h1 class="modal-title fs-5 fw-bold" id="exampleModalLabel"><i class="bi bi-info-circle-fill"></i>
+                Turn In Assignment</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <p>You are about to turn in your assignment. Are you sure you want to proceed?</p>
+            {% csrf_token %}
+            <input type="hidden" readonly name="course_id" value="{{ assignment_details.courseId }}">
+            <input type="hidden" readonly name="assignment_id" value="{{ assignment_details.id }}">
+            <input type="hidden" readonly name="student_id" value="{{ uid }}">
+            <input type="hidden" readonly name="owner_id" value="{{ course_details.ownerId }}">
+            <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}">
+
+        </div>
+        <div class="modal-footer">
+    <button role="submit" class="btn btn-primary btn-block fw-bold text-uppercase"><i class="bi bi-send-check-fill"></i> Turn In On Google Classroom</button>
+</div>
+
+    </div>
+    </form>
+</div>
 {% endblock %}
 

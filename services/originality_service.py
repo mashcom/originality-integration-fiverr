@@ -123,7 +123,8 @@ def submit_document(params, file_request, file_path, uid):
             google_drive_file_id=drive_file,
             uid=uid,
         )
-
+        logger.debug("MODIFICATION DETAILS!")
+        logger.debug(modification)
         google_student_submission_id = modification.get("id")
     except Exception as error:
         logger.debug("MODIFICATION ERROR!")
