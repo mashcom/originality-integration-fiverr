@@ -13,3 +13,22 @@
 #/reports/*.*
 /myenv
 /django.log
+# Disallow PDF files
+*.pdf
+*.pdf_base64
+# Disallow Microsoft Word files
+*.doc
+*.docx
+
+# Disallow Microsoft Excel files
+*.xls
+*.xlsx
+
+# Disallow Microsoft PowerPoint files
+*.ppt
+*.pptx
+
+# Disallow other Microsoft Office-related files
+*.rtf
+*.dot
+*.dotx
