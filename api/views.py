@@ -24,7 +24,12 @@ def report(request):
     settings = originality_service.get_active_settings()
     current_key = settings.get("key")
     if request.method == "POST":
-        # params = json.loads(request.body)
+        try:
+            params = json.loads(request.body)
+        except Exception as error:
+            return JsonResponse({"Message": "Invalid request body provided"}, status=400)
+
+
         if not "Authorization" in request.headers:
             return JsonResponse({"Message": "Authorization key not provided!!!"}, status=401)
 
@@ -32,37 +37,40 @@ def report(request):
         if received_key != current_key:
             return JsonResponse({"Message": "Wrong or Empty Credentials"}, status=401)
 
-        if not request.POST.get("assignmentID"):
-            return JsonResponse({"Message": "assignmentID is missing"}, status=400)
+        if not params.get('CourseId'):
+            return JsonResponse({"Message": "CourseId is missing"}, status=400)
 
-        if not request.POST.get("grade"):
-            return JsonResponse({"Message": "grade field is missing"}, status=400)
+        if not params.get('AssignmentId'):
+            return JsonResponse({"Message": "AssignmentId is missing"}, status=400)
 
-        if not request.POST.get("content"):
-            return JsonResponse({"Message": "content field is missing"}, status=400)
+        if not params.get('StudentId'):
+            return JsonResponse({"Message": "StudentId is missing"}, status=400)
 
-        if not request.POST.get("ghostwriteReport"):
-            return JsonResponse({"Message": "ghostwriteReport field is missing"}, status=400)
+        if not params.get('SequenceNumber'):
+            return JsonResponse({"Message": "SequenceNumber is missing"}, status=400)
 
-        if not request.POST.get("userID"):
-            return JsonResponse({"Message": "userID is missing"}, status=400)
+        if not params.get('PercentOriginal'):
+            return JsonResponse({"Message": "PercentOriginal is missing"}, status=400)
 
-        if not request.POST.get("docSequence"):
-            return JsonResponse({"Message": "docSequence is missing"}, status=400)
+        if not params.get('SequenceNumber'):
+            return JsonResponse({"Message": "SequenceNumber is missing"}, status=400)
 
-        if not request.POST.get("fileName"):
-            return JsonResponse({"Message": "fileName is missing"}, status=400)
+        if not params.get('OriginalityReport'):
+            return JsonResponse({"Message": "OriginalityReport is missing"}, status=400)
+
+        if not params.get('IsGhostWriterReport'):
+            return JsonResponse({"Message": "IsGhostWriterReport is missing"}, status=400)
 
         # Save the report
         originality_report = Report()
-        originality_report.grade = request.POST.get("grade")
-        originality_report.file = request.POST.get("content")
+        originality_report.grade = params.get("PercentOriginal")
+        originality_report.file =params.get("OriginalityReport")
 
-        originality_report.user_id = request.POST.get("userID")
-        originality_report.assignment_id = request.POST.get("assignmentID")
-        originality_report.doc_sequence = request.POST.get("docSequence")
-        originality_report.ghostwrite_report = request.POST.get("ghostwriteReport")
-        originality_report.file_name = request.POST.get("fileName")
+        originality_report.user_id = params.get("StudentId")
+        originality_report.assignment_id = params.get("AssignmentId")
+        originality_report.doc_sequence = params.get("SequenceNumber")
+        originality_report.ghostwrite_report = params.get("IsGhostWriterReport")
+        originality_report.file_name = assignment_id+"_file.pdf"#request.POST.get("fileName")
 
         originality_report.created_at = timezone.now()
         originality_report.updated_at = timezone.now()

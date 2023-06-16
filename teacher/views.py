@@ -98,15 +98,30 @@ def save_course(request):
 @login_required()
 @google_authentication_required()
 @check_user_able_to_see_page("teachers")
-def create_assignment(request):
+def create_assignment(request, course_id=None):
     uid = get_user_google_ui(request)
     settings = originality_service.get_active_settings()
     originality_status_setting = settings.get('originality_status')
     originality_status = False
     if originality_status_setting == "True":
         originality_status = True
-    courses = Courses.objects.filter(owner_id=uid).order_by("name")
-    return render(request, "create_assignment.html", {"courses": courses, "originality_status": originality_status})
+
+    is_single_course = False
+    course = None
+    if course_id is not None:
+        is_single_course = True
+        courses = Courses.objects.filter(owner_id=uid, course_id=course_id).order_by("name")
+        course = google_service.classroom_get_course(course_id=course_id, uid=uid)
+    else:
+        courses = Courses.objects.filter(owner_id=uid).order_by("name")
+
+    context = {
+        "courses": courses,
+        "originality_status": originality_status,
+        "is_single_course": is_single_course,
+        "course": course
+    }
+    return render(request, "create_assignment.html", context)
 
 @login_required()
 @google_authentication_required()

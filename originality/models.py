@@ -35,7 +35,6 @@ class Report(models.Model):
     grade = models.TextField(max_length=20, default="")
     user_id = models.TextField(default="")
     assignment_id = models.TextField(default="")
-    user_id = models.TextField(default="")
     doc_sequence = models.TextField(default="")
     ghostwrite_report = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)

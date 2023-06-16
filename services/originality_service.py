@@ -4,7 +4,7 @@ import magic
 import requests
 from django.conf import settings
 from json import JSONDecodeError
-from originality.models import Submission
+from originality.models import Submission,Report
 from services import google_service
 from settings_manager.models import Originality, OriginalityLog
 from django.core.signing import Signer
@@ -13,6 +13,7 @@ import json
 import logging
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+
 
 
 # Get a logger instance
@@ -364,3 +365,7 @@ def get_user_profile(uid):
     except User.DoesNotExist:
         # Handle the case when the user associated with the social account does not exist
         pass
+
+def get_student_report(user_id,assignment_id):
+    report = Report.objects.filter(user_id=user_id,assignment_id=assignment_id).first()
+    return report

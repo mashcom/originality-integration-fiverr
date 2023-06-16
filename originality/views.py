@@ -35,6 +35,10 @@ def submit_to_originality(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     if request.method == "POST":
         params = request.POST.dict()
+        agreement_accepted = params.get("agreed")
+        if agreement_accepted is None:
+            messages.add_message(request, messages.ERROR, "Please acknowledge submission to plagiarism checker","alert alert-danger fw-bold")
+            return redirect(request.META.get('HTTP_REFERER')+"?agreed=false")
 
         file = request.FILES["file"]
         request_uuid = str(uuid.uuid4())
@@ -87,6 +91,41 @@ def reports_for_teacher(request, course_id, assignment_id):
 
     for submission in submissions:
         report_entries = Report.objects.filter(assignment_id=submission.assignment_code)
+        logger.debug("REPORT ENTRY")
+        logger.debug(report_entries)
+
+        for report in report_entries:
+            report.submitted_by = submission.student_code
+            report.profile = originality_service.get_user_profile(uid=report.user_id)
+
+            # Check if the report is already in the set
+            if report not in unique_reports_set:
+                reports.append(report)
+                unique_reports_set.add(report)
+
+    return render(request, "report.html",
+                  {"reports": reports, "assignment": assignment_details, "course_details": course_details})
+
+@login_required()
+@check_user_able_to_see_page("students")
+def reports_for_student(request, course_id, assignment_id):
+    uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    submissions = Submission.objects.filter(student_code=uid, assignment_code=assignment_id)
+    logger.debug("STUDENT SUBMISSIONS")
+    logger.debug(submissions)
+    try:
+        assignment_details = google_service.classroom_get_course_work_item(course_id=course_id,
+                                                                           course_work_id=assignment_id, uid=uid)
+        course_details = google_service.classroom_get_course(course_id=course_id, uid=uid)
+    except Exception as error:
+        messages.add_message(request, messages.ERROR, "There was an errors connecting to Google APIs",
+                             "alert alert-success fw-bold")
+        return redirect(request.META.get('HTTP_REFERER'))
+    reports = []
+    unique_reports_set = set()
+
+    for submission in submissions:
+        report_entries = Report.objects.filter(assignment_id=submission.assignment_code,user_id=uid)
         logger.debug("REPORT ENTRY")
         logger.debug(report_entries)
 

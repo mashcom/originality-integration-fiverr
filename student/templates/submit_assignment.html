@@ -6,31 +6,32 @@
 <h3 class="font-weight-bold mb-4 display-font"><i class="bi bi-send-plus-fill"></i> Submit
     Assignment: {{ course_details.name }}</h3>
 
+
 <!-- Modal -->
 <div class="modal fade" id="reclaimModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <form method="post" action="{% url 'reclaim_submission' %}" class="modal-dialog modal-dialog-lg">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5 fw-bold" id="exampleModalLabel"><i class="bi bi-info-circle-fill"></i>
-                Reclaim Submission</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <p>This assignment is marked as turned in on Google
-                Classroom. Reclaiming submitted work will make your submission unavailable to the teacher until
-                you turn in again. Are you sure you want to proceed?</p>
-            {% csrf_token %}
-            <input type="hidden" readonly name="course_id" value="{{ assignment_details.courseId }}"/>
-            <input type="hidden" readonly name="assignment_id" value="{{ assignment_details.id }}"/>
-            <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}"/>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 fw-bold" id="exampleModalLabel"><i class="bi bi-info-circle-fill"></i>
+                    Reclaim Submission</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>This assignment is marked as turned in on Google
+                    Classroom. Reclaiming submitted work will make your submission unavailable to the teacher until
+                    you turn in again. Are you sure you want to proceed?</p>
+                {% csrf_token %}
+                <input type="hidden" readonly name="course_id" value="{{ assignment_details.courseId }}"/>
+                <input type="hidden" readonly name="assignment_id" value="{{ assignment_details.id }}"/>
+                <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}"/>
 
+            </div>
+            <div class="modal-footer">
+                <button role="submit" class="btn btn-warning btn-block fw-bold text-uppercase"><i
+                        class="bi bi-repeat"></i> Yes, Reclaim Assignment
+                </button>
+            </div>
         </div>
-        <div class="modal-footer">
-            <button role="submit" class="btn btn-warning btn-block fw-bold text-uppercase"><i
-                    class="bi bi-repeat"></i> Yes, Reclaim Assignment
-            </button>
-        </div>
-    </div>
     </form>
 </div>
 
@@ -82,13 +83,22 @@
         </div>
 
         {% if local_assignment_config.originality_check == "YES" and originality_settings == "True" %}
-        <input required type="checkbox" name="agreed"> I am aware and in full agreement that this assignment
+
+        <p class="fw-bold text-success">
+            <i class="bi bi-check-circle-fill text-success"></i> Originality Check Enabled
+        </p>
+
+        <input type="checkbox" name="agreed"> I am aware and in full agreement that this assignment
         may
         be
         examined
         by "Originality Group" in order to detect plagiarism and I accept the
         <a class="fw-bold" href="#">terms of
             this examination</a></input>
+        {% else %}
+        <p class="fw-bold text-danger">
+            <i class="bi bi-exclamation-circle-fill text-danger"></i> Originality Check Disabled
+        </p>
         {% endif %}
         <div class="mb-3 mt-3">
             <label for="file" class="form-label fw-bold text-uppercase">Select File</label>
@@ -110,6 +120,9 @@
 {% if submissions %}
 <div class="card mt-3">
     <div class="card-header fw-bold text-muted">Submitted Files
+
+             <a href="{% url 'reports_for_student' assignment_details.courseId assignment_details.id  %}" class="btn btn-outline-primary fw-bold text-uppercase float-end">View Originality Reports</a>
+
     </div>
     <div class="card-body">
 
@@ -122,9 +135,9 @@
                     <small class="text-body-secondary">
                         <a target="_blank"
                            href="{% url 'download_submission' submission.id submission.signature %}"
-                        class="btn btn-outline-primary btn-sm fw-bold float-end text-uppercase">Download
-                        <i
-                                class="bi bi-cloud-download-fill"></i></a>
+                           class="btn btn-outline-secondary btn-sm fw-bold float-end text-uppercase">Download
+                            <i
+                                    class="bi bi-cloud-download-fill"></i></a>
 
                     </small>
                 </div>
@@ -165,7 +178,7 @@
     <div class="card-footer">
         <button data-bs-toggle="modal" data-bs-target="#turninModal"
                 class="btn btn-primary btn-block fw-bold text-uppercase">
-            <i class="bi bi-send-check-fill"></i>  Turn In On Google Classroom
+            <i class="bi bi-send-check-fill"></i> Turn In On Google Classroom
         </button>
     </div>
 
@@ -174,27 +187,29 @@
 {% endif %}
 <div class="modal fade" id="turninModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <form method="post" action="{% url 'turn_in' %}" class="modal-dialog modal-dialog-lg">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h1 class="modal-title fs-5 fw-bold" id="exampleModalLabel"><i class="bi bi-info-circle-fill"></i>
-                Turn In Assignment</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <p>You are about to turn in your assignment. Are you sure you want to proceed?</p>
-            {% csrf_token %}
-            <input type="hidden" readonly name="course_id" value="{{ assignment_details.courseId }}">
-            <input type="hidden" readonly name="assignment_id" value="{{ assignment_details.id }}">
-            <input type="hidden" readonly name="student_id" value="{{ uid }}">
-            <input type="hidden" readonly name="owner_id" value="{{ course_details.ownerId }}">
-            <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 fw-bold" id="exampleModalLabel"><i class="bi bi-info-circle-fill"></i>
+                    Turn In Assignment</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>You are about to turn in your assignment. Are you sure you want to proceed?</p>
+                {% csrf_token %}
+                <input type="hidden" readonly name="course_id" value="{{ assignment_details.courseId }}">
+                <input type="hidden" readonly name="assignment_id" value="{{ assignment_details.id }}">
+                <input type="hidden" readonly name="student_id" value="{{ uid }}">
+                <input type="hidden" readonly name="owner_id" value="{{ course_details.ownerId }}">
+                <input type="hidden" readonly name="google_submission_id" value="{{ google_submission_id }}">
+
+            </div>
+            <div class="modal-footer">
+                <button role="submit" class="btn btn-primary btn-block fw-bold text-uppercase"><i
+                        class="bi bi-send-check-fill"></i> Turn In On Google Classroom
+                </button>
+            </div>
 
         </div>
-        <div class="modal-footer">
-    <button role="submit" class="btn btn-primary btn-block fw-bold text-uppercase"><i class="bi bi-send-check-fill"></i> Turn In On Google Classroom</button>
-</div>
-
-    </div>
     </form>
 </div>
 {% endblock %}

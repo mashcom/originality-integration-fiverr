@@ -4,7 +4,8 @@
 /db.sqlite3
 #/uploads/*
 #/uploads/teacher_assignments/*
-#/tokens/*
+/tokens/*
+tokens/*
 #/uploads/teacher_assignments/
 / token.json
 /mysql-data/
@@ -13,6 +14,7 @@
 #/reports/*.*
 /myenv
 /django.log
+django.log
 # Disallow PDF files
 *.pdf
 *.pdf_base64
@@ -32,3 +34,5 @@
 *.rtf
 *.dot
 *.dotx
+
+/logs/django.log

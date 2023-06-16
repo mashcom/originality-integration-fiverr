@@ -6,7 +6,8 @@
 <h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-book-half"></i> Course: {{ course.name }}
 </h1>
 
-<div class="col-lg-12 mb-3">
+<div class="row">
+    <div class="col-lg-12 mb-3">
 
     <a href="#" class="btn btn-outline-danger fw-bold text-uppercase"
        data-bs-toggle="modal"
@@ -20,9 +21,11 @@
         <i class="bi bi-pencil-square"></i> Edit Course
     </a>
 
-    <a href="{% url 'create_assignment' %}" class="btn btn-primary fw-bold float-end text-uppercase"><i
+    <a href="{% url 'create_assignment_course' course.id %}" class="btn btn-primary fw-bold float-end text-uppercase "><i
             class="bi bi-plus-circle"></i> Create New
         Assignment</a>
+</div>
+
 </div>
 {% if messages %}
 {% for message in messages %}
