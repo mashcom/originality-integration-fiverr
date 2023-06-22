@@ -53,6 +53,11 @@
                 {% if not user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link" href="/">Courses</a>
+
+                </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="{% url 'reset_token_page' %}">Manage Token</a>
+
                 </li>
                 {% endif %}
                 {% if user.is_superuser %}

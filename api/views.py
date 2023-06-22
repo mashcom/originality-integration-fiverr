@@ -70,6 +70,7 @@ def report(request):
         originality_report.assignment_id = params.get("AssignmentId")
         originality_report.doc_sequence = params.get("SequenceNumber")
         originality_report.ghostwrite_report = params.get("IsGhostWriterReport")
+        assignment_id=params.get("AssignmentId")
         originality_report.file_name = assignment_id+"_file.pdf"#request.POST.get("fileName")
 
         originality_report.created_at = timezone.now()

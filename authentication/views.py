@@ -14,6 +14,12 @@ from originality_project.settings import REQUIRED_ORIGINALITY_INTEGRATION_SETTIN
 from services import google_service
 from services import originality_service
 from services.exceptions import NoGoogleTokenException
+from originality_project.decorators import check_user_able_to_see_page
+from django.contrib.auth.decorators import login_required
+
+from django.shortcuts import redirect
+from django.contrib.auth import logout
+from allauth.socialaccount.models import SocialToken
 
 def index(request):
     try:
@@ -59,7 +65,8 @@ def index(request):
     except NoGoogleTokenException as error:
         messages.add_message(request, messages.ERROR, error,
                              "alert alert-danger fw-bold")
-        return render(request, "google_permission.html", {"email": user.email, "url": error})
+        context = {"email": user.email, "url": error+"&login_hint="+user.email,"user":user}
+        return render(request, "google_permission.html", context)
     except InvalidClientError as error:
         pass
 
@@ -138,3 +145,21 @@ def auth_completed(request):
         messages.add_message(request, messages.ERROR, "",
                              "alert alert-danger fw-bold")
         return redirect("/")
+
+
+@login_required()
+def reset_token_page(request):
+    return render(request, "reset_token.html")
+
+
+@login_required()
+def reset_token(request):
+    uid = SocialAccount.objects.filter(user=request.user)[0].uid
+    if google_service.remove_token_file(uid):
+        messages.add_message(request, messages.SUCCESS,"Google Token be removed",
+                             "alert alert-success fw-bold")
+        return redirect("/")
+
+    messages.add_message(request, messages.ERROR,"Google Token could not be removed",
+                         "alert alert-danger fw-bold")
+    return redirect(request.META.get('HTTP_REFERER'))

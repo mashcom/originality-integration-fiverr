@@ -83,11 +83,14 @@ def save_course(request):
             course = google_service.create_class(name=name, owner_id=uid, uid=uid, section=section,
                                                  description_heading=description_heading, description=description,
                                                  room=room, id=id)
+            logger.debug("CREATING CLASS")
+            logger.debug(course)
+            logger.debug(uid)
             if course:
                 messages.add_message(request, messages.SUCCESS, "Course request successful",
                                      "alert alert-success fw-bold")
                 return redirect(request.META.get('HTTP_REFERER'))
-            messages.add_message(request, messages.ERROR, course,
+            messages.add_message(request, messages.ERROR, "There was an error creating class, please try again",
                                  "alert alert-danger fw-bold")
             return redirect(request.META.get('HTTP_REFERER'))
         except Exception as error:
@@ -245,7 +248,9 @@ def save_assignment(request):
 
         uid = get_user_google_ui(request)
         assignment = None
+        updating = False
         if assignment_id:
+            updating = True
             assignment = Assignments.objects.filter(assignment_id=assignment_id).first()
         if not assignment:
             assignment = Assignments()
@@ -276,7 +281,7 @@ def save_assignment(request):
                                                                             uid=uid)
                     save_assignment_material(assignment, google_drive_id)
 
-            created = create_assignment_in_background(request, id=assignment.id, uid=uid)
+            created = create_assignment_in_background(request, id=assignment.id, uid=uid,updating=updating)
             if created:
                 messages.add_message(request, messages.SUCCESS,
                                      "Assignment request successful!",
@@ -303,7 +308,7 @@ def save_assignment_material(assignment, google_drive_id):
 @login_required()
 @google_authentication_required()
 @check_user_able_to_see_page("teachers")
-def create_assignment_in_background(request, id, uid):
+def create_assignment_in_background(request, id, uid, updating=False):
     assignment = get_object_or_404(Assignments, id=id)
     due_date = assignment.due_date
     date = datetime.datetime.strptime(due_date, "%m/%d/%Y")
@@ -356,14 +361,14 @@ def create_assignment_in_background(request, id, uid):
                                                               body=coursework_body,
                                                               updateMask=update_mask
                                                               ).execute()
-
-            material_update = service.courses().courseWork().patch(courseId=assignment.course_id,
-                                                                   id=google_assignment_id,
-                                                                   body={"materials": materials},
-                                                                   updateMask='materials',
-                                                                   ).execute()
-            logger.debug("UPDATED COURSE!")
-            logger.debug(material_update)
+            if not updating:
+                material_update = service.courses().courseWork().patch(courseId=assignment.course_id,
+                                                                       id=google_assignment_id,
+                                                                       body={"materials": materials},
+                                                                       updateMask='materials',
+                                                                       ).execute()
+                logger.debug("UPDATED COURSE!")
+                logger.debug(material_update)
 
         if not google_assignment_id:
             coursework = service.courses().courseWork().create(courseId=assignment.course_id,

@@ -1,0 +1,37 @@
+SetEnv APPLICATION_SERVER_ADMIN support@mashcom.co.zw
+SetEnv APPLICATION_DOMAIN_NAME originality.eastus.cloudapp.azure.com
+SetEnv APPLICATION_ROOT_DIR /var/originality-integration-fiverr
+SetEnv WSGID_PROCESS_NAME originality_app_process_name
+
+<VirtualHost *:80>
+        ServerAdmin ${APPLICATION_SERVER_ADMIN}
+        ServerName ${APPLICATION_DOMAIN_NAME}
+        DocumentRoot ${APPLICATION_ROOT_DIR}
+        ErrorLog ${APACHE_LOG_DIR}/originality_error.log
+        CustomLog ${APACHE_LOG_DIR}/originality_access.log combined
+
+        Alias /static ${APPLICATION_ROOT_DIR}/static
+        <Directory ${APPLICATION_ROOT_DIR}/static>
+                Require all granted
+        </Directory>
+
+        Alias /static ${APPLICATION_ROOT_DIR}/media
+        <Directory ${APPLICATION_ROOT_DIR}/media>
+                Require all granted
+        </Directory>
+
+        <Directory ${APPLICATION_ROOT_DIR}/originality_project>
+                <Files wsgi.py>
+                        Require all granted
+                </Files>
+        </Directory>
+
+        WSGIDaemonProcess ${WSGID_PROCESS_NAME} python-path=${APPLICATION_ROOT_DIR} python-home=${APPLICATION_ROOT_DIR}/venvs/django
+        WSGIProcessGroup ${WSGID_PROCESS_NAME}
+        WSGIScriptAlias / ${APPLICATION_ROOT_DIR}/originality_project/wsgi.py
+        WSGIPassAuthorization On
+
+        RewriteEngine on
+        RewriteCond %{SERVER_NAME} =${APPLICATION_DOMAIN_NAME}
+        RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [END,NE,R=permanent]
+</VirtualHost>

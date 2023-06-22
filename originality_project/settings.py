@@ -50,7 +50,7 @@ LOGGING = {
 
 load_dotenv()  # take environment variables from .env.
 
-config = dotenv_values(os.path.join(settings.BASE_DIR,".env"))
+config = dotenv_values(os.path.join(settings.BASE_DIR, ".env"))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
@@ -62,7 +62,7 @@ BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 SECRET_KEY = 'zudx3$9x^7*ib9wb&@ctul@dek&^avs-7(r4ref(+8kkxyrfvm'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     '*',
@@ -197,7 +197,20 @@ AUTHENTICATION_BACKENDS = [
 
     # `allauth` specific authentication methods, such as login by e-mail
     'allauth.account.auth_backends.AuthenticationBackend',
+
+    # 'originality_project.provider.CustomGoogleProvider',
+
 ]
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {
+            'prompt': 'select_account',
+        }
+    }
+}
+
+
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 

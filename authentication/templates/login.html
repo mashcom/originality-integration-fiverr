@@ -11,12 +11,12 @@
             </div>
             <div class="card-body">
 
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-danger" {% if message.tags %}
-                             class="{{ message.tags }}"{% endif %}>{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
+<!--                {% if messages %}-->
+<!--                    {% for message in messages %}-->
+<!--                        <div class="alert alert-danger" {% if message.tags %}-->
+<!--                             class="{{ message.tags }}"{% endif %}>{{ message }}</div>-->
+<!--                    {% endfor %}-->
+<!--                {% endif %}-->
                 <form action="/accounts/google/login/" method="post">
                     {% csrf_token %}
                     <center><img loading="lazy" class="mx-auto"

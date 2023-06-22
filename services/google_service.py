@@ -12,6 +12,8 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
 from httplib2 import ServerNotFoundError
+from django.core.files.storage import default_storage
+
 
 from .exceptions import NoGoogleTokenException
 
@@ -38,6 +40,14 @@ SCOPES = ['https://www.googleapis.com/auth/classroom.courses',
 def token_file(uid):
     return os.path.join(settings.BASE_DIR, "tokens/" + uid + "_token.json")
 
+
+def remove_token_file(uid):
+    file_path = token_file(uid)
+    if os.path.exists(file_path):
+        os.remove(file_path)
+        return not os.path.exists(file_path)
+    return True
+
 def get_google_service_instance(uid, api="classroom", version="v1"):
     # uid = SocialAccount.objects.filter(user=request.user)[0].uid
     GOOGLE_TOKEN_FILE = token_file(uid)
@@ -56,7 +66,7 @@ def get_google_service_instance(uid, api="classroom", version="v1"):
             flow = InstalledAppFlow.from_client_secrets_file(GOOGLE_CREDENTIALS_FILE, SCOPES)
             flow.redirect_uri = construct_callback_uri()
 
-            auth_url, _ = flow.authorization_url(prompt='consent')
+            auth_url, _ = flow.authorization_url(prompt='consent',login_hint=uid)
             print(auth_url)
             raise NoGoogleTokenException(auth_url)
         # Save the credentials for the next run
@@ -183,8 +193,8 @@ def create_class(name, owner_id, uid, section="", description_heading="", descri
             service.courses().create(body=course).execute()
         return True
 
-    except HttpError:
-        return False
+    except Exception as error:
+        raise error
 
 def get_teacher_classes(uid):
     try:
