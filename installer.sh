@@ -99,6 +99,9 @@ EOF
 #enable apache mod rewrite
 yes | sudo a2enmod rewrite
 
+yes | sudo a2enmod wsgi
+
+
 #install python-venv
 yes | sudo apt install python3.10-venv
 
