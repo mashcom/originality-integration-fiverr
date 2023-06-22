@@ -36,7 +36,9 @@ def submit_to_originality(request):
     if request.method == "POST":
         params = request.POST.dict()
         agreement_accepted = params.get("agreed")
-        if agreement_accepted is None:
+        originality_check = params.get("originality_check")
+
+        if agreement_accepted is None and originality_check == "YES":
             messages.add_message(request, messages.ERROR, "Please acknowledge submission to plagiarism checker","alert alert-danger fw-bold")
             return redirect(request.META.get('HTTP_REFERER')+"?agreed=false")
 
