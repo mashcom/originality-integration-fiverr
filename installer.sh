@@ -132,6 +132,7 @@ sudo python3 -m venv venvs/django
 source venvs/django/bin/activate
 
 sudo mkdir logs
+sudo mkdir tokens
 sudo mkdir uploads/assignments
 # Create a log file for Django
 sudo touch logs/django.log
