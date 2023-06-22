@@ -23,6 +23,7 @@ print_green "-------------------------------------------------------------------
 sudo apt-get -qq update
 
 # Install necessary packages
+yes | sudo apt-get install apache2
 yes | sudo apt-get install apache2-dev
 yes | sudo apt-get install build-essential
 yes | sudo apt-get install python3-dev
