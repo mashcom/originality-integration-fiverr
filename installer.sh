@@ -15,40 +15,42 @@ print_red() {
     echo -e "${RED}$1${NC}"
 }
 
+print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+print_red "RUNNING THE SETUP, GODSPEED :-)"
+print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+
 # Update package lists
-sudo apt-get update
+sudo apt-get -qq update
 
 # Install necessary packages
-sudo apt-get install apache2                # Apache HTTP Server
-sudo apt-get install apache2-dev            # Apache development headers and module support
-sudo apt-get install build-essential         # Essential build tools
-sudo apt-get install python3-dev             # Python 3 development headers
-sudo apt-get install libapache2-mod-wsgi-py3  # Apache module for hosting Python WSGI applications
-sudo apt-get install libpq-dev              # PostgreSQL development headers
-sudo apt-get install netcat                 # Networking utility for reading from/writing to network connections
-sudo apt-get install default-libmysqlclient-dev   # MySQL development headers
-sudo apt-get install  libmagic-dev             # Development files for libmagic, a file type detection library
-sudo apt-get install expect
+yes | sudo apt-get install apache2-dev
+yes | sudo apt-get install build-essential
+yes | sudo apt-get install python3-dev
+yes | sudo apt-get install libapache2-mod-wsgi-py3
+yes | sudo apt-get install libpq-dev
+yes | sudo apt-get install netcat
+yes | sudo apt-get install default-libmysqlclient-dev
+yes | sudo apt-get install libmagic-dev
 
 # Remove cached package lists
-sudo rm -rf /var/lib/apt/lists/*
+yes | sudo rm -rf /var/lib/apt/lists/*
 
 # Update package lists again
-sudo apt-get update
+yes | sudo apt-get update
 
 #install snapd
-sudo apt update
-sudo apt install snapd
-sudo snap install core; sudo snap refresh core
+yes | sudo apt update
+yes | sudo apt install snapd
+yes | sudo snap install core; sudo snap refresh core
 
 #install certbot, this is used for SSL certificate generation and management
-sudo apt-get remove certbot
-sudo snap install --classic certbot
-sudo ln -s /snap/bin/certbot /usr/bin/certbot
+yes | sudo apt-get remove certbot
+yes | sudo snap install --classic certbot
+yes | sudo ln -s /snap/bin/certbot /usr/bin/certbot
 
 print_green "INSTALLING MARIADB"
 # Install MariaDB server
-sudo apt-get install mariadb-server
+yes | sudo apt-get install mariadb-server
 
 # Start MariaDB service
 sudo systemctl start mariadb
@@ -60,10 +62,10 @@ generate_password() {
 }
 
 mariadb_password=$(generate_password 12)
-
+print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
 print_red "THE SCRIPT WANTS TO SECURE MARIADB PLEASE THE PASSWORD BELOW. CANNOT ADD IT MANUALLY. BELOW IS YOUR GENERATED PASSWORD. PLEASE SAVE IT SOMEWHERE AND ALWAYS USE IT WHEN ASKED FOR MARIAB PASSWORD DURING INSTALLATION THIS IS IMPORTANT!!!"
 print_green "$mariadb_password"
-
+print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
 print_green "CREATING INITIAL DATABASE. WHEN ASKED FOR PASSWORD USE THE ONE BELOW"
 print_green "$mariadb_password"
 sudo mariadb  <<EOF
@@ -94,10 +96,10 @@ EOF
 
 ## SCRIPT INSTALLATION
 #enable apache mod rewrite
-sudo a2enmod rewrite
+yes | sudo a2enmod rewrite
 
 #install python-venv
-sudo apt install python3.10-venv
+yes | sudo apt install python3.10-venv
 
 
 #remove previous installations
@@ -125,6 +127,8 @@ sudo python3 -m venv venvs/django
 # Activate the virtual environment
 source venvs/django/bin/activate
 
+sudo mkdir logs
+sudo mkdir uploads/assignments
 # Create a log file for Django
 sudo touch logs/django.log
 
@@ -137,6 +141,9 @@ sudo chown -R www-data:www-data .
 # Set directory permissions
 sudo chmod 0777 .
 
+print_green "-------------------------------------------------------------"
+print_green "INSTALLING DEPENDENCIES"
+print_green "-------------------------------------------------------------"
 # Install Python dependencies
 sudo venvs/django/bin/pip install -r requirements.txt
 
@@ -148,16 +155,24 @@ sudo venvs/django/bin/pip install -r requirements.txt
 #-----------------------------------------------------------------------------------------------
 
 # Run database migrations
+print_green "-------------------------------------------------------------"
 print_green "CREATING MIGRATION"
+print_green "-------------------------------------------------------------"
 sudo venvs/django/bin/python manage.py makemigrations
 
+print_green "-------------------------------------------------------------"
 print_green "RUNNING MIGRATIONS"
+print_green "-------------------------------------------------------------"
 sudo venvs/django/bin/python manage.py migrate
 
+print_green "-------------------------------------------------------------"
 print_green "PLEASE ENTER THE CREDENTIALS OF SUPER ADMIN USER"
+print_green "-------------------------------------------------------------"
 #create application super user
 sudo venvs/django/bin/python manage.py createsuperuser
 
+print_green "-------------------------------------------------------------"
 print_green "INSTALLATION COMPLETED BELOW IS YOUR MARIADB PASSWORD"
 
 print_green $mariadb_password
+print_green "-------------------------------------------------------------"
