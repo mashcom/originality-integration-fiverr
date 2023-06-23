@@ -1,24 +1,24 @@
 from __future__ import print_function
 
+import logging
 import os.path
 import uuid
 from base64 import b64decode
 from json import JSONDecodeError
 
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.signing import Signer
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, HttpResponse, redirect
-from django.conf import settings
-
-
 from originality_project.decorators import check_user_able_to_see_page
 from services import google_service, originality_service
-from .models import Submission, Report
+from teacher.models import Assignments, Courses, AssignmentMaterials
 
-import logging
+from .models import Submission, Report
 
 # Get a logger instance
 logger = logging.getLogger(__name__)
@@ -31,6 +31,38 @@ def index(request):
     return render(request, "submissions.html", {"submissions": submissions})
 
 @login_required()
+@check_user_able_to_see_page("admins")
+def course_list(request):
+    search_query = request.GET.get('search')
+    courses = None
+    if search_query is None:
+        courses = Courses.objects.all()
+    else:
+        courses = Courses.objects.filter(name__icontains=search_query)
+    courses_with_assignments = []
+    for course in courses:
+        assignments_in_course = Assignments.objects.filter(course_id=course.course_id).count()
+        course.assignments = assignments_in_course
+        if assignments_in_course > 0:
+            courses_with_assignments.append(course)
+    context = {
+        "courses": courses_with_assignments,
+        "search_query": search_query
+    }
+    return render(request, "admin_courses.html", context=context)
+
+@login_required()
+@check_user_able_to_see_page("admins")
+def course_assignments(request, course_id):
+    course = Courses.objects.filter(course_id=course_id).first()
+    assignments = Assignments.objects.filter(course_id=course_id)
+    context = {
+        "course": course,
+        "assignments": assignments
+    }
+    return render(request, "admin_course_assignments.html", context=context)
+
+@login_required()
 def submit_to_originality(request):
     uid = SocialAccount.objects.filter(user=request.user)[0].uid
     if request.method == "POST":
@@ -39,8 +71,9 @@ def submit_to_originality(request):
         originality_check = params.get("originality_check")
 
         if agreement_accepted is None and originality_check == "YES":
-            messages.add_message(request, messages.ERROR, "Please acknowledge submission to plagiarism checker","alert alert-danger fw-bold")
-            return redirect(request.META.get('HTTP_REFERER')+"?agreed=false")
+            messages.add_message(request, messages.ERROR, "Please acknowledge submission to plagiarism checker",
+                                 "alert alert-danger fw-bold")
+            return redirect(request.META.get('HTTP_REFERER') + "?agreed=false")
 
         file = request.FILES["file"]
         request_uuid = str(uuid.uuid4())
@@ -111,29 +144,24 @@ def reports_for_teacher(request, course_id, assignment_id):
 @login_required()
 @check_user_able_to_see_page("students")
 def reports_for_student(request, course_id, assignment_id):
-    uid = SocialAccount.objects.filter(user=request.user)[0].uid
-    submissions = Submission.objects.filter(student_code=uid, assignment_code=assignment_id)
+    submissions = Submission.objects.filter(assignment_code=assignment_id)
     logger.debug("STUDENT SUBMISSIONS")
     logger.debug(submissions)
-    try:
-        assignment_details = google_service.classroom_get_course_work_item(course_id=course_id,
-                                                                           course_work_id=assignment_id, uid=uid)
-        course_details = google_service.classroom_get_course(course_id=course_id, uid=uid)
-    except Exception as error:
-        messages.add_message(request, messages.ERROR, "There was an errors connecting to Google APIs",
-                             "alert alert-success fw-bold")
-        return redirect(request.META.get('HTTP_REFERER'))
+    assignment_details = Assignments.objects.filter(assignment_id=assignment_id).first()
+    course_details = Courses.objects.filter(course_id=course_id).first()
     reports = []
     unique_reports_set = set()
 
     for submission in submissions:
-        report_entries = Report.objects.filter(assignment_id=submission.assignment_code,user_id=uid)
+        report_entries = Report.objects.filter(assignment_id=submission.assignment_code)
         logger.debug("REPORT ENTRY")
         logger.debug(report_entries)
 
         for report in report_entries:
             report.submitted_by = submission.student_code
-            report.profile = originality_service.get_user_profile(uid=report.user_id)
+            social_account = SocialAccount.objects.filter(uid=report.user_id).first()
+            profile = User.objects.get(id=social_account.user_id)
+            report.profile = profile
 
             # Check if the report is already in the set
             if report not in unique_reports_set:
@@ -179,7 +207,7 @@ def _download_base64(request, id, base64_string, file_name):
         # Decode the Base64 string, making sure that it contains only valid characters
 
         bytes = b64decode(base64_string)
-        path = os.path.join(settings.BASE_DIR,"reports/" + str(id) + '_' + file_name)
+        path = os.path.join(settings.BASE_DIR, "reports/" + str(id) + '_' + file_name)
         f = open(path, 'wb')
         f.write(bytes)
         f.close()

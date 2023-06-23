@@ -4,6 +4,7 @@
     {# Load the tag library #}
     {% load django_bootstrap5 %}
     {% load static %}
+    {% load custom_filters %}
 
 
     {# Load CSS and JavaScript #}
@@ -11,7 +12,7 @@
     {% bootstrap_javascript %}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
 
     <style>
@@ -20,12 +21,13 @@
         }
 
         body {
-            font-family: "Inter Tight", "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+            font-family: "Inter", "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+            background-color: #f5f7fa !important;
         }
 
         .display-font {
-            font-weight: 900 !important;
-            font-family: 'Inter Tight', 'Roboto', serif !important;
+            font-weight: 700 !important;
+            font-family: 'Inter', 'Roboto', serif !important;
         }
 
         .modal-backdrop {
@@ -33,6 +35,7 @@
             width: 100% !important;
             height: 100% !important;
         }
+
     </style>
     <title>Originality-Google Classroom Integration</title>
 </head>
@@ -50,15 +53,20 @@
         </button>
         <div class="collapse navbar-collapse justify-content-end" id="navbarColor02">
             <ul class="navbar-nav float-end mb-2 mb-lg-0 ">
+
+                {% if user|has_group:"admins" %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'course_list' %}">Reports</a>
+                </li>
+                {% endif %}
                 {% if not user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link" href="/">Courses</a>
 
                 </li>
-                  <li class="nav-item">
-                    <a class="nav-link" href="{% url 'reset_token_page' %}">Manage Token</a>
-
-                </li>
+                <!--                <li class="nav-item">-->
+                <!--                    <a class="nav-link" href="{% url 'reset_token_page' %}">Manage Token</a>-->
+                <!--                </li>-->
                 {% endif %}
                 {% if user.is_superuser %}
                 <li class="nav-item">
@@ -85,8 +93,15 @@
 
 {% endif %}
 <div class="container col-lg-9 py-4">
-    {% block content %}{% endblock %}
+    {% block content %}
+    {% endblock %}
 </div>
+
+{% if user.is_authenticated %}
+    `{% if not user.is_superuser %}
+        <p class="text-center text-muted">Logged as :<span class="fw-bold">{{user.email}}</span></p>
+    {% endif %}`
+{% endif %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var forms = document.querySelectorAll('form');

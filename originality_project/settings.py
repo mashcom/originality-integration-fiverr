@@ -115,11 +115,15 @@ TEMPLATES = [
         ,
         'APP_DIRS': True,
         'OPTIONS': {
+            'libraries': {
+                'custom_filters': 'originality_project.custom_filters',
+            },
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
             ],
         },
     },
@@ -209,8 +213,6 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
-
-
 
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 

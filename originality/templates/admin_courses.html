@@ -1,0 +1,63 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+<h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-graph-up-arrow"></i> Course Reports</h1>
+
+
+<div class="card col-lg-12">
+    <div class="card-header fw-bold text-muted">List of all courses
+
+    </div>
+    <div class="card-body">
+       <div class="p-3">
+           <h4 class="fw-bold">Filter</h4>
+            <form id="searchForm" class="input-group mb-3">
+            <input id="searchInput" type="text" class="form-control" name="search" placeholder="Filter keyword">
+            <button id="searchButton" class="btn btn-primary" type="submit"><i class="bi bi-funnel"></i> Filter</button>
+            <a href="{%  url 'course_list' %}" id="clearButton" class="btn btn-secondary" type="button">Clear Filter</a>
+        </form>
+
+        {% if search_query %}
+        <div class="w-100">
+            <p class="text-danger">List is filtered by <b>{{search_query}}</b></p>
+        </div>
+        {% endif %}
+       </div>
+
+
+        <ul class="list-group list-group-flush">
+            {% for course in courses %}
+            <li
+                    class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">
+                        <span class="">{{ course.name }}</span>
+                    </h5>
+                    <small class="text-muted">
+                        <a href="{% url 'admin_course_assignments' course.course_id %}"
+                           class="btn btn-outline-primary float-end fw-bold text-uppercase">
+                            <i class="bi bi-folder2-open"></i> Open Course
+                        </a>
+                    </small>
+                </div>
+                <p class="mb-1"><span
+                        class="badge bg-primary fw-bold ">{{course.assignments }} Assignments</span></p>
+            </li>
+            {% empty %}
+            <div class="col-lg-8 mx-auto py-5">
+                <center>
+                    <i class="bi bi-info-circle  fw-bold mx-auto text-muted text-center display-1"></i>
+                    <p class="text-muted text-center fw-bold">No courses found at the moment</p>
+
+                </center>
+
+            </div>
+            {% endfor %}
+
+        </ul>
+    </div>
+</div>
+{% endblock %}
+

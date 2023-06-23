@@ -10,9 +10,8 @@
     </div>
 
     <div class="card-body">
-        {# {{ course_details }}#}
-        <h4 class="mb-3 fw-bold">{{ course_details.name }}</h4>
-        <h5 class="mb-3 fw-bold">{{ assignment.title }}</h5>
+        <h4 class="mb-3 fw-bold">Course: {{ course_details.name }}</h4>
+        <h5 class="mb-3 fw-bold">Assignment: {{ assignment.title }}</h5>
         <p>{{ assignment.description }}</p>
         {% for material in assignment.materials %}
         {# {{ material.driveFile.driveFile }}#}
@@ -40,9 +39,9 @@
         <table class="table table-striped table-bordered data-table">
             <thead class="text-uppercase table-dark">
             <tr>
-                <th class="fw-bold">Student Details</th>
-                  <th class="fw-bold">File Name</th>
-<!--                <th class="fw-bold">Ghost Writer</th>-->
+                <th class="fw-bold">Full Name</th>
+                <th class="fw-bold">Email</th>
+                <!--                <th class="fw-bold">Ghost Writer</th>-->
                 <th class="fw-bold">Grade</th>
                 <th class="fw-bold">Date</th>
                 <th class="fw-bold"></th>
@@ -51,14 +50,12 @@
             {% for report in reports %}
             <tbody>
             <tr>
-                <td>
-                    <span class="fw-bold">
-                        {{ report.profile.first_name }} {{ report.profile.last_name }}</span><br/>
-                    {{ report.profile.email }}<br/>
-                    <!--                    Report ID: {{ report.id }}<br/>-->
+                <td  class="fw-bold">
+                        {{ report.profile.first_name }} {{ report.profile.last_name }}
                 </td>
-                 <td class="fw-bold">{{ report.file_name }}</td>
-<!--                <td>{{report.ghostwrite_report}}</td>-->
+                <td>{{ report.profile.email }}</td>
+                <!--                <td class="fw-bold">{{ report.file_name }}</td>-->
+                <!--                <td>{{report.ghostwrite_report}}</td>-->
                 <td class="fw-bold">{{ report.grade }}</td>
                 <td>{{ report.created_at }}</td>
                 <td>

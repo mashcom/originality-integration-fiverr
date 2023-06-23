@@ -3,33 +3,51 @@
 {% block title %}{{ section.title }}{% endblock %}
 
 {% block content %}
-    <h1 class="font-weight-bold mb-4 h3 fw-bold text-muted text-center">Originality Integration</h1>
+<style>
+    body {
+        /*background-image: url('https://prium.github.io/phoenix/v1.12.0/assets/img/bg/28.png');*/
+        background-position: right 10%;
+        background-size: 15%;
+        translate: none;
+        rotate: none;
+        scale: none;
+        transform: translate3d(0px, 19.7243%, 0px);
+        position: absolute;
+        width: 100%;
+        min-height: 100%;
+        top: 0;
+        left: 0;
+        background-size: cover;
+        background-position: center;
+        overflow: hidden;
+        will-change: transform, opacity, filter;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        background-repeat: no-repeat;
+        z-index: 0;
+    }
 
-    <div class="col-lg-5 mx-auto">
-        <div class="card">
-            <div class="card-header fw-bold text-muted text-center">Sign In
-            </div>
-            <div class="card-body">
+    }
+</style>
+<h1 class="font-weight-bold mb-4 h3 fw-bold text-center">Originality Integration</h1>
 
-<!--                {% if messages %}-->
-<!--                    {% for message in messages %}-->
-<!--                        <div class="alert alert-danger" {% if message.tags %}-->
-<!--                             class="{{ message.tags }}"{% endif %}>{{ message }}</div>-->
-<!--                    {% endfor %}-->
-<!--                {% endif %}-->
-                <form action="/accounts/google/login/" method="post">
-                    {% csrf_token %}
-                    <center><img loading="lazy" class="mx-auto"
-                                 src="https://edu.google.com/assets/icons/google-brands/classroom.svg" alt="">
-                    </center>
-                    <p class="text-center">You are about to sign in using a third party account from Google.</p>
-                    <button role="submit" id="google-login-button" class="mx-auto btn btn-danger btn-lg btn-block fw-bold text-uppercase w-100">
-                        Login with Google
-                    </button>
-                </form>
-            </div>
+<div class="col-lg-5 mx-auto">
+    <div class="card rounded-4 shadow-sm py-5 px-3">
+        <div class="card-body">
+            <form action="/accounts/google/login/" method="post">
+                {% csrf_token %}
+                <center><img loading="lazy" class="mx-auto"
+                             src="https://edu.google.com/assets/icons/google-brands/classroom.svg" alt="">
+                </center>
+                <p class="text-center fw-bold">You are about to sign in using a third party account from Google.</p>
+                <button role="submit" id="google-login-button"
+                        class="mx-auto btn btn-danger btn-lg btn-block fw-bold text-uppercase w-100">
+                    Login with Google
+                </button>
+            </form>
         </div>
     </div>
+</div>
 
 {% endblock %}
 

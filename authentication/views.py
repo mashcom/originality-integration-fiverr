@@ -118,6 +118,7 @@ def oauth_callback(request):
     # Save the credentials to token.json or any other preferred storage method
     with open(google_service.token_file(uid), 'w') as token:
         token.write(google_credentials.to_json())
+
     messages.add_message(request, messages.SUCCESS,
                          google_credentials.to_json(),
                          "alert alert-info fw-bold")

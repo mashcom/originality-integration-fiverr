@@ -1,0 +1,46 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+<h1 class="font-weight-bold mb-4 display-font"><i class="bi bi-people"></i> Reports: {{course.name}}</h1>
+
+<div class="card col-lg-12">
+    <div class="card-header fw-bold text-muted">Assignments
+
+    </div>
+    <div class="card-body">
+        <ul class="list-group list-grourp-flush">
+            {% for assignment in assignments %}
+            <li
+                    class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"><span class="fw-bold">{{ assignment.title }}</span>
+                    </h5>
+                    <small class="text-muted">
+                        <a href="{% url 'reports_for_student' course.course_id assignment.assignment_id %}"
+                           class="btn btn-outline-primary  float-end fw-bold text-uppercase">
+                            <i class="bi bi-folder2-open"></i> Originality Reports
+                        </a>
+                    </small>
+                </div>
+                  <p class="mb-1">Due Date: <span
+                        class="badge bg-secondary fw-bold ">{{ assignment.due_date }}</span></p>
+                <small class="text-muted">{{ assignment.description  }}</small>
+            </li>
+            {% empty %}
+            <div class="col-lg-8 mx-auto py-5">
+                <center>
+                    <i class="bi bi-info-circle  fw-bold mx-auto text-muted text-center display-1"></i>
+                    <p class="text-muted text-center fw-bold">No assignments found at the moment</p>
+
+                </center>
+
+            </div>
+            {% endfor %}
+
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
