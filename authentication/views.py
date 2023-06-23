@@ -20,8 +20,11 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.contrib.auth import logout
 from allauth.socialaccount.models import SocialToken
+from django.contrib.auth.models import Group
+
 
 def index(request):
+    create_groups()
     try:
         user_count = User.objects.all().count()
         if user_count == 0:
@@ -78,6 +81,13 @@ def index(request):
         return redirect("/student")
 
     return render(request, "no_group.html", {"email": user.email})
+
+def create_groups():
+    group_names = ['admins', 'students', 'teachers','developers']
+
+    for name in group_names:
+        group, created = Group.objects.get_or_create(name=name)
+
 
 def attempt(request):
     username = request.POST["username"]
