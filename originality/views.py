@@ -12,6 +12,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.signing import Signer
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, HttpResponse, redirect
 from originality_project.decorators import check_user_able_to_see_page
@@ -19,6 +20,7 @@ from services import google_service, originality_service
 from teacher.models import Assignments, Courses, AssignmentMaterials
 
 from .models import Submission, Report
+from django.db.models import F
 
 # Get a logger instance
 logger = logging.getLogger(__name__)
@@ -109,37 +111,41 @@ def submit_to_originality(request):
 @login_required()
 @check_user_able_to_see_page("teachers")
 def reports_for_teacher(request, course_id, assignment_id):
-    uid = SocialAccount.objects.filter(user=request.user)[0].uid
-    submissions = Submission.objects.filter(owner_id=uid, assignment_code=assignment_id)
+    if request.user.groups.filter(name="admins").exists():
+        submissions = Submission.objects.filter(assignment_code=assignment_id).first()
+    else:
+        uid = SocialAccount.objects.filter(user=request.user)[0].uid
+        submissions = Submission.objects.filter(owner_id=uid, assignment_code=assignment_id).first()
     logger.debug("SUBMISSIONS")
     logger.debug(submissions)
-    try:
-        assignment_details = google_service.classroom_get_course_work_item(course_id=course_id,
-                                                                           course_work_id=assignment_id, uid=uid)
-        course_details = google_service.classroom_get_course(course_id=course_id, uid=uid)
-    except Exception as error:
-        messages.add_message(request, messages.ERROR, "There was an errors connecting to Google APIs",
-                             "alert alert-success fw-bold")
-        return redirect(request.META.get('HTTP_REFERER'))
+    assignment_details = Assignments.objects.filter(assignment_id=assignment_id).first()
+    course_details = Courses.objects.filter(course_id=course_id).first()
+
     reports = []
-    unique_reports_set = set()
+    unique_reports_set = {}
+    student_entries = Report.objects.filter(assignment_id=assignment_id)
 
-    for submission in submissions:
-        report_entries = Report.objects.filter(assignment_id=submission.assignment_code)
-        logger.debug("REPORT ENTRY")
-        logger.debug(report_entries)
+    student_entries = student_entries.values_list('user_id',flat=True).distinct()
+    for student_id in student_entries:
+        student_reports = Report.objects.filter(assignment_id=assignment_id, user_id=student_id).order_by(F('created_at').desc())
+        social_account = SocialAccount.objects.filter(uid=student_id).first()
+        student_profile = User.objects.get(id=social_account.user_id)
+        student_report_details = {
+            "profile": student_profile,
+            "reports": student_reports,
+            "last_modified": student_reports.order_by('-created_at').values_list('created_at', flat=True).last()
 
-        for report in report_entries:
-            report.submitted_by = submission.student_code
-            report.profile = originality_service.get_user_profile(uid=report.user_id)
+        }
+        reports.append(student_report_details)
 
-            # Check if the report is already in the set
-            if report not in unique_reports_set:
-                reports.append(report)
-                unique_reports_set.add(report)
+    import json
+    context = {
+        "reports": reports,
+        "assignment": assignment_details,
+        "course_details": course_details
+    }
+    return render(request, "report.html", context=context)
 
-    return render(request, "report.html",
-                  {"reports": reports, "assignment": assignment_details, "course_details": course_details})
 
 @login_required()
 @check_user_able_to_see_page("students")

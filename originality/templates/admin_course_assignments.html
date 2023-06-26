@@ -18,7 +18,7 @@
                     <h5 class="mb-1"><span class="fw-bold">{{ assignment.title }}</span>
                     </h5>
                     <small class="text-muted">
-                        <a href="{% url 'reports_for_student' course.course_id assignment.assignment_id %}"
+                        <a href="{% url 'reports_for_teacher' course.course_id assignment.assignment_id %}"
                            class="btn btn-outline-primary  float-end fw-bold text-uppercase">
                             <i class="bi bi-folder2-open"></i> Originality Reports
                         </a>
