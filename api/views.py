@@ -49,11 +49,8 @@ def report(request):
         if not params.get('SequenceNumber'):
             return JsonResponse({"Message": "SequenceNumber is missing"}, status=400)
 
-        if not params.get('PercentOriginal'):
+        if 'PercentOriginal' not in params:
             return JsonResponse({"Message": "PercentOriginal is missing"}, status=400)
-
-        if not params.get('SequenceNumber'):
-            return JsonResponse({"Message": "SequenceNumber is missing"}, status=400)
 
         if not params.get('OriginalityReport'):
             return JsonResponse({"Message": "OriginalityReport is missing"}, status=400)

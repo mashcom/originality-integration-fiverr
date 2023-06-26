@@ -42,7 +42,7 @@
                 <th class="fw-bold">Full Name</th>
                 <th class="fw-bold">Email</th>
                 <!--                <th class="fw-bold">Ghost Writer</th>-->
-                <th class="fw-bold">Grade</th>
+                <th class="fw-bold">% Original</th>
                 <th class="fw-bold">Date</th>
                 <th class="fw-bold"></th>
             </tr>
@@ -50,8 +50,8 @@
             {% for report in reports %}
             <tbody>
             <tr>
-                <td  class="fw-bold">
-                        {{ report.profile.first_name }} {{ report.profile.last_name }}
+                <td class="fw-bold">
+                    {{ report.profile.first_name }} {{ report.profile.last_name }}
                 </td>
                 <td>{{ report.profile.email }}</td>
                 <!--                <td class="fw-bold">{{ report.file_name }}</td>-->
