@@ -1,0 +1,13 @@
+#Software: Microsoft Internet Information Services 10.0
+#Version: 1.0
+#Date: 2021-05-07 14:02:16
+#Fields: date time s-ip cs-method cs-uri-stem cs-uri-query s-port cs-username c-ip cs(User-Agent) cs(Referer) sc-status sc-substatus sc-win32-status time-taken
+2021-05-07 14:02:16 ::1 GET /MsuService.asmx - 1031 - ::1 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/90.0.4430.93+Safari/537.36+Edg/90.0.818.51 - 200 0 0 13698
+2021-05-07 14:02:19 ::1 GET /favicon.ico - 1031 - ::1 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/90.0.4430.93+Safari/537.36+Edg/90.0.818.51 http://localhost:1031/MsuService.asmx 404 0 2 4
+#Software: Microsoft Internet Information Services 10.0
+#Version: 1.0
+#Date: 2021-05-07 14:23:59
+#Fields: date time s-ip cs-method cs-uri-stem cs-uri-query s-port cs-username c-ip cs(User-Agent) cs(Referer) sc-status sc-substatus sc-win32-status time-taken
+2021-05-07 14:23:59 ::1 GET /MsuService.asmx - 1031 - ::1 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/90.0.4430.93+Safari/537.36+Edg/90.0.818.51 - 200 0 0 8
+2021-05-07 14:24:44 ::1 GET /MsuService.asmx op=GetStudentBalance 1031 - ::1 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/90.0.4430.93+Safari/537.36+Edg/90.0.818.51 http://localhost:1031/MsuService.asmx 200 0 0 45
+2021-05-07 14:25:16 ::1 POST /MsuService.asmx/GetStudentBalance - 1031 - ::1 Mozilla/5.0+(Windows+NT+10.0;+Win64;+x64)+AppleWebKit/537.36+(KHTML,+like+Gecko)+Chrome/90.0.4430.93+Safari/537.36+Edg/90.0.818.51 http://localhost:1031/MsuService.asmx?op=GetStudentBalance 500 0 0 11182

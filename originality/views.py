@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import json
 import logging
 import os.path
 import uuid
@@ -12,6 +13,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.signing import Signer
+from django.db.models import F
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, HttpResponse, redirect
@@ -19,8 +21,7 @@ from originality_project.decorators import check_user_able_to_see_page
 from services import google_service, originality_service
 from teacher.models import Assignments, Courses, AssignmentMaterials
 
-from .models import Submission, Report
-from django.db.models import F
+from .models import Submission, Report, Grade
 
 # Get a logger instance
 logger = logging.getLogger(__name__)
@@ -111,7 +112,9 @@ def submit_to_originality(request):
 @login_required()
 @check_user_able_to_see_page("teachers")
 def reports_for_teacher(request, course_id, assignment_id):
+    is_admin = False
     if request.user.groups.filter(name="admins").exists():
+        is_admin = True
         submissions = Submission.objects.filter(assignment_code=assignment_id).first()
     else:
         uid = SocialAccount.objects.filter(user=request.user)[0].uid
@@ -125,27 +128,32 @@ def reports_for_teacher(request, course_id, assignment_id):
     unique_reports_set = {}
     student_entries = Report.objects.filter(assignment_id=assignment_id)
 
-    student_entries = student_entries.values_list('user_id',flat=True).distinct()
+    student_entries = student_entries.values_list('user_id', flat=True).distinct()
     for student_id in student_entries:
-        student_reports = Report.objects.filter(assignment_id=assignment_id, user_id=student_id).order_by(F('created_at').desc())
+        student_reports = Report.objects.filter(assignment_id=assignment_id, user_id=student_id).order_by(
+            F('created_at').desc())
         social_account = SocialAccount.objects.filter(uid=student_id).first()
         student_profile = User.objects.get(id=social_account.user_id)
+        grade = Grade.objects.filter(assignment_id=assignment_id, user_id=student_id).first()
+        if grade is None:
+            grade = "Not Graded"
         student_report_details = {
             "profile": student_profile,
+            "social_account": social_account,
+            "grade": grade,
             "reports": student_reports,
             "last_modified": student_reports.order_by('-created_at').values_list('created_at', flat=True).last()
 
         }
         reports.append(student_report_details)
 
-    import json
     context = {
         "reports": reports,
         "assignment": assignment_details,
-        "course_details": course_details
+        "course_details": course_details,
+        "is_admin": is_admin
     }
     return render(request, "report.html", context=context)
-
 
 @login_required()
 @check_user_able_to_see_page("students")
@@ -176,6 +184,92 @@ def reports_for_student(request, course_id, assignment_id):
 
     return render(request, "report.html",
                   {"reports": reports, "assignment": assignment_details, "course_details": course_details})
+
+@login_required()
+@check_user_able_to_see_page("teachers")
+def save_grade(request):
+    logger.debug("API REQUEST!!")
+    logger.info(f"Request Method: {request.method}")
+    logger.info(f"Request Path: {request.path}")
+
+    # Log request headers
+    logger.info("Request Headers:")
+    for header, value in request.headers.items():
+        logger.info(f"{header}: {value}")
+
+    # Log request GET parameters
+    logger.info("GET Parameters:")
+    for key, value in request.GET.items():
+        logger.info(f"{key}: {value}")
+
+    # Log request POST data
+    logger.info("POST Data:")
+    for key, value in request.POST.items():
+        logger.info(f"{key}: {value}")
+
+        # Log the request body
+    logger.info("Request Body:")
+    # logger.info(request.body.decode("utf-8"))
+
+    logger.info("User ID:")
+    logger.info(request.body)
+
+    if request.method != 'POST':
+        return JsonResponse({"Message": "Invalid HTTP method"}, status=400)
+
+    try:
+        params = json.loads(request.body)
+    except Exception as error:
+        return JsonResponse({"Message": error}, status=400)
+
+    if 'user_id' not in params:
+        return JsonResponse({"Message": "user_id is missing"}, status=400)
+
+    if 'assignment_id' not in params:
+        return JsonResponse({"Message": "assignment_id is missing"}, status=400)
+
+    if 'grade' not in params:
+        return JsonResponse({"Message": "Grade is missing"}, status=400)
+
+    if 'total_possible' not in params:
+        return JsonResponse({"Message": "Total possible is missing"}, status=400)
+
+    user_id = params.get("user_id")
+    assignment_id = params.get("assignment_id")
+    grade = params.get("grade")
+    total_possible = params.get("total_possible")
+
+    try:
+        grade = int(grade)
+        total_possible = int(total_possible)
+    except ValueError:
+        return JsonResponse({"Message": f"Invalid grade/total_possible value. It must be a valid integer."}, status=400)
+
+    if grade < 0:
+        return JsonResponse({"Message": f"Grade should be above 0"}, status=400)
+
+    if total_possible < 0:
+        return JsonResponse({"Message": f"Total possible grade should be above 0"}, status=400)
+
+    if grade > total_possible:
+        return JsonResponse(
+            {"Message": f"Grade {grade} cannot be greater than the total possible grade for {total_possible}"},
+            status=400)
+
+    grade_exists = Grade.objects.filter(user_id=user_id, assignment_id=assignment_id).first()
+    if grade_exists is None:
+        save_grade = Grade()
+    else:
+        save_grade = grade_exists
+
+    save_grade.user_id = user_id
+    save_grade.assignment_id = assignment_id
+    save_grade.grade = grade
+    save_grade.total_possible = total_possible
+    if save_grade.save() is None:
+        return JsonResponse({"Message": "Grade saved successfully"}, status=200)
+
+    return JsonResponse({"Message": "Grade could not be saved"}, status=500)
 
 @login_required()
 def download_report(request, originality_id):

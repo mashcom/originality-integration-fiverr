@@ -40,3 +40,12 @@ class Report(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+
+class Grade(models.Model):
+    id = models.BigAutoField(primary_key="id")
+    grade = models.TextField(max_length=20, default="")
+    total_possible = models.TextField(max_length=20, default="")
+    user_id = models.TextField(default="")
+    assignment_id = models.TextField(default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

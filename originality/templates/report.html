@@ -35,13 +35,13 @@
     </div>
 
     <div class="card-body">
- 
+
         <table class="table table-striped table-bordered data-table table-sm">
             <thead class="text-uppercase table-dark">
             <tr>
                 <th class="fw-bold">Full Name</th>
                 <th class="fw-bold">Email</th>
-                <!--                <th class="fw-bold">Ghost Writer</th>-->
+                <th class="fw-bold">Grade</th>
                 <th class="fw-bold">% Original</th>
                 <th class="fw-bold">Last Modified</th>
                 <th class="fw-bold"></th>
@@ -49,33 +49,45 @@
             </thead>
             {% for report in reports %}
             <tbody>
-            <tr>
+            <tr id="user-{{report.social_account.uid}}">
 
                 <td class="fw-bold">
                     {{ report.profile.first_name }} {{ report.profile.last_name }}
                 </td>
                 <td>{{ report.profile.email }}</td>
-                <!--                <td class="fw-bold">{{ report.file_name }}</td>-->
-                <!--                <td>{{report.ghostwrite_report}}</td>-->
+                <td>
+                    {% if not is_admin %}
+                    <a href="#"
+                       class="btn btn-primary btn-sm fw-bold text-uppercase btn-block my-3 w-100 grade-btn-{{report.social_account.uid}}"
+                       data-bs-toggle="modal"
+                       data-bs-target="#saveGradeModal"
+                       data-bs-user="{{report.social_account.uid}}"
+                       data-bs-assignment="{{ assignment.assignment_id }}"
+                       data-bs-user="{{report.social_account.uid}}"
+                       data-bs-grade="{{report.grade.grade}}"
+                       data-bs-total_possible="{{report.grade.total_possible}}"
+                    >Grade
+                    </a>
+                    {% endif %}
+                    <p id="grade-text-{{report.social_account.uid}}" class="">
+                        {{report.grade.grade}}/{{report.grade.total_possible}}</p>
+
+
+                </td>
                 <td class="">
                     <ul class="list-group ">
                         {% for report_files in report.reports %}
                         <li class="list-group-item">
                             <p>{{report_files.file_name}}</p>
-                            <p>Originality: <span class="fw-bold">{{report_files.grade}}%</span>
+                            <p>Originality: <span class="fw-bold text-danger">{{report_files.grade}}%</span>
                                 <a target="_blank" href="{% url 'download_report' report_files.id %}"
                                    class="btn btn-outline-danger btn-sm float-end text-uppercase fw-bold"><i
                                         class="bi bi-filetype-pdf"></i> Download
                                 </a>
                             </p>
-
-
                         </li>
                         {% endfor %}
-
-
                     </ul>
-                    {{ report.grade }}
                 </td>
                 <td>
                     <span class="text-sm text-uppercase"> {{ report.last_modified }}</span>
@@ -91,16 +103,160 @@
     </div>
 
 </div>
-<!--<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>-->
+<div class="modal fade" id="saveGradeModal" tabindex="-1" aria-labelledby="saveGradeModal" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen-sm-down">
+        <div action="{% url 'save_grade' %}" method="POST" class="modal-content">
+            {% csrf_token %}
 
-<!--<link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css"/>-->
 
-<!--<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>-->
-<!--<script>-->
+            <div class="modal-header">
+                <h1 class="modal-title fs-5 fw-bold text-uppercase fw-bold" id="saveGradeModalLabel">
+                    <i class="bi bi-device-hdd-fill"></i> Grade</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger fw-bold" style="display: none" id="save-grade-error">
+                </div>
+                <input readonly type="hidden" value="" id="assignment" name="assignment_id"/>
+                <input readonly type="hidden" value="" id="user" name="user_id"/>
 
-<!--    $(document).ready(function () {-->
-<!--        $('.data-table').DataTable();-->
-<!--    });-->
-<!--</script>-->
+                <div class="mb-3">
+                    <label for="grade" class="form-label text-uppercase fw-bold">Grade</label>
+                    <input type="number" class="form-control" id="grade" name="grade"
+                           placeholder="" required>
+                </div>
+                <div class="mb-3">
+                    <label for="total_possible" class="form-label text-uppercase fw-bold">Total Possible</label>
+                    <input type="number" class="form-control" id="total_possible" name="total_possible"
+                           placeholder="" required>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button id="saveGrade" class="btn btn-primary text-uppercase fw-bold" type="button">
+                    <span style="display: none" class="save-spinner spinner-border spinner-border-sm" role="status"
+                          aria-hidden="true"></span>
+                    <span class="save-text">Save Grade</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const button_spinner = document.getElementById("save-spinner");
+    const saveGradeError = document.getElementById('save-grade-error');
+
+
+    const saveGradeModal = document.getElementById('saveGradeModal')
+    if (saveGradeModal) {
+        saveGradeModal.addEventListener('show.bs.modal', event => {
+            // Button that triggered the modal
+            const button = event.relatedTarget
+            // Extract info from data-bs-* attributes
+            const assignment_id = button.getAttribute('data-bs-assignment')
+            const user = button.getAttribute('data-bs-user')
+            const grade = button.getAttribute('data-bs-grade')
+            const total_possible = button.getAttribute('data-bs-total_possible')
+            // Update the modal's content.
+            const modalAssignment = saveGradeModal.querySelector('.modal-body #assignment')
+            const modalUser = saveGradeModal.querySelector('.modal-body #user')
+            const modalGrade = saveGradeModal.querySelector('.modal-body #grade')
+            const modalTotalPossible = saveGradeModal.querySelector('.modal-body #total_possible')
+
+
+            modalAssignment.value = assignment_id
+            modalUser.value = user
+            modalGrade.value = grade
+            modalTotalPossible.value = total_possible
+        })
+    }
+
+    document.getElementById('saveGrade').addEventListener('click', function () {
+            saveGradeError.style.display = "none"
+            var csrftoken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+            const assignment_id = saveGradeModal.querySelector('.modal-body #assignment').value
+            const user_id = saveGradeModal.querySelector('.modal-body #user').value
+            const grade = saveGradeModal.querySelector('.modal-body #grade').value
+            const total_possible = saveGradeModal.querySelector('.modal-body #total_possible').value
+
+            var xhr = new XMLHttpRequest();
+            xhr.withCredentials = true;
+
+            const save_spinner = document.getElementsByClassName("save-spinner");
+            // Iterate through each element and modify the display property
+            for (let i = 0; i < save_spinner.length; i++) {
+                save_spinner[i].style.display = "inline-block";
+            }
+
+            const button = document.getElementById("saveGrade")
+            // Disable the button
+            button.disabled = true;
+
+
+            xhr.addEventListener("readystatechange", function () {
+                // Iterate through each element and modify the display property
+
+                if (this.readyState === 4) {
+                    for (let i = 0; i < save_spinner.length; i++) {
+                        save_spinner[i].style.display = "none";
+                    }
+                    button.disabled = false;
+
+                    if (xhr.status === 200) {
+                        // Get the paragraph element by its ID
+                        const grade_element = document.getElementById(`grade-text-${user_id}`);
+                        grade_element.textContent = `${grade}/${total_possible}`;
+                        document.querySelector('#saveGradeModal .modal-body #grade').value = grade
+                        document.querySelector('#saveGradeModal .modal-body #total_possible').value = total_possible
+
+                        document.querySelector(`.grade-btn-${user_id}`).setAttribute("data-bs-grade", grade)
+                        document.querySelector(`.grade-btn-${user_id}`).setAttribute("data-bs-total_possible", total_possible)
+                        // alert("Grading successful")
+                        const closeModalButton = document.querySelector('#saveGradeModal [data-bs-dismiss="modal"]');
+                        closeModalButton.click();
+                        console.log(xhr.responseText);
+                    } else if (xhr.status === 400) {
+                        saveGradeError.style.display = "block"
+                        const response = JSON.parse(xhr.response);
+                        const errorMessage = response.Message;
+                        saveGradeError.textContent = errorMessage;
+
+                        // alert(errorMessage)
+                    } else {
+                        saveGradeError.style.display = "block";
+                        const errorMessage = "Unexpected error occurred!";
+                        saveGradeError.textContent = errorMessage;
+                        console.error(xhr.statusText);
+                    }
+                }
+            });
+
+            xhr.open("POST", "/originality/save_grade");
+            xhr.setRequestHeader("Content-Type", "application/json");
+            xhr.setRequestHeader('X-CSRFToken', csrftoken);
+
+
+            const formData = {
+                'user_id': user_id,
+                'assignment_id': assignment_id,
+                'grade': grade,
+                'total_possible': total_possible,
+                'csrfmiddlewaretoken': csrftoken
+            };
+            const jsonPayload = JSON.stringify(formData);
+
+            try {
+                xhr.send(jsonPayload);
+            } catch (error) {
+                // Handle the error here
+                console.log('An error occurred:', error);
+            }
+        }
+    );
+
+</script>
 {% endblock %}
 

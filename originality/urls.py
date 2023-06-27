@@ -14,6 +14,7 @@ urlpatterns = [
     path("download/<str:originality_id>", views.download_report, name="download_report"),
     path("download/submission/<str:id>/<str:signature>", views.download_submission, name="download_submission"),
     path("external/download/submission/<str:file_id>/<str:signature>", views.external_download_submission,
-         name="external_download_submission")
+         name="external_download_submission"),
+    path("save_grade", views.save_grade, name="save_grade"),
 
 ]
