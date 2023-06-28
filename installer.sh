@@ -177,12 +177,23 @@ print_green "-------------------------------------------------------------"
 sudo venvs/django/bin/python manage.py createsuperuser
 
 print_green "-------------------------------------------------------------"
-print_green "APACHE2 CONFIGURATION"
+print_green "APACHE2 AND SSL CONFIGURATION"
 print_green "-------------------------------------------------------------"
 # Prompt the user to input the values of the variables
+print_green -------------------------------------------------------------
+print_green PLEASE ENTER THE SERVER ADMIN EMAIL
+print_green -------------------------------------------------------------
 read -p "Enter APPLICATION_SERVER_ADMIN: " APPLICATION_SERVER_ADMIN
+
+print_green ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+print_green PLEASE ENTER THE APPLICATION DOMAIN NAME. ENSURE THE DOMAIN NAME HAS NOT HTTP/HTTPS e.g example.com or originality.example.com if the application is on subdomain
+print_green ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 read -p "Enter APPLICATION_DOMAIN_NAME: " APPLICATION_DOMAIN_NAME
 
+print_green -------------------------------------------------------------
+print_green RUNNING SSL INSTALLATION
+print_green -------------------------------------------------------------
+sudo certbot certonly --standalone -d $APPLICATION_DOMAIN_NAME
 
 # Set APPLICATION_ROOT_DIR to the current directory
 APPLICATION_ROOT_DIR=$(pwd)
