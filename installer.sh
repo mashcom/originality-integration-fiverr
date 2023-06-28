@@ -184,7 +184,10 @@ print_green -------------------------------------------------------------
 print_green "PLEASE ENTER THE SERVER ADMIN EMAIL"
 print_green -------------------------------------------------------------
 read -p "Enter APPLICATION_SERVER_ADMIN: " APPLICATION_SERVER_ADMIN
-
+print_green "-------------------------------------------------------------"
+print_green "INSTALLATION COMPLETED BELOW IS YOUR MARIADB PASSWORD"
+print_green "-------------------------------------------------------------"
+exit
 sudo service apache2 stop
 
 print_green ------------------------------------------------------------------------------------------------------------------------------------------------------------------
