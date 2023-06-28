@@ -238,7 +238,7 @@ echo "Configuration file generated: $SSL_CONFIG_FILE"
 
 sudo a2ensite originality_apache
 sudo a2ensite originality_apache_ssl
-sudo apache2 restart
+sudo service apache2 restart
 
 print_green "-------------------------------------------------------------"
 print_green "INSTALLATION COMPLETED BELOW IS YOUR MARIADB PASSWORD"
