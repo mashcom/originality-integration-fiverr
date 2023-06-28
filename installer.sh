@@ -185,6 +185,8 @@ print_green "PLEASE ENTER THE SERVER ADMIN EMAIL"
 print_green -------------------------------------------------------------
 read -p "Enter APPLICATION_SERVER_ADMIN: " APPLICATION_SERVER_ADMIN
 
+sudo service apache2 stop
+
 print_green ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print_green "PLEASE ENTER THE APPLICATION DOMAIN NAME. ENSURE THE DOMAIN NAME HAS NOT HTTP/HTTPS e.g example.com or originality.example.com if the application is on subdomain"
 print_green ------------------------------------------------------------------------------------------------------------------------------------------------------------------
