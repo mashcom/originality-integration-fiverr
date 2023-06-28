@@ -177,7 +177,56 @@ print_green "-------------------------------------------------------------"
 sudo venvs/django/bin/python manage.py createsuperuser
 
 print_green "-------------------------------------------------------------"
-print_green "INSTALLATION COMPLETED BELOW IS YOUR MARIADB PASSWORD"
+print_green "APACHE2 CONFIGURATION"
+print_green "-------------------------------------------------------------"
+# Prompt the user to input the values of the variables
+read -p "Enter APPLICATION_SERVER_ADMIN: " APPLICATION_SERVER_ADMIN
+read -p "Enter APPLICATION_DOMAIN_NAME: " APPLICATION_DOMAIN_NAME
 
-print_green $mariadb_password
+
+# Set APPLICATION_ROOT_DIR to the current directory
+APPLICATION_ROOT_DIR=$(pwd)
+
+# Generate a random string with 12 characters for WSGID_PROCESS_NAME
+WSGID_PROCESS_NAME=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
+
+# Specify the path to the Apache configuration template file
+TEMPLATE_FILE="apache_example.conf"
+SSL_TEMPLATE_FILE="apache_ssl_example.conf"
+
+# Specify the path to the generated Apache configuration file
+CONFIG_FILE="originality_apache.conf"
+SSL_CONFIG_FILE="originality_apache_ssl.conf"
+
+# Copy the template file to the new configuration file
+cp "$TEMPLATE_FILE" "$CONFIG_FILE"
+cp "$SSL_TEMPLATE_FILE" "$SSL_CONFIG_FILE"
+
+# Replace the variables in the configuration file using envsubst
+export APPLICATION_SERVER_ADMIN
+export APPLICATION_DOMAIN_NAME
+export APPLICATION_ROOT_DIR
+export WSGID_PROCESS_NAME
+envsubst < "$CONFIG_FILE" > "$CONFIG_FILE.tmp"
+mv "$CONFIG_FILE.tmp" "/etc/apache2/sites-available/$CONFIG_FILE"
+
+echo "Configuration file generated: $CONFIG_FILE"
+
+WSGID_PROCESS_NAME=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1)
+# Replace the variables in the configuration file using envsubst
+export APPLICATION_SERVER_ADMIN
+export APPLICATION_DOMAIN_NAME
+export APPLICATION_ROOT_DIR
+export WSGID_PROCESS_NAME
+envsubst < "$SSL_CONFIG_FILE" > "$SSL_CONFIG_FILE.tmp"
+mv "$SSL_CONFIG_FILE.tmp" "/etc/apache2/sites-available/$SSL_CONFIG_FILE"
+
+echo "Configuration file generated: $SSL_CONFIG_FILE"
+
+sudo a2ensite originality_apache
+sudo a2ensite originality_apache_ssl
+sudo apache2 restart
+
+print_green "-------------------------------------------------------------"
+print_green "INSTALLATION COMPLETED BELOW IS YOUR MARIADB PASSWORD"
 print_green "-------------------------------------------------------------"
