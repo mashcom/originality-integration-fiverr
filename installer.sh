@@ -278,24 +278,29 @@ TEMPLATE_FILE="apache_example.conf"
 SSL_TEMPLATE_FILE="apache_ssl_example.conf"
 
 # Specify the path to the generated Apache configuration file
-CONFIG_FILE=" 000-default.conf"
+CONFIG_FILE="000-default.conf"
 SSL_CONFIG_FILE="000-default-le-ssl.conf"
 
 # Copy the template file to the new configuration file
-cp "$TEMPLATE_FILE" "$CONFIG_FILE"
-cp "$SSL_TEMPLATE_FILE" "$SSL_CONFIG_FILE"
+sudo cp "$TEMPLATE_FILE" "$CONFIG_FILE"
+sudo cp "$SSL_TEMPLATE_FILE" "$SSL_CONFIG_FILE"
 
 #backup config
-sudo cp /etc/apache2/sites-available/00-default.conf /etc/apache2/sites-available/00-default.conf.bak
+sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/00-default.conf.bak
 sudo cp /etc/apache2/sites-available/000-default-le-ssl.conf /etc/apache2/sites-available/000-default-le-ssl.conf.bak
+
+print_green "export APPLICATION_SERVER_ADMIN $APPLICATION_SERVER_ADMIN"
+print_green "export APPLICATION_DOMAIN_NAME $APPLICATION_DOMAIN_NAME"
+print_green "export APPLICATION_ROOT_DIR $APPLICATION_ROOT_DIR"
+print_green "export WSGID_PROCESS_NAME $APPLICATION_SERVER_ADMIN"
 
 # Replace the variables in the configuration file using envsubst
 export APPLICATION_SERVER_ADMIN
 export APPLICATION_DOMAIN_NAME
 export APPLICATION_ROOT_DIR
 export WSGID_PROCESS_NAME
-envsubst < "$CONFIG_FILE" > "$CONFIG_FILE.tmp"
-mv -f "$CONFIG_FILE.tmp" "/etc/apache2/sites-available/$CONFIG_FILE"
+sudo envsubst < "$CONFIG_FILE" > "$CONFIG_FILE.tmp"
+sudo mv -f "$CONFIG_FILE.tmp" "/etc/apache2/sites-available/$CONFIG_FILE"
 
 echo "Configuration file generated: $CONFIG_FILE"
 
@@ -305,8 +310,8 @@ export APPLICATION_SERVER_ADMIN
 export APPLICATION_DOMAIN_NAME
 export APPLICATION_ROOT_DIR
 export WSGID_PROCESS_NAME
-envsubst < "$SSL_CONFIG_FILE" > "$SSL_CONFIG_FILE.tmp"
-mv -f "$SSL_CONFIG_FILE.tmp" "/etc/apache2/sites-available/$SSL_CONFIG_FILE"
+sudo envsubst < "$SSL_CONFIG_FILE" > "$SSL_CONFIG_FILE.tmp"
+sudo mv -f "$SSL_CONFIG_FILE.tmp" "/etc/apache2/sites-available/$SSL_CONFIG_FILE"
 
 echo "Configuration file generated: $SSL_CONFIG_FILE"
 
