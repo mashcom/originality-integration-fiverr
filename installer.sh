@@ -222,7 +222,7 @@ sudo venvs/django/bin/python manage.py createsuperuser
 print_green "-------------------------------------------------------------"
 print_green "INSTALLATION COMPLETED"
 print_green "-------------------------------------------------------------"
-exit
+#exit
 print_green "-------------------------------------------------------------"
 print_green "APACHE2 AND SSL CONFIGURATION"
 print_green "-------------------------------------------------------------"
@@ -258,8 +258,8 @@ TEMPLATE_FILE="apache_example.conf"
 SSL_TEMPLATE_FILE="apache_ssl_example.conf"
 
 # Specify the path to the generated Apache configuration file
-CONFIG_FILE="originality_apache.conf"
-SSL_CONFIG_FILE="originality_apache_ssl.conf"
+CONFIG_FILE=" 000-default.conf"
+SSL_CONFIG_FILE="000-default-le-ssl.conf"
 
 # Copy the template file to the new configuration file
 cp "$TEMPLATE_FILE" "$CONFIG_FILE"
@@ -286,10 +286,10 @@ mv "$SSL_CONFIG_FILE.tmp" "/etc/apache2/sites-available/$SSL_CONFIG_FILE"
 
 echo "Configuration file generated: $SSL_CONFIG_FILE"
 
-sudo a2ensite originality_apache
-sudo a2ensite originality_apache_ssl
+sudo a2ensite 000-default
+sudo a2ensite 000-default-le-ssl
 sudo service apache2 restart
 
 print_green "-------------------------------------------------------------"
-print_green "INSTALLATION COMPLETED BELOW IS YOUR MARIADB PASSWORD"
+print_green "INSTALLATION COMPLETED"
 print_green "-------------------------------------------------------------"
