@@ -220,6 +220,10 @@ print_green "-------------------------------------------------------------"
 sudo venvs/django/bin/python manage.py createsuperuser
 
 print_green "-------------------------------------------------------------"
+print_green "INSTALLATION COMPLETED"
+print_green "-------------------------------------------------------------"
+exit
+print_green "-------------------------------------------------------------"
 print_green "APACHE2 AND SSL CONFIGURATION"
 print_green "-------------------------------------------------------------"
 # Prompt the user to input the values of the variables
