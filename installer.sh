@@ -94,10 +94,11 @@ done
 
 if [ $connected == false ]; then
     echo "Failed to establish a connection to MariaDB after $max_attempts attempts."
+    exit
 fi
 
 
-print_green "CREATING INITIAL DATABASE. WHEN ASKED FOR PASSWORD USE THE ONE BELOW"
+print_green "CREATING INITIAL DATABASE. WHEN ASKED FOR A PASSWORD USE THE ONE BELOW"
 print_green "$mariadb_password"
 sudo mariadb -u "$mariadb_username" -p"$mariadb_password" <<EOF
 CREATE DATABASE IF NOT EXISTS originality_app;
