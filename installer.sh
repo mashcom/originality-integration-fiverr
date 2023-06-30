@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# Check Python version
+PYTHON_VERSION=$(python3 -c "import sys; print('.'.join(map(str, sys.version_info[:3])))")
+REQUIRED_VERSION="3.8"
+
+# Compare versions
+if [ "$(printf '%s\n' "$REQUIRED_VERSION" "$PYTHON_VERSION" | sort -V | head -n1)" != "$REQUIRED_VERSION" ]; then
+    echo "Python version $REQUIRED_VERSION or higher is required."
+    exit 1
+fi
+
+# Continue with your script here
+echo "Python version is $PYTHON_VERSION. Proceeding..."
+
+
 #set -eu
 # Color codes for echo statements
 GREEN='\033[0;32m'
