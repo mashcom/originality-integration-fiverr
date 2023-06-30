@@ -203,43 +203,25 @@ sudo venvs/django/bin/pip install -r requirements.txt
 #-----------------------------------------------------------------------------------------------
 
 # Run database migrations
-print_green "-------------------------------------------------------------"
 print_green "CREATING MIGRATION"
-print_green "-------------------------------------------------------------"
 sudo venvs/django/bin/python manage.py makemigrations
 
-print_green "-------------------------------------------------------------"
 print_green "RUNNING MIGRATIONS"
-print_green "-------------------------------------------------------------"
 sudo venvs/django/bin/python manage.py migrate
 
-print_green "-------------------------------------------------------------"
 print_green "PLEASE ENTER THE CREDENTIALS OF SUPER ADMIN USER"
-print_green "-------------------------------------------------------------"
 #create application super user
 sudo venvs/django/bin/python manage.py createsuperuser
 
 print_green "-------------------------------------------------------------"
-print_green "INSTALLATION COMPLETED"
-print_green "-------------------------------------------------------------"
-#exit
-print_green "-------------------------------------------------------------"
 print_green "APACHE2 AND SSL CONFIGURATION"
 print_green "-------------------------------------------------------------"
 # Prompt the user to input the values of the variables
-print_green -------------------------------------------------------------
 print_green "PLEASE ENTER THE SERVER ADMIN EMAIL"
-print_green -------------------------------------------------------------
 read -p "Enter APPLICATION_SERVER_ADMIN: " APPLICATION_SERVER_ADMIN
-print_green "-------------------------------------------------------------"
-print_green "INSTALLATION COMPLETED BELOW IS YOUR MARIADB PASSWORD"
-print_green "-------------------------------------------------------------"
 
 sudo service apache2 stop
-
-print_green ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 print_green "PLEASE ENTER THE APPLICATION DOMAIN NAME. ENSURE THE DOMAIN NAME HAS NOT HTTP/HTTPS e.g example.com or originality.example.com if the application is on subdomain"
-print_green ------------------------------------------------------------------------------------------------------------------------------------------------------------------
 read -p "Enter APPLICATION_DOMAIN_NAME: " APPLICATION_DOMAIN_NAME
 
 print_green -------------------------------------------------------------
@@ -264,6 +246,10 @@ SSL_CONFIG_FILE="000-default-le-ssl.conf"
 # Copy the template file to the new configuration file
 cp "$TEMPLATE_FILE" "$CONFIG_FILE"
 cp "$SSL_TEMPLATE_FILE" "$SSL_CONFIG_FILE"
+
+#backup config
+sudo cp /etc/apache2/sites-available/00-default.conf /etc/apache2/sites-available/00-default.conf.bak
+sudo cp /etc/apache2/sites-available/000-default-le-ssl.conf /etc/apache2/sites-available/000-default-le-ssl.conf.bak
 
 # Replace the variables in the configuration file using envsubst
 export APPLICATION_SERVER_ADMIN
