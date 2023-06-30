@@ -19,8 +19,11 @@ print_green "-------------------------------------------------------------------
 print_red "RUNNING THE SETUP, GODSPEED :-)"
 print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
 
+# Remove cached package lists
+yes | sudo rm -rf /var/lib/apt/lists/*
+
 # Update package lists
-sudo apt-get -qq update
+sudo apt-get update
 
 # Install necessary packages
 yes | sudo apt-get install apache2
@@ -33,15 +36,8 @@ yes | sudo apt-get install netcat
 yes | sudo apt-get install default-libmysqlclient-dev
 yes | sudo apt-get install libmagic-dev
 
-# Remove cached package lists
-yes | sudo rm -rf /var/lib/apt/lists/*
-
-# Update package lists again
-yes | sudo apt-get update
-
 #install snapd
-yes | sudo apt update
-yes | sudo apt install snapd
+yes | sudo apt-get install snapd
 yes | sudo snap install core; sudo snap refresh core
 
 #install certbot, this is used for SSL certificate generation and management
@@ -187,7 +183,7 @@ read -p "Enter APPLICATION_SERVER_ADMIN: " APPLICATION_SERVER_ADMIN
 print_green "-------------------------------------------------------------"
 print_green "INSTALLATION COMPLETED BELOW IS YOUR MARIADB PASSWORD"
 print_green "-------------------------------------------------------------"
-exit
+
 sudo service apache2 stop
 
 print_green ------------------------------------------------------------------------------------------------------------------------------------------------------------------
