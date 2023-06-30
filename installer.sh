@@ -91,43 +91,61 @@ while [ $attempt -le $max_attempts ] && [ $connected == false ]; do
             ((attempt++))
         fi
     else
-        echo "MariaDB is not installed."
+    
         yes | sudo apt-get install mariadb-server
         sudo systemctl start mariadb
 
         print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
-        print_red "THE SCRIPT WANTS TO SECURE MARIADB PLEASE KEEP THE PASSWORD BELOW SOMEWHERE. BELOW IS YOUR GENERATED PASSWORD. PLEASE SAVE IT SOMEWHERE AND ALWAYS USE IT WHEN ASKED FOR MARIAB PASSWORD DURING INSTALLATION THIS IS IMPORTANT!!!"
+        print_red "THE SCRIPT WANTS TO SECURE MARIADB"
         print_green "$mariadb_password"
         print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
         
         # Secure MariaDB installation
         sudo mysql_secure_installation
+
+        sudo systemctl start mariadb
+        read -p "Enter the MariaDB username: " mariadb_username
+        read -s -p "Enter the MariaDB password: " mariadb_password
+        echo
+
+        if mysql -u "$mariadb_username" -p"$mariadb_password" -e "quit" &>/dev/null; then
+            connected=true
+            print_green "Successfully connected to MariaDB."
+        else
+            print_red "Failed to connect to MariaDB. Attempt $attempt of $max_attempts."
+            ((attempt++))
+        fi
     
     fi
 done
 
 if [ $connected == false ]; then
-    echo "Failed to establish a connection to MariaDB after $max_attempts attempts."
+    print_red "Failed to establish a connection to MariaDB after $max_attempts attempts."
     exit
 fi
 
+while true; do
+  read -p "Enter the name for the database (leave blank for default 'originality_app'): " database_name
 
-print_green "CREATING INITIAL DATABASE. WHEN ASKED FOR A PASSWORD USE THE ONE BELOW"
-print_green "$mariadb_password"
+  if [[ -z $database_name ]]; then
+    database_name="originality_app"
+    break
+  elif [[ $database_name =~ ^[a-zA-Z_][a-zA-Z0-9_]*$ ]]; then
+    break
+  else
+    echo "Invalid database name. Only alphanumeric characters and underscores are allowed. The name must start with a letter or underscore."
+  fi
+done
+
 sudo mariadb -u "$mariadb_username" -p"$mariadb_password" <<EOF
-CREATE DATABASE IF NOT EXISTS originality_app;
+CREATE DATABASE IF NOT EXISTS $database_name;
 EOF
 
-
-print_green "FLUSHING MARIADB PRIVILEGES. WHEN ASKED FOR A PASSWORD USE THE ONE BELOW"
-print_green "$mariadb_password"
 #flush tables
 sudo mariadb -u "$mariadb_username" -p"$mariadb_password" <<EOF
-GRANT ALL ON *.* TO 'root'@'localhost' IDENTIFIED BY '$mariadb_password' WITH GRANT OPTION;
+GRANT ALL ON *.* TO '$mariadb_username'@'localhost' IDENTIFIED BY '$mariadb_password' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 EOF
-
-
 
 
 
@@ -163,7 +181,11 @@ cd originality-integration-fiverr
 sudo cp .env_example .env
 
 #update .env database password
+sed -i "s/^DATABASE_USERNAME=.*/DATABASE_USERNAME=$mariadb_username/g" .env
 sed -i "s/^DATABASE_PASSWORD=.*/DATABASE_PASSWORD=$mariadb_password/g" .env
+sed -i "s/^DATABASE_NAME=.*/DATABASE_NAME=$database_name/g" .env
+
+sed -i "s/^DEBUG=.*/DEBUG=False/g" .env
 
 # Create a directory for virtual environments
 sudo mkdir .venvs
@@ -209,7 +231,7 @@ sudo venvs/django/bin/python manage.py makemigrations
 print_green "RUNNING MIGRATIONS"
 sudo venvs/django/bin/python manage.py migrate
 
-print_green "PLEASE ENTER THE CREDENTIALS OF SUPER ADMIN USER"
+print_green "PLEASE ENTER THE CREDENTIALS OF APPLICATION SUPER ADMIN USER"
 #create application super user
 sudo venvs/django/bin/python manage.py createsuperuser
 
@@ -217,12 +239,23 @@ print_green "-------------------------------------------------------------"
 print_green "APACHE2 AND SSL CONFIGURATION"
 print_green "-------------------------------------------------------------"
 # Prompt the user to input the values of the variables
+# Function to validate if a variable has a value
+validate_variable() {
+  if [[ -z "$1" ]]; then
+    print_green "ERROR: The variable $2 is empty."
+    exit 1
+  fi
+}
+
 print_green "PLEASE ENTER THE SERVER ADMIN EMAIL"
 read -p "Enter APPLICATION_SERVER_ADMIN: " APPLICATION_SERVER_ADMIN
+validate_variable "$APPLICATION_SERVER_ADMIN" "APPLICATION_SERVER_ADMIN"
 
 sudo service apache2 stop
-print_green "PLEASE ENTER THE APPLICATION DOMAIN NAME. ENSURE THE DOMAIN NAME HAS NOT HTTP/HTTPS e.g example.com or originality.example.com if the application is on subdomain"
+
+print_green "PLEASE ENTER THE APPLICATION DOMAIN NAME. ENSURE THE DOMAIN NAME HAS NOT HTTP/HTTPS (e.g., example.com or originality.example.com if the application is on a subdomain)"
 read -p "Enter APPLICATION_DOMAIN_NAME: " APPLICATION_DOMAIN_NAME
+validate_variable "$APPLICATION_DOMAIN_NAME" "APPLICATION_DOMAIN_NAME"
 
 print_green -------------------------------------------------------------
 print_green "RUNNING SSL INSTALLATION"
