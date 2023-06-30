@@ -295,7 +295,7 @@ export APPLICATION_DOMAIN_NAME
 export APPLICATION_ROOT_DIR
 export WSGID_PROCESS_NAME
 envsubst < "$CONFIG_FILE" > "$CONFIG_FILE.tmp"
-mv "$CONFIG_FILE.tmp" "/etc/apache2/sites-available/$CONFIG_FILE"
+mv -f "$CONFIG_FILE.tmp" "/etc/apache2/sites-available/$CONFIG_FILE"
 
 echo "Configuration file generated: $CONFIG_FILE"
 
@@ -306,7 +306,7 @@ export APPLICATION_DOMAIN_NAME
 export APPLICATION_ROOT_DIR
 export WSGID_PROCESS_NAME
 envsubst < "$SSL_CONFIG_FILE" > "$SSL_CONFIG_FILE.tmp"
-mv "$SSL_CONFIG_FILE.tmp" "/etc/apache2/sites-available/$SSL_CONFIG_FILE"
+mv -f "$SSL_CONFIG_FILE.tmp" "/etc/apache2/sites-available/$SSL_CONFIG_FILE"
 
 echo "Configuration file generated: $SSL_CONFIG_FILE"
 
