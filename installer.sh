@@ -15,6 +15,12 @@ print_red() {
     echo -e "${RED}$1${NC}"
 }
 
+generate_password() {
+    local length=$1
+    local password=$(LC_ALL=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w "$length" | head -n 1)
+    echo "$password"
+}
+
 print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
 print_red "RUNNING THE SETUP, GODSPEED :-)"
 print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
@@ -47,35 +53,61 @@ yes | sudo ln -s /snap/bin/certbot /usr/bin/certbot
 
 print_green "INSTALLING MARIADB"
 # Install MariaDB server
-yes | sudo apt-get install mariadb-server
-
-# Start MariaDB service
-sudo systemctl start mariadb
-
-generate_password() {
-    local length=$1
-    local password=$(LC_ALL=C tr -dc 'a-zA-Z0-9' < /dev/urandom | fold -w "$length" | head -n 1)
-    echo "$password"
-}
 
 mariadb_password=$(generate_password 12)
-print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
-print_red "THE SCRIPT WANTS TO SECURE MARIADB PLEASE KEEP THE PASSWORD BELOW SOMEWHERE. BELOW IS YOUR GENERATED PASSWORD. PLEASE SAVE IT SOMEWHERE AND ALWAYS USE IT WHEN ASKED FOR MARIAB PASSWORD DURING INSTALLATION THIS IS IMPORTANT!!!"
-print_green "$mariadb_password"
-print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+mariadb_username="root"
+# Start MariaDB service
+
+max_attempts=10
+attempt=1
+connected=false
+
+while [ $attempt -le $max_attempts ] && [ $connected == false ]; do
+    if command -v mysql &>/dev/null; then
+        sudo systemctl start mariadb
+        read -p "Enter the MariaDB username: " mariadb_username
+        read -s -p "Enter the MariaDB password: " mariadb_password
+        echo
+
+        if mysql -u "$mariadb_username" -p"$mariadb_password" -e "quit" &>/dev/null; then
+            connected=true
+            echo "Successfully connected to MariaDB."
+        else
+            echo "Failed to connect to MariaDB. Attempt $attempt of $max_attempts."
+            ((attempt++))
+        fi
+    else
+        echo "MariaDB is not installed."
+        yes | sudo apt-get install mariadb-server
+        sudo systemctl start mariadb
+
+        print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+        print_red "THE SCRIPT WANTS TO SECURE MARIADB PLEASE KEEP THE PASSWORD BELOW SOMEWHERE. BELOW IS YOUR GENERATED PASSWORD. PLEASE SAVE IT SOMEWHERE AND ALWAYS USE IT WHEN ASKED FOR MARIAB PASSWORD DURING INSTALLATION THIS IS IMPORTANT!!!"
+        print_green "$mariadb_password"
+        print_green "---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------"
+        
+        # Secure MariaDB installation
+        sudo mysql_secure_installation
+    
+    fi
+done
+
+if [ $connected == false ]; then
+    echo "Failed to establish a connection to MariaDB after $max_attempts attempts."
+fi
+
+
 print_green "CREATING INITIAL DATABASE. WHEN ASKED FOR PASSWORD USE THE ONE BELOW"
 print_green "$mariadb_password"
-sudo mariadb  <<EOF
+sudo mariadb -u "$mariadb_username" -p"$mariadb_password" <<EOF
 CREATE DATABASE IF NOT EXISTS originality_app;
 EOF
 
-# Secure MariaDB installation
-sudo mysql_secure_installation
 
-print_green "FLUSHING MARIADB PRIVILEGES. WHEN ASKED FOR PASSWORD USE THE ONE BELOW"
+print_green "FLUSHING MARIADB PRIVILEGES. WHEN ASKED FOR A PASSWORD USE THE ONE BELOW"
 print_green "$mariadb_password"
 #flush tables
-sudo mariadb  <<EOF
+sudo mariadb -u "$mariadb_username" -p"$mariadb_password" <<EOF
 GRANT ALL ON *.* TO 'root'@'localhost' IDENTIFIED BY '$mariadb_password' WITH GRANT OPTION;
 FLUSH PRIVILEGES;
 EOF
