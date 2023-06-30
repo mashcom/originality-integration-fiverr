@@ -316,4 +316,6 @@ sudo service apache2 restart
 
 print_green "-------------------------------------------------------------"
 print_green "INSTALLATION COMPLETED"
+print_green "Please visit https://$APPLICATION_DOMAIN_NAME/admin for administration (Recommended)"
+print_green "Please visit https://$APPLICATION_DOMAIN_NAME for general application usage "
 print_green "-------------------------------------------------------------"
