@@ -248,17 +248,21 @@ validate_variable() {
 }
 
 print_green "PLEASE ENTER THE SERVER ADMIN EMAIL"
-read -p "Enter APPLICATION_SERVER_ADMIN: " APPLICATION_SERVER_ADMIN
-validate_variable "$APPLICATION_SERVER_ADMIN" "APPLICATION_SERVER_ADMIN"
+while true; do
+  read -p "Enter APPLICATION_SERVER_ADMIN: " APPLICATION_SERVER_ADMIN
+  validate_variable "$APPLICATION_SERVER_ADMIN" "APPLICATION_SERVER_ADMIN" && break
+done
 
 sudo service apache2 stop
 
 print_green "PLEASE ENTER THE APPLICATION DOMAIN NAME. ENSURE THE DOMAIN NAME HAS NOT HTTP/HTTPS (e.g., example.com or originality.example.com if the application is on a subdomain)"
-read -p "Enter APPLICATION_DOMAIN_NAME: " APPLICATION_DOMAIN_NAME
-validate_variable "$APPLICATION_DOMAIN_NAME" "APPLICATION_DOMAIN_NAME"
+while true; do
+  read -p "Enter APPLICATION_DOMAIN_NAME: " APPLICATION_DOMAIN_NAME
+  validate_variable "$APPLICATION_DOMAIN_NAME" "APPLICATION_DOMAIN_NAME" && break
+done
 
 print_green -------------------------------------------------------------
-print_green "RUNNING SSL INSTALLATION"
+print_green "Generating SSL certificate for domain  $APPLICATION_DOMAIN_NAME "
 print_green -------------------------------------------------------------
 sudo certbot certonly --standalone -d $APPLICATION_DOMAIN_NAME
 
