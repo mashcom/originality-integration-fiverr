@@ -43,8 +43,8 @@
                 <th class="fw-bold">Email</th>
                 <th class="fw-bold">Grade</th>
                 <th class="fw-bold">% Original</th>
-                <th class="fw-bold">Last Modified</th>
-                <th class="fw-bold"></th>
+<!--                <th class="fw-bold">Last Modified</th>-->
+<!--                <th class="fw-bold"></th>-->
             </tr>
             </thead>
             {% for report in reports %}
@@ -78,23 +78,27 @@
                     <ul class="list-group ">
                         {% for report_files in report.reports %}
                         <li class="list-group-item">
-                            <p>{{report_files.file_name}}</p>
-                            <p>Originality: <span class="fw-bold text-danger">{{report_files.grade}}%</span>
+                            <p>{{report_files.submission.file_name}}  - <span class="text-uppercase">{{report_files.created_at}}</span></p>
+                            <p class="fw-bold">% ORIGINAL: <span class="badge text-bg-dark fw-bold">{{report_files.grade}}%</span>
+                                 <a target="_blank" href="{% url 'download_submission' report_files.submission.id report_files.submission.signature %}"
+                                   class="btn btn-outline-secondary mx-1 btn-sm float-end text-uppercase fw-bold"><i
+                                        class="bi bi-download"></i> Original
+                                </a>
                                 <a target="_blank" href="{% url 'download_report' report_files.id %}"
-                                   class="btn btn-outline-danger btn-sm float-end text-uppercase fw-bold"><i
-                                        class="bi bi-filetype-pdf"></i> Download
+                                   class="btn btn-success btn-sm float-end text-uppercase fw-bold"><i
+                                        class="bi bi-filetype-pdf"></i> Report
                                 </a>
                             </p>
                         </li>
                         {% endfor %}
                     </ul>
                 </td>
-                <td>
-                    <span class="text-sm text-uppercase"> {{ report.last_modified }}</span>
-                </td>
-                <td>
+<!--                <td>-->
+<!--                    <span class="text-sm text-uppercase"> {{ report.last_modified }}</span>-->
+<!--                </td>-->
+<!--                <td>-->
 
-                </td>
+<!--                </td>-->
             </tr>
             </tbody>
             {% endfor %}

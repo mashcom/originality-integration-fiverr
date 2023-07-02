@@ -58,6 +58,9 @@ def report(request):
         if not params.get('IsGhostWriterReport'):
             return JsonResponse({"Message": "IsGhostWriterReport is missing"}, status=400)
 
+        if not params.get('ReportId'):
+            return JsonResponse({"Message": "ReportId is missing"}, status=400)
+
         # Save the report
         originality_report = Report()
         originality_report.grade = params.get("PercentOriginal")
@@ -67,9 +70,9 @@ def report(request):
         originality_report.assignment_id = params.get("AssignmentId")
         originality_report.doc_sequence = params.get("SequenceNumber")
         originality_report.ghostwrite_report = params.get("IsGhostWriterReport")
+        originality_report.report_id = params.get("ReportId")
         assignment_id=params.get("AssignmentId")
         originality_report.file_name = assignment_id+"_file.pdf"#request.POST.get("fileName")
-
         originality_report.created_at = timezone.now()
         originality_report.updated_at = timezone.now()
         originality_report.save()

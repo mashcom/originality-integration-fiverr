@@ -37,6 +37,7 @@ class Report(models.Model):
     assignment_id = models.TextField(default="")
     doc_sequence = models.TextField(default="")
     ghostwrite_report = models.TextField(default="")
+    report_id = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

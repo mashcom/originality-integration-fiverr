@@ -83,7 +83,7 @@ def index(request):
     return render(request, "no_group.html", {"email": user.email})
 
 def create_groups():
-    group_names = ['admins', 'students', 'teachers','developers']
+    group_names = ['admins', 'students', 'teachers']
 
     for name in group_names:
         group, created = Group.objects.get_or_create(name=name)

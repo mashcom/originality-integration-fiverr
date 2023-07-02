@@ -137,11 +137,22 @@ def reports_for_teacher(request, course_id, assignment_id):
         grade = Grade.objects.filter(assignment_id=assignment_id, user_id=student_id).first()
         if grade is None:
             grade = "Not Graded"
+
+        original_submission = []
+        for report in student_reports:
+            submission = Submission.objects.filter(originality_id=report.report_id).first()
+            if submission is not None:
+                signer = Signer()
+                signature = signer.sign(submission.file_name)
+                submission.signature = signature
+                report.submission = submission
+                original_submission.append(report)
+
         student_report_details = {
             "profile": student_profile,
             "social_account": social_account,
             "grade": grade,
-            "reports": student_reports,
+            "reports": original_submission,
             "last_modified": student_reports.order_by('-created_at').values_list('created_at', flat=True).last()
 
         }
