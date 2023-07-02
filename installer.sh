@@ -239,6 +239,7 @@ sudo venvs/django/bin/python manage.py createsuperuser
 print_green "-------------------------------------------------------------"
 print_green "APACHE2 AND SSL CONFIGURATION"
 print_green "-------------------------------------------------------------"
+
 # Prompt the user to input the values of the variables
 # Function to validate if a variable has a value
 validate_variable() {
@@ -265,7 +266,7 @@ done
 print_green -------------------------------------------------------------
 print_green "Generating SSL certificate for domain  $APPLICATION_DOMAIN_NAME "
 print_green -------------------------------------------------------------
-sudo certbot certonly --standalone -d $APPLICATION_DOMAIN_NAME
+# sudo certbot certonly --standalone -d $APPLICATION_DOMAIN_NAME
 
 # Set APPLICATION_ROOT_DIR to the current directory
 APPLICATION_ROOT_DIR=$(pwd)
@@ -282,24 +283,19 @@ CONFIG_FILE="000-default.conf"
 SSL_CONFIG_FILE="000-default-le-ssl.conf"
 
 # Copy the template file to the new configuration file
-sudo cp "$TEMPLATE_FILE" "$CONFIG_FILE"
-sudo cp "$SSL_TEMPLATE_FILE" "$SSL_CONFIG_FILE"
+cp "$TEMPLATE_FILE" "$CONFIG_FILE"
+cp "$SSL_TEMPLATE_FILE" "$SSL_CONFIG_FILE"
 
 #backup config
 sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/00-default.conf.bak
 sudo cp /etc/apache2/sites-available/000-default-le-ssl.conf /etc/apache2/sites-available/000-default-le-ssl.conf.bak
-
-print_green "export APPLICATION_SERVER_ADMIN $APPLICATION_SERVER_ADMIN"
-print_green "export APPLICATION_DOMAIN_NAME $APPLICATION_DOMAIN_NAME"
-print_green "export APPLICATION_ROOT_DIR $APPLICATION_ROOT_DIR"
-print_green "export WSGID_PROCESS_NAME $APPLICATION_SERVER_ADMIN"
 
 # Replace the variables in the configuration file using envsubst
 export APPLICATION_SERVER_ADMIN
 export APPLICATION_DOMAIN_NAME
 export APPLICATION_ROOT_DIR
 export WSGID_PROCESS_NAME
-sudo envsubst < "$CONFIG_FILE" > "$CONFIG_FILE.tmp"
+envsubst < "$CONFIG_FILE" > "$CONFIG_FILE.tmp"
 sudo mv -f "$CONFIG_FILE.tmp" "/etc/apache2/sites-available/$CONFIG_FILE"
 
 echo "Configuration file generated: $CONFIG_FILE"
@@ -310,14 +306,29 @@ export APPLICATION_SERVER_ADMIN
 export APPLICATION_DOMAIN_NAME
 export APPLICATION_ROOT_DIR
 export WSGID_PROCESS_NAME
-sudo envsubst < "$SSL_CONFIG_FILE" > "$SSL_CONFIG_FILE.tmp"
+envsubst < "$SSL_CONFIG_FILE" > "$SSL_CONFIG_FILE.tmp"
 sudo mv -f "$SSL_CONFIG_FILE.tmp" "/etc/apache2/sites-available/$SSL_CONFIG_FILE"
 
 echo "Configuration file generated: $SSL_CONFIG_FILE"
 
+#commenting WSGI related config, if left it will conflict with certbot
+sudo sed -i 's/^\(\s*\(WSGIDaemonProcess\|WSGIProcessGroup\|WSGIScriptAlias\|WSGIPassAuthorization\)\s\)/# \1/g' /etc/apache2/sites-available/$CONFIG_FILE 
+print_green "Generating SSL certificate for domain  $APPLICATION_DOMAIN_NAME "
+
+#generate SSL certificate
+sudo certbot
+
+#uncomment the WSGI ralated config
+sudo sed -i 's/^#\s*\(WSGIDaemonProcess\|WSGIProcessGroup\|WSGIScriptAlias\|WSGIPassAuthorization\)/\1/g' /etc/apache2/sites-available/$CONFIG_FILE 
+sudo sed -i 's/^#\s*\(WSGIDaemonProcess\|WSGIProcessGroup\|WSGIScriptAlias\|WSGIPassAuthorization\)/\1/g' /etc/apache2/sites-available/$SSL_CONFIG_FILE 
+
+#enable the sites
 sudo a2ensite 000-default
 sudo a2ensite 000-default-le-ssl
+
+#make sure apache is nunning
 sudo service apache2 restart
+sudo service apache2 start
 
 print_green "-------------------------------------------------------------"
 print_green "INSTALLATION COMPLETED"
