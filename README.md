@@ -16,68 +16,25 @@ Make sure you have Git installed. Run the following command to verify:
 
 ## **# Steps to install**
 
+**1. Navigate to the folder you want to install application e.g /var** 
 
-<p>Here are the step-by-step instructions on how to install a Django application from GitHub using Markdown language:</p>
+`cd /var`
 
-**1. Clone the GitHub repository to your local machine using the following command:**
+**2. Create Installer** 
 
-`git clone https://github.com/mashcom/originality-integration-fiverr
-`
-Replace "username/repository" with the name of the repository you want to clone.
+<p>Create a file with extension **.sh** you can name it installer.sh or any name you want and paste the content of the file **installer.sh** in this reposity</p>
 
-**2. Create a virtual environment for your Django application.**
+`sudo nano installer.sh`
 
- You can use the following command to create a new virtual environment using Python 3:
+**3. Make installer executable** 
 
-`python3 -m venv myenv`
+`sudo chmod a+x installer.sh`
 
+**4. Execute the installer** 
 
-Replace "**myenv**" with the name you want to give your virtual environment.
+`sudo ./installer.sh`
 
-**3. Activate the virtual environment by running the following command:**
-
-`source myenv/bin/activate
-`
-
-**4. Install the required packages for the Django application.**
-
-You can find the required packages in the _requirements.txt_ file in the root directory of the repository. Use the following command to install them:
-
-`pip install -r requirements.txt`
-
-
-**5. Set up the database by running the following commands:**
-
-Please ensure that you have MySQL version 8 is running and add the required mysql settings on the **originality_project.settings.py** file
-
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.mysql',
-                'NAME': 'database_name',
-                'USER': 'database_username',
-                'PASSWORD': 'database_password',
-                'PORT': 'database_3306',
-            }
-        }
-
-
-`python3 manage.py makemigrations`
-
-`python3 manage.py migrate`
-
-**6. Create a superuser for the Django application by running the following command:**
-
-
-`python3 manage.py createsuperuser`
-
-Follow the prompts to set a username and password for the superuser.
-
-**7. Run the Django application by running the following command:**
-
-`python3 manage.py runserver
-`
-Open a web browser and navigate to **http://127.0.0.1:8000/admin/** to access the Django admin panel. Log in using the username and password you set for the superuser in step 6.
-
+<p>This will will install everything the application need to run including all the configuration</p>
 
 # **Configure Social Configuration**
 
@@ -86,7 +43,7 @@ To add a social app on the Django admin interface using, follow these steps:
 
 **1. Create a Social App:** 
 
-Open your Django project's admin interface by accessing the URL **http://127.0.0.1:8000/admin/**. Log in with your superuser credentials.
+Open your Django project's admin interface by accessing the URL **{APPLICATION URL}/admin/**. Log in with your superuser credentials.
 
 **2. Navigate to Social Applications:** 
 
@@ -147,9 +104,9 @@ To generate Google Classroom API credentials file, you need to create a new proj
 
 10. Enter a name for your OAuth 2.0 client ID (e.g., "Google Classroom API Credentials").
 
-11. Under "Authorized JavaScript origins," enter the URL where your application will be hosted. If you're developing locally, you can enter "http://127.0.0.1:8000".
+11. Under "Authorized JavaScript origins," enter the URL where your application will be hosted. If you're developing locally, you can enter "{APPLICATION URL}".
 
-12. Under "Authorized redirect URIs," enter the redirect URL where users will be sent after granting access. This will typically be the URL of your application's authentication page. For example, you can use "http://127.0.0.1:8000/auth/google/callback".
+12. Under "Authorized redirect URIs," enter the redirect URL where users will be sent after granting access. This will typically be the URL of your application's authentication page. For example, you can use "{APPLICATION URL}/auth/google/callback".
 
 13. Click the "Create" button to create the OAuth client ID.
 
@@ -181,11 +138,18 @@ The request body should contain the necessary data to create the resource. The s
 
 The request should provide json content
 
+    
     `{
-      "OriginalityFileId": "Unique Identifier of Similarity Report",
-      "Grade": "Number",
-      "file": "Base64 encoded file",
+     "CourseId": "614822777197",
+    "AssignmentId": "614907148671",
+    "StudentId": "117705234559857690751",
+    "SequenceNumber": 1,
+    "PercentOriginal": 10,
+    "ReportId": 2480631,
+    "OriginalityReport": "base64 encode pdf file",
+    "IsGhostWriterReport": "false"
     }`
+    
 
 **Response:**
 
