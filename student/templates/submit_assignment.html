@@ -137,27 +137,27 @@
 
                     </small>
                 </div>
-                <p class="mb-1"><span>Google Classroom &trade;:
-                                {% if submission.google_classroom_id == "" %}
-                                    <i class="bi bi-exclamation-triangle-fill  fw-bold text-danger"></i>
-                                {% endif %}
+<!--                <p class="mb-1"><span>Google Classroom &trade;:-->
+<!--                                {% if submission.google_classroom_id == "" %}-->
+<!--                                    <i class="bi bi-exclamation-triangle-fill  fw-bold text-danger"></i>-->
+<!--                                {% endif %}-->
 
-                                {% if submission.google_classroom_id != "" %}
-                                    <i class="bi bi-cloud-check-fill fw-bold text-success"
-                                       data-bs-title="Default tooltip"></i>
-                                {% endif %}
-                        </span>
-                    <span class="ml-5">Originality &trade;:
-                                    {% if submission.originality_id == 0 %}
-                                        <i class="bi bi-exclamation-triangle-fill  fw-bold text-danger"></i>
-                                    {% endif %}
+<!--                                {% if submission.google_classroom_id != "" %}-->
+<!--                                    <i class="bi bi-cloud-check-fill fw-bold text-success"-->
+<!--                                       data-bs-title="Default tooltip"></i>-->
+<!--                                {% endif %}-->
+<!--                        </span>-->
+<!--                    <span class="ml-5">Originality &trade;:-->
+<!--                                    {% if submission.originality_id == 0 %}-->
+<!--                                        <i class="bi bi-exclamation-triangle-fill  fw-bold text-danger"></i>-->
+<!--                                    {% endif %}-->
 
-                                    {% if submission.originality_id != 0 %}
-                                        <i class="bi bi-cloud-check-fill fw-bold text-success"></i>
-                                    {% endif %}
-                        </span>
+<!--                                    {% if submission.originality_id != 0 %}-->
+<!--                                        <i class="bi bi-cloud-check-fill fw-bold text-success"></i>-->
+<!--                                    {% endif %}-->
+<!--                        </span>-->
 
-                </p>
+<!--                </p>-->
 
                 <small class="text-body-secondary fw-bold">{{ submission.created_at }}</small>
             </div>
