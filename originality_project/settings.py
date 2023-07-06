@@ -91,6 +91,7 @@ INSTALLED_APPS = [
     'allauth.account',  # must
     'allauth.socialaccount',  # must
     'allauth.socialaccount.providers.google',  # new
+    'tenant_management',
 
 ]
 
@@ -103,6 +104,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
+
+    #check the tenant_id of user
+    'originality_project.tenant_middleware.TenantMiddleware',
 
 ]
 

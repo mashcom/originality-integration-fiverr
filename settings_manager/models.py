@@ -5,6 +5,7 @@ class Originality(models.Model):
     id = models.BigAutoField(primary_key="id", null=False)
     name = models.CharField(max_length=100, )
     setting = models.TextField(max_length=100)
+    tenant_id = models.IntegerField(null=True)
 
 class OriginalityLog(models.Model):
     id = models.BigAutoField(primary_key="id", null=False)
@@ -13,3 +14,4 @@ class OriginalityLog(models.Model):
     response = models.TextField(max_length=100)
     success = models.TextField(max_length=15)
     created_at = models.TextField(default=timezone.now())
+    tenant_id = models.IntegerField(null=True)

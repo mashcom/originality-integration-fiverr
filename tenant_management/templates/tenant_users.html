@@ -1,0 +1,59 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+<h3 class="font-weight-bold mb-4 display-font"><i class="bi bi-people-fill"></i> User Management</h3>
+<div class="card">
+    <div class="card-header fw-bold text-uppercase">
+        <span class="fw-bold text-uppercase">User List</span>
+    </div>
+    <div class="card-body">
+        <table class="table table-striped">
+            <thead>
+            <tr class="fw-bold text-uppercase table-dark">
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th class="text-center">Is Staff</th>
+                <th class="text-center">Is Active</th>
+                <th>Date Joined</th>
+                <th>Groups</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.last_name }}</td>
+                <td>{{ user.email }}</td>
+                <td class="text-center">
+                    {% if user.is_staff %}
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    {% else %}
+                    <i class="bi bi-exclamation-diamond-fill text-danger"></i>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+
+                    {% if user.is_active %}
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                    {% else %}
+                    <i class="bi bi-exclamation-diamond-fill text-danger"></i>
+                    {% endif %}
+                </td>
+                <td>{{ user.date_joined }}</td>
+                <td>
+                    {% for group in user.groups %}
+                        <span class="badge text-bg-secondary">{{ group }}</span>
+                    {% endfor %}
+                </td>
+<!--                <td><a href="#" class="btn btn-primary btn-sm fw-bold text-uppercase"><i class="bi bi-eye"></i> Details</a> </td>-->
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

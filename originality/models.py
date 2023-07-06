@@ -27,6 +27,7 @@ class Submission(models.Model):
     originality_id = models.BigIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tenant_id = models.IntegerField(null=True)
 
 class Report(models.Model):
     id = models.BigAutoField(primary_key="id")
@@ -40,6 +41,8 @@ class Report(models.Model):
     report_id = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tenant_id = models.IntegerField(null=True)
+
 
 
 class Grade(models.Model):
@@ -50,3 +53,4 @@ class Grade(models.Model):
     assignment_id = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    tenant_id = models.IntegerField(null=True)

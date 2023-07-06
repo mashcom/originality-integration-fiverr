@@ -1,0 +1,44 @@
+{% extends "base_generic.html" %}
+
+{% block title %}{{ section.title }}{% endblock %}
+
+{% block content %}
+<h3 class="font-weight-bold mb-4 display-font">Add Institution</h3>
+<div class="card">
+    <div class="card-header">
+        <p class="fw-bold text-uppercase">Details</p>
+    </div>
+    <div class="card-body">
+        <form method="post" action="{% url 'add_institution' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="name" class="form-label text-uppercase text-muted fw-bold">Name</label>
+                <input type="text" class="form-control" name="name" id="name" placeholder="Enter your name" required>
+            </div>
+            <div class="mb-3">
+                <label for="address" class="form-label text-uppercase text-muted fw-bold">Physical Address</label>
+                <textarea rows="5" class="form-control" name="address" id="address"
+                          placeholder="Enter your physical address" required></textarea>
+            </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="country" class="form-label text-uppercase text-muted fw-bold">Country</label>
+                    <input type="text" class="form-control" name="country" id="country" placeholder="Enter your country" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="contact" class="form-label text-uppercase text-muted fw-bold">Contact Number</label>
+                    <input type="tel" class="form-control" name="contact" id="contact" placeholder="Enter your contact number"
+                           required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="website" class="form-label text-uppercase text-muted fw-bold">Website</label>
+                <input type="url" class="form-control" name="website" id="website" placeholder="Enter your website">
+            </div>
+
+            <button type="submit" class="btn btn-primary text-uppercase fw-bold">Submit</button>
+
+        </form>
+    </div>
+</div>
+{% endblock %}
