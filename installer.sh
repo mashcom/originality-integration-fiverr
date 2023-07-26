@@ -177,6 +177,9 @@ sudo git clone https://github.com/mashcom/originality-integration-fiverr
 # Navigate to the cloned repository
 cd originality-integration-fiverr
 
+# make update script excutible
+sudo chmod a+x update.sh
+
 #create the .env file
 sudo cp .env_example .env
 
